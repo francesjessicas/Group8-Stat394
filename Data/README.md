@@ -1,2 +1,3 @@
 # Data folder
-Create subfolders according the extension of the data you use (RAW, TEXT, CSV, etc.)
+Lake water quality data from
+https://www.stats.govt.nz/indicators/modelled-lake-water-quality/
