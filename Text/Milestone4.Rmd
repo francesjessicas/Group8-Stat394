@@ -1,0 +1,1152 @@
+---
+title: "Group8_ReportPreliminary"
+author: "Russell and Frances"
+date: "5th September 2022"
+output: bookdown::pdf_document2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(300570258, kind = "Mersenne-Twister")
+
+require(tinytex)
+require(ggplot2)
+require(ggthemes)
+require(extrafont)
+require(ggstance)
+require(fitdistrplus)
+require(ggcorrplot)
+require(GGally)
+require(ggExtra)
+require(moments)
+require(kable)
+require(reshape2)
+require(nortest)
+require(dplyr)
+
+```
+
+```{r functab1, echo = FALSE}
+MySummary2 <- function(x){
+  return(c(
+    length(x),
+    min(x),
+    quantile(x, .25),
+    median(x),
+    quantile(x, .75),
+    max(x),
+    IQR(x),
+    sd(x),
+    mean(x),
+    mad(x),
+    kurtosis(x), 
+    skewness(x))
+  )
+}
+```
+
+
+# Report Preliminary
+
+In this preliminary we include:
+
+      1. An introduction to our data.
+      2. A summary our previously conducted EDA.
+      3. A discussion of what we wish to explore further and why.
+      4. A show of our further exploration.
+      
+
+
+## 1. Introduction to our data:
+Our dataset contains information from lakes in New Zealand.
+
+Two groupings of variables are what we refer to as "Lake Health Variables" (median Ammoniacal Nitrogen, median Chlorophyll-A, median Clarity, median Total Nitrogen and median Total Phosphorus), and the "Lake Dimension Variables" (area, depth and perimeter).
+
+
+This is a Stats NZ dataset from https://www.stats.govt.nz/indicators/modelled-lake-water-quality/. 
+  
+  
+### Explanation of variables
+*Ammoniacal Nitrogen* is a form of nitrogen that supports algae and plant growth, but in large concentrations can be toxic to aquatic life. This is measured in milligrams per litre. The national bottom line for this measure is 1.3mg/L, which none of the observations exceed.
+  
+*Chlorophyll-a* is an organic molecule found in plant cells that allows plants to photosynthesize. The variable Chlorophyll-a is a measure of the concentration of phytoplankton biomass in milligrams per cubic metre. High concentrations of chlorophyll is a symptom of degraded water quality. The national bottom line for this measure is 12.
+
+*Total Phosphorus* is the sum of all phosphorus forms in the water, including phosphorus bound to sediment. Large amounts of phosphorus in lakes can reduce dissolved oxygen in the water. This can cause low oxygen areas in the lake, where some aquatic life cannot survive. Total Phosphorus is measured in milligrams per cubic metre and has a national bottom line of 50mg/m3.  
+  
+*Clarity* is measured in Secchi depth. This is the maximum depth (in metres) a black and white Secchi disk is visible from the surface of the lake.  
+  
+*Dominant Landcover* is split into four types; Exotic Forest, Native, Pastoral and Urban area. There are 12 lakes with no entry for dominant land cover, however in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called ‘other’ that includes ‘Gorse and/or Broom’, ‘Surface mines and dumps’, ‘Mixed exotic shrubland’, and ‘Transport infrastructure’ so we have assigned these to the other category. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral exceeds 25 percent of catchment area and not already assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral.  
+  
+*Regions* in this dataset are; Auckland, Bay of Plenty, Canterbury, Gisborne, Hawke’s Bay, Whanganui, Marlborough, Northland, Otago, Southland, Taranaki, Tasman, Waikato, Wellington and West Coast. Each lake corresponds to the region it is located in.
+
+
+## 2. Summary of previously conducted EDA
+In our previous EDA, we investigated the relationship between the modelled median Ammoniacal Nitrogen, median Chlorophyll-A, median Clarity, median Total Nitrogen and median Total Phosphorus in New Zealand lakes over one hectare in area, for the period 2013 to 2017. We classified these variables as relating to lake health and thus refer to them as the "lake health variables".
+  
+From the above variables, we examined their individual distributions, their correlations with one another, their relationship with Dominant Landcover, various sample statistics, and Regional differences.  
+  
+We also examined Regional differences in the Lake heath variables and Lake Dimension variables.  
+
+
+### 2.1 Summary of lake health variables investigation:
+**Please note that below is not all of the components of the EDA that we conducted, just a summary**
+
+*Below is a table of the summary statistics of the lake health variables: table \ref{tab:laketable}:*  
+
+```{r functab, echo = FALSE}
+MySummary2 <- function(x){
+  return(c(
+    length(x),
+    min(x),
+    quantile(x, .25),
+    median(x),
+    quantile(x, .75),
+    max(x),
+    IQR(x),
+    sd(x),
+    mean(x),
+    mad(x),
+    kurtosis(x), 
+    skewness(x))
+  )
+}
+```
+
+```{r laketable, echo = FALSE}
+lake <- read.csv("../Data/modelled_lake_water_quality_altered.csv")
+head(lake)
+laketype <- as.factor(lake$nof_lake_type)
+
+region <- as.factor(lake$region)
+land <- as.factor(lake$dominant_landcover)
+df <- data.frame(lake)
+NH4N <- lake$median_NH4N_mg.L..1
+CHLA <- lake$median_CHLA_mg.m.3
+TP <- lake$median_TP_mg.m.3
+TN <- lake$median_TN_mg.m.3
+SECCHI <- lake$median_SECCHI_metre
+
+df1 <- data.frame(NH4N, CHLA, TP, TN, SECCHI)
+df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+tab <- apply(df1, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c('Ammoniacal Nitrogen', 'Chloropyll-A', 'Phosphorus', "Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics", "simple")
+```
+
+*We also produced histograms of all of the lake health variables. An example of this is seen below where where we model Chlorophyll-A in lakes*
+
+
+```{r chlahist, fig.cap="Histogram of Chlorophyll-A", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=CHLA)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(CHLA)),
+                 col="black", fill="white") +
+  xlab("Observations of Chlorophyll-A") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(CHLA), sd=sd(CHLA)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(CHLA), col="red") +
+  geom_segment(aes(x=mean(CHLA)-sd(CHLA),
+                   y=0.02,
+                   xend=mean(CHLA)+sd(CHLA),
+                   yend=0.02), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-0.01), width=0.01, notch = TRUE)+
+  theme_tufte()
+```
+
+*Figure \ref{fig:chlahist} shows the distribution of Total Phosphorus. The fitted normal distribution (red) fits quite well to the smoothed histogram (purple), although the kurtosis is very high, 26.2763. We would expect the kurtosis of a normally distributed variable to be close to 3 and with a skewness of 0, however the sample statistics of Total Phosphorus show the kurtosis much larger than 3 and the skewness 2.8722. This indicates the tails of this distribution are much heavier than a normal distribution, and it is right skewed. Table \ref{tab:laketable} shows the median of Total Phosphorus is 17.8966 mg per cubic meter, and the mean is 18.7206 mg per cubic meter.*
+
+*Figure \ref{fig:chlahist} shows the distribution of Chlorophyll-A. We can see the fitted normal distribution differs slightly from the smoothed histogram. Table \ref{tab:laketable} shows the median is 3.9482 and the mean is 4.6093. The kurtosis is 18.3408, indicating the distribution of Chlorophyll-A is very heavy tailed, and the skewness is 2.5484, indicating the distribution is right skewed. *
+
+
+We also examined the correlation between the lake health variables. A visualisation of this is shown below:
+
+```{r correlationplot, fig.cap= "Visualisation of the Correlation Matrix", fig.pos="center", echo=FALSE, warning = FALSE}
+Ammoniacal_Nitrogen <- lake$median_NH4N_mg.L..1
+Chlorophyll_A <- lake$median_CHLA_mg.m.3
+Total_Phosphorus <- lake$median_TP_mg.m.3
+Total_Nitrogen <- TN
+Clarity <- SECCHI
+df11 <- data.frame(Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
+ggcorrplot(cor(df11), method = "circle", hc.order = TRUE, type = "lower")
+```
+
+
+We then examined a pairs plot of the lake health variables
+
+```{r pairsplot, fig.cap="Pairs Plot", fig.pos="center", echo=FALSE, message = FALSE}
+ggpairs(df11)
+```
+*Pairs plot showed almost normal distributions but with tails long tails making the distributions right skewed.*  
+
+  
+We then produced scatterplots for each of the correlations. Below is an example of Total Nitrogen and Clarity:  
+  
+ 
+  
+
+```{r scNS, fig.cap = "Pairs Plot of Total Nitrogen and Clarity", echo = FALSE}
+p <- ggplot(df, aes(x=TN, y=SECCHI)) +
+  geom_point() +
+  xlab("Total Nitrogen")+
+  ylab("Clarity")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+*We can clearly see a strong, non-linear, negative relationship between these two measures, supported by the sample correlation of -0.7824. This indicates as Total Nitrogen increases, the water becomes less clear.  *  
+  
+
+
+    
+  We then made Cullen and Frey Graphs to examine how each Lake Health variable is distributed. An example with clarity is shown below.  
+  
+```{r cfSECCHI, fig.cap = "Cullen and Frey Graph of Clarity", echo = FALSE}
+descdist(SECCHI, boot = 1000)
+```
+
+*The Cullen and Frey graph of Clarity is shown in figure \ref{fig:cfSECCHI}. The observed value and bootstrapped values of the skewness and kurtosis of Clarity lies within the area all beta distributions exist within, and very close to the Uniform distributions, indicating the distribution of Clarity could be Uniform or Beta.*
+
+
+
+  
+   
+### 2.2 Summary of Dominant Landcover investigation
+A table of frequencies of the lakes' dominant land cover can be seen in table \ref{tab:landfreq}.
+
+```{r landfreq, fig.cap = "Table of Frequencies of Dominant Landcover", fig.pos = "center", echo = FALSE}
+
+tab <- table(lake$dominant_landcover)
+tab <- as.table(tab)
+knitr::kable(tab, caption = "Table of Frequencies of Dominant Landcover", col.names = c("Landcover", "Frequency"), "simple")
+
+```
+  
+We wanted to examine the relationship between our health variables and dominant land cover so we began by producing side-by-side boxplots to display this as seen in figure \ref{fig:boxx3}. 
+  
+```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen, message=FALSE, warning=FALSE, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", echo=FALSE}
+df12 <- data.frame(land, Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
+df12melt <- melt(df12,id.vars = "land" ,variable.name = "Measure")
+ggplot(df12melt, aes(x=Measure, y=value)) +
+geom_boxplot(aes(col=Measure), notch = TRUE) +
+facet_grid(~ land) +
+  scale_y_log10() +
+theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")
+```
+
+
+  
+  
+We then examined each of the lake health variables and their relationship with dominant landcover more closely by looking at zoomed in boxplots. As an example, figure \ref{fig:boxNH4N} is the boxplot of Landcover and Ammoniacal Nitrogen.  
+
+
+```{r boxNH4N, fig.cap = "Box Plot of Landcover and Ammoniacal Nitrogen", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=land, y=NH4N)) + 
+    geom_boxplot(notch = TRUE, fill = "pink")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Dominant Landcover")+
+  ylab("Ammoniacal Nitrogen")+  
+  scale_y_log10() +
+  theme_tufte()
+```
+  
+*Figure \ref{fig:boxNH4N} illustrates the box plots for each type of landcover. The observations have been log transformed to show the distributions better. We can see the highest 75% of Ammoniacal Nitrogen measures in Urban areas are above the lower 75% of measures in Exotic forest and Native landcovers. This could inidcate a relationship between landcover and Ammoniacal Nitrogen. Exotic forest and Native landcovers tend to have lower amounts of Ammoniacal Nitrogen in the lake water than in Pastoral, Urban and Other landcovers. The medians show the median Ammoniacal Nitrogen for lakes with Exotic forest, Native, Other, Pastoral and Urban dominant landcover to be 0.0084040, 0.0075540, 0.0123870, 0.0124780 and 0.0150880, respectively. There is a clear difference between the medians, with lower medians in Exotic forest and Native landcovers.*   
+    
+We also produced summary statistics of the Lake Health variables for each of the land covers. The summary statistics for Exotic forest is displayed below:
+
+```{r eftabby, echo = FALSE}
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Exotic Forest Landcover", "simple")
+```
+  
+  
+### 2.3 Summary of Depth, Area and Perimeter Investigation.  
+```{r, echo = FALSE}
+
+area<- data.frame(lake$lake_area)
+perim<- data.frame(lake$lake_perimeter)
+depth<- data.frame(lake$lake_depth)
+region1 <- data.frame(lake$region)
+
+df.ADP <- cbind(area,perim,depth, region1)
+colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
+
+
+
+```
+We next wanted to gather information on Lake Depth, Area and Perimeter.
+
+We first produced summary statistics as seen in table \ref{tab:ADPtab}.
+```{r ADPtab, fig.cap = "Table of Sample Statistics for Area, Perimeter and Depth", fig.pos = "center", echo = FALSE}
+df.ADP1 <- cbind(area, perim, depth)
+
+tab <- apply(df.ADP1, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c('Area', 'Perimeter', 'Depth')
+knitr::kable(tab, caption = "Table of Sample Statistics", "simple")
+
+```
+
+We produced histograms of the lake dimension variables. The histogram for lake depth is shown in figure @ref{fig:histdepth}.
+```{r distDepth, fig.cap = "Histogram of Lake Depth in meters. Blue Rectangles indicate skewed distribution, green dotted line indicates thge placement of the median value.", label= "histdepth", echo = FALSE, message = FALSE, warning = FALSE}
+ggplot(lake, aes(x=lake_depth)) + 
+  geom_histogram(color = "lightblue", fill = "lightblue", alpha = 2, bins = 50)+
+  labs(x = "Lake Depth in meters", y = "Count", title = "Histogram of count of Lake Depth in Meters")+
+   geom_vline(aes(xintercept=median(lake_depth)),
+            color="green", linetype="dashed", size=1)+
+  scale_y_log10()+
+  theme_bw()
+
+```
+*The histogram above suggests non-normal data.*  
+  
+All of the histograms for the lake dimensions produced skewed histograms. Because of the skewed data we examined the normality by by looking at skew and kurtosis.  
+Skewness in our Area (m^2), Perimeter(m) and Depth(m)
+```{r, echo = FALSE, include = FALSE}
+##Skewness/3rd moment
+LakeNum<-cbind( df.ADP$Perimeter, df.ADP$Area, df.ADP$Depth) 
+LakeNum<-data.frame(LakeNum)
+skew2<- skewness(LakeNum)
+skew2
+```
+
+*Lake Perimeter skew: 17.40*  
+*Lake Area skew: 28.78*  
+*Lake Depth skew: 9.82*  
+  
+*Our positive skews indicate that data is skewed right and is therefore not normally distributed around the mean; where high skewness is greater than 1, moderate skewness is between 0.5 and 1, minor skewness is between 0 and <0.5. As such we see that all three variables have a huge amount of skew. To visualize this skew and to see the distribution of our data we will create histograms.*
+
+We found from the skew that there all of lake dimension variables had strong skews.  
+
+  
+To further examine the normality, we examined kurtosis.  
+```{r, echo = FALSE, include = FALSE}
+##kurtosis/4th moment
+kurt<- kurtosis(LakeNum)
+kurt
+
+```
+*Lake Perimeter kurtosis: 415.36*  
+*Lake Area kurtosis: 1023.66*  
+*Lake Depth kurtosis: 139.11* 
+
+*All of the skews being much greater than 0 informs us that lake dimension variables are not normally distributed*
+ 
+  
+We then produced calculated the correlation and covariance of the lake dimension variables. 
+  
+A visualisation of the correlation between Area, Perimeter and Depth is shown in figure @ref{fig:viscorr1}
+
+```{r viscorr1, fig.cap= "Visual of correlation between depth, perimeter and area where strength and direction of relationship are indicated by circle size and colour", label =  "viscorr1", echo=FALSE, warning = FALSE}
+colnames(LakeNum) <- c("Perimeter", "Area", "Depth")
+###A visualisation of the correlation matrix:
+ggcorrplot(cor(LakeNum), method = "circle",
+           hc.order = TRUE,
+           type = "lower") +
+  ggtitle("Visual correlation matrix of Area, Perimeter and Depth")+
+  labs(x = " ", y = " ")+
+  theme_bw()
+
+
+```
+*As to be expected, all three variables have positive correlations with one another. The correlation between lake area and lake depth isn't small but it is smaller than one may expect. Lake Perimeter has a rather strong relationship with both area and depth.*
+
+
+
+### 2.4 Investigating Region
+We next wanted to examine the relationship between Regions and the lake dimension variables, and the lake health variables.  
+
+
+We first produced a frequency table for the number of lakes in each region, shown in table \ref{tab:regfreq}
+
+```{r regfreq, fig.cap = "Table of Regional Frequencies", fig.pos = "center", echo = FALSE}
+
+tab <- table(region1)
+knitr::kable(tab, caption = "Frequency table of number of lakes in each Region", colnames = c('Region', 'Frequency'), "simple")
+
+
+```
+*We can see from the frequency table that Southland has the greatest number of lakes with 991, and Gisborne the fewest with 30.*
+
+
+We then looked at the summary statistics of region, shown in table \ref{tab:lakehealthbyregion}.
+```{r lakehealthbyregion, fig.cap = "Table of Summary Statistics of Lake Health Variables by Region", fig.pos = "center", echo = FALSE}
+
+LakeTable <- filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(c(median_TLI3, median_SECCHI_metre, median_NH4N_mg.L..1, median_TN_mg.m.3, median_TP_mg.m.3, median_CHLA_mg.m.3)), list(median = median))
+
+ LakeTable <- rename(LakeTable, c(Median_Trophic_Level3 = median_TLI3_median,
+                                  Median_Clarity_metres =  median_SECCHI_metre_median,
+                                  Median_NH4N_mg = median_NH4N_mg.L..1_median,
+                                  Median_Total_Nitrogen = median_TN_mg.m.3_median, 
+                                  Median_Total_Phosphorus = median_TP_mg.m.3_median,
+                                  Median_ChlorophyllA = median_CHLA_mg.m.3_median))
+                                  
+                                  
+knitr::kable(LakeTable, caption = "Table of Median values of Lake Health Variables by Region", "simple")
+```
+*Examining the above table there are some interesting points:*  
+ - Southland lakes have a low value or the lowest value on every metric (with the exception clarity where it is about average).  
+ - We see that the opposite is true for Gisborne where it is high in all variables except clarity where it is low. This finding is in line with the assumption that poorer higher values in the other lake health variables may be a predictor of poorer clarity.
+ - There is quite a wide range of levels of clarity between regions suggesting that region may have a relationship with clarity. 
+
+
+We then examined the means and medians of the Lake Dimension variables for the Regions. We produced means and medians for each of the variables into a table and also produced braplot. The table, mean barplot, and median barplot for depth are shown in figure \ref{fig:MeanDepth}. 
+<br />
+ View of the Mean and Median for Lake Depth
+
+<br />
+
+```{r MeanDepth, fig.cap= "Barplot of regional mean lake Depth", echo = FALSE}
+
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_depth), list(mean = mean))
+
+
+
+LakeTable<- data.frame(LakeTable)
+
+ggplot(data=LakeTable, aes(x=region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Mean Lake Depth in metres", title = 
+         "Mean Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_bw()
+
+
+```
+
+  
+**Values of NA have been removed.
+<br />
+<br />
+  
+```{r MedianDepth, fig.cap= "Barplot of regional median lake depths", echo = FALSE}
+
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_depth), c(list(mean = mean), list(median = median)))
+
+LakeTable
+
+#which.max(Lake$lake_perimeter)
+
+LakeDf<- data.frame(LakeTable)
+
+ggplot(data=LakeDf, aes(x=region, y=median)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Median Lake Depth in metres", title = 
+         "Median Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_bw()
+
+
+```
+  
+**Values of NA have been removed.
+<br />
+<br />
+
+*Depth:*
+*What we can tell from the bargraphs that there is not much difference in distribution between the regions in Lake Depth, however, the mean for each region is approximately 5 meters deeper than the median. This suggests that across most regions there are some much deeper lakes. There are some exceptions to this such as Gibsborne.*
+
+
+
+
+
+
+## 3. The Main Takeaways from the EDA  
+Below is a summary of the main takeaways from the EDA.
+
+### 3.1 Lake Health Variables Takeaways
+
+**Correlations: **  
+Chlorophyll-A, Total Nitrogen, Ammoniacal Nitrogen and Total Phosphorus are all positively correlated with one another.  
+The strongest of these correlations are the relationships between Ammoniacal Nitrogen and Total Nitrogen, Total Phosphorus and Chlorophyll-A, and Total Phosphorus and Total Nitrogen.
+Clarity has a negative relationship with all of the other lake health variables with all correlations between moderate and strong in strength. The strongest of these correlations is between Clarity and Total Nitrogen.  
+These consistent correlations suggest that the Lake Health variables may be good predictors of one another.  
+  
+  
+**Dominant Landcover**
+The distribution of Lake Health variables differs between landcover categories. We found that lakes with predominantly native landcover tended to have lower levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen, and were clearer than lakes with other dominant landcovers. Pastoral and Urban landcovers tended to have higher median levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen and tended to be less clear than the other landcovers. 
+
+### 3.2 Lake Dimension takeaways
+- The Lake Dimensions are do not appear to be normally distributed
+  
+- The median lake areas are quite different and the means are drastically different.
+- The median lake perimeters are quite different and the means are drastically different.
+- The median lake depths are about the same but the means are quite different. 
+
+The considerable difference of lake dimensions in means and medians that some of the regions have suugests that some lakes have considerable influence on the data. This could examine this further with Cooke's Distance. As the Lake Dimensions do not appear to be normally distributed we could also attempt to see what model does fit them.
+
+
+## 4. What we would like to explore further and why
+  
+  After going through the results of our EDA we have identified several questions that we would like to further explore. These questions are outlined below.
+  
+### 4.1 Are there any particular regions that have poor lake health?  
+As we found that each of the lake health variables had considerable outliers, we are interested in examining whether these outliers are spread throughout the country or isolated to a particular region.  
+Knowing this information could increase the efficiency and assist in the planning of efforts to increase lake health.  
+  
+
+### 4.2  Do the lake health variables predict one another?  
+Most of the correlations between the lake health variables were at least of moderate strength. This suggests that these variables may be able to predict each other. If we know these associations we may be able to reduce the costs of further field research by assuming presence. What we are most interested in seeing if it can be predicted is clarity as it is a measure that any lake observer could get an idea of by looking at any lake.
+
+
+### 4.3 How can we model the Lake Dimension variables?
+We have already gathered evidence to suggest that the lake dimension variables do not follow a normal distribution. We can further examine what distribution they do follow.
+
+
+### 4.4 Do any types of dominant landcover have poorer lake health than others?
+We have seen an association between landcover and the lake health variables, it would be interesting to test for difference in means between each type of landcover and each lake health variable. 
+
+
+## 5. Further exploration
+
+### 5.1 Unhealthiest lakes by Region examination
+
+What we want to examine from this is 1. which region has the greatest number of lakes with poor lake health and 2. Which region had the highest proportion of lakes with poor lake health. To do this we sorted we sorted the values for each of the lake health variables into descending order (with the exception of clarity (SECHHI) which is in ascending order). We then took the 100 highest values and, out of the 100 lakes, investigated which region had the highest number of lakes that were high in that variable and then calculated the proportion.      
+  
+*Poorer lake health is measured by having higher values on the lake health dimensions with the exception of clarity where lower values indicate poorer lake health.*  
+  
+*We did not examine which Regions had the best lake health as this is harder to measure as it is not clear what a good measure of health is on these metrics. What we know is that high values are bad but low values are not necessarliy good, thus we should not examine the minimum lake health variables.*
+  
+
+  
+```{r, echo = FALSE}
+####Creating a dataset with the health variables and region
+Region <- lake$region
+df.Health_Region<-cbind(df1, Region)
+
+```
+
+  
+  
+**Frequency table, by region, of the 100 lakes with the highest values of Total Phosphorus**
+```{r TPprop, echo = FALSE}
+df.TP_Region <- select(df.Health_Region, Region, TP)
+#head(df.TP_Region,100)
+
+ds.TP_Region <- df.TP_Region[order(-TP),]
+ds.TP_Region2<-(head(ds.TP_Region, 100))
+
+TP1<-as.data.frame((table(ds.TP_Region2$Region)))
+TP1<-TP1[-1,]
+
+TP2<-as.data.frame((table(lake$region)))
+TP2<-TP2[-1,]
+
+TP_prop <-  merge(x=TP2,y=TP1,by="Var1",all.x=TRUE)
+TP_prop[is.na(TP_prop)]<-0
+TP_prop2 <- data.frame( TP_prop$Freq.y / TP_prop$Freq.x)
+TP_propFinal <- cbind(TP_prop, TP_prop2)
+
+names(TP_propFinal) <- c('Region', 'No.Of.Lakes.Total', 'No.High.TP.Lakes', 'Proportion')
+
+TP_propFinal
+
+
+
+```
+  
+The investigation of 100 lakes containing the highest values of total phosphorus revealed that:  
+- The Canterbury region contained 20 of the 100 lakes with the highest total phosphorus.  
+- This was followed by the Manawatu-Whanagnui region with 19 of the 100 lakes.  
+- The third highest was the Otago region with 13 of the 100 lakes.  
+  
+ - of the 100 lakes with the highest total phosphorus, the region with the largest proportion of its lakes within the top 100 was Gisborne with 10%.
+ - This was followed by Manawatu-Whanagnui with 8.4%.
+ - The third highest was Wellington with 5.6%.
+ 
+ 
+**Frequency table, by region, of the 100 lakes with the highest values of Total Nitrogen**
+```{r TNprop, echo = FALSE}
+df.TN_Region <- select(df.Health_Region, Region, TN)
+#head(df.TP_Region,100)
+
+ds.TN_Region <- df.TN_Region[order(-TN),]
+ds.TN_Region2<-(head(ds.TN_Region, 100))
+
+TN1<-as.data.frame((table(ds.TN_Region2$Region)))
+TN1<-TN1[-1,]
+
+TN2<-as.data.frame((table(lake$region)))
+TN2<-TP2[-1,]
+
+TN_prop <-  merge(x=TN2,y=TN1,by="Var1",all.x=TRUE)
+TN_prop[is.na(TN_prop)]<-0
+TN_prop2 <- data.frame( TN_prop$Freq.y / TN_prop$Freq.x)
+TN_propFinal <- cbind(TN_prop, TN_prop2)
+
+names(TN_propFinal) <- c('Region', 'No.Of.Lakes.Total', 'No.High.TN.Lakes', 'Proportion')
+
+TN_propFinal
+
+
+
+```
+  
+The investigation of 100 lakes containing the highest values of total nitrogen revealed that:  
+- The Waikato region contained 54 of the 100 lakes with the highest total nitrogen.  
+- This was followed by the Manawatu-Whanagnui region with 23 of the 100 lakes.  
+- The third highest was the Canterbury region with 12 of the 100 lakes.  
+  
+ - Of the 100 lakes with the highest total nitrogen, the region with the largest proportion of its lakes within the top 100 was Waikato with 23.175%.
+ - This was followed by Manawatu-Whanagnui with 10.2%.
+ - The third highest was Canterbury with 2.6%.
+   
+   
+    
+**Frequency table, by region, of the 100 lakes with the highest values of Ammoniacal Nitrogen **
+```{r NH4Nprop, echo = FALSE}
+df.NH4N_Region <- select(df.Health_Region, Region, NH4N)
+#head(df.TP_Region,100)
+
+ds.NH4N_Region <- df.NH4N_Region[order(-NH4N),]
+ds.NH4N_Region2<-(head(ds.NH4N_Region, 100))
+
+NH4N1<-as.data.frame((table(ds.NH4N_Region2$Region)))
+NH4N1<-NH4N1[-1,]
+
+NH4N2<-as.data.frame((table(lake$region)))
+NH4N2<-NH4N2[-1,]
+
+NH4N_prop <-  merge(x=NH4N2,y=NH4N1,by="Var1",all.x=TRUE)
+NH4N_prop[is.na(NH4N_prop)]<-0
+NH4N_prop2 <- data.frame(NH4N_prop$Freq.y / NH4N_prop$Freq.x)
+NH4N_propFinal <- cbind(NH4N_prop, NH4N_prop2)
+
+names(NH4N_propFinal) <- c('Region', 'No.Of.Lakes.Total', 'No.High.NH4N.Lakes', 'Proportion')
+
+NH4N_propFinal
+
+
+
+```
+  
+The investigation of 100 lakes containing the highest values of Ammoniacal Nitrogen revealed that:  
+- The Waikato region contained 32 of the 100 lakes with the highest levels of Ammoniacal Nitrogen  
+- This was followed by the Manawatū-Whanganui region with 22 of the 100 lakes.  
+- The third highest was the Otago region with 10 of the 100 lakes.  
+  
+ - Of the 100 lakes with the highest Ammoniacal Nitrogen, the region with the largest proportion of its lakes within the top 100 was Waikato with 13.7%.
+ - This was followed by Manawatū-Whanganui and Gisbone both with approximately 10%.
+
+ 
+ 
+**Frequency table, by region, of the 100 lakes with the highest values of Chlorophyll-A **
+```{r CHLAprop, echo = FALSE}
+df.CHLA_Region <- select(df.Health_Region, Region, CHLA)
+#head(df.TP_Region,100)
+
+
+ds.CHLA_Region <- df.CHLA_Region[order(-CHLA),]
+ds.CHLA_Region2<-(head(ds.CHLA_Region, 100))
+
+CHLA1<-as.data.frame((table(ds.CHLA_Region2$Region)))
+CHLA1<-CHLA1[-1,]
+
+CHLA2<-as.data.frame((table(lake$region)))
+CHLA2<-CHLA2[-1,]
+
+CHLA_prop <-  merge(x=CHLA2,y=CHLA1,by="Var1",all.x=TRUE)
+CHLA_prop[is.na(CHLA_prop)]<-0
+CHLA_prop2 <- data.frame(CHLA_prop$Freq.y / CHLA_prop$Freq.x)
+CHLA_propFinal <- cbind(CHLA_prop, CHLA_prop2)
+
+names(CHLA_propFinal) <- c('Region', 'No.Of.Lakes.Total', 'No.High.NH4N.Lakes', 'Proportion')
+#print.data.frame(CHLA_propFinal)
+CHLA_propFinal
+
+
+
+```
+  
+The investigation of 100 lakes containing the highest values of Chlorophyll-A revealed that:  
+- The Waikato region contained 54 of the 100 lakes with the highest levels of Chlorophyll-A.  
+- This was followed by the Manawatū-Whanganui region with 23 of the 100 lakes.  
+- The third highest was the Canterbury region with 12 of the 100 lakes.  
+  
+ - Of the 100 lakes with the highest levels of Chlorphyll-A, the region with the largest proportion of its lakes within the top 100 was Waikato with 23.2%.
+ - This was followed by Manawatū-Whanganui with 10.1%.
+ - The third highest was Gisborne with 3.3%.
+   
+   
+   
+**Frequency table, by region, of the 100 lakes with the lowest values of Clarity **
+```{r SECCHIprop, echo = FALSE}
+df.SECCHI_Region <- select(df.Health_Region, Region, SECCHI)
+#head(df.SECCHI_Region,100)
+
+ds.SECCHI_Region <- df.SECCHI_Region[order(SECCHI),]
+ds.SECCHI_Region2<-(head(ds.SECCHI_Region, 100))
+
+SECCHI1<-as.data.frame((table(ds.SECCHI_Region2$Region)))
+SECCHI1<-SECCHI1[-1,]
+
+SECCHI2<-as.data.frame((table(lake$region)))
+SECCHI2<-SECCHI2[-1,]
+
+SECCHI_prop <-  merge(x=SECCHI2,y=SECCHI1,by="Var1",all.x=TRUE)
+SECCHI_prop[is.na(SECCHI_prop)]<-0
+SECCHI_prop2 <- data.frame(SECCHI_prop$Freq.y / SECCHI_prop$Freq.x)
+SECCHI_propFinal <- cbind(SECCHI_prop, SECCHI_prop2)
+
+names(SECCHI_propFinal) <- c('Region', 'No.Of.Lakes.Total', 'No.Low.Clarity.Lakes', 'Proportion')
+
+SECCHI_propFinal
+
+```
+  
+The investigation of 100 lakes containing the lowest values of clarity revealed that:  
+- The Waikato region contained 45 of the 100 lakes with the lowest clarity  
+- This was followed by the Southland region with 30 of the 100 lakes.  
+- The third highest was the Manawatū-Whanganui region with 6 of the 100 lakes.  
+  
+ - Of the 100 lakes with the lowest clarity, the region with the largest proportion of its lakes within the top 100 was Waikato with 19.3%.
+ - This was followed by Southland with 3.0%.
+ - The third highest was Manawatū-Whanganui with 2.7%. 
+ <br />
+  <br />
+**Summary of unhealthiest lakes analysis**
+This analysis gives evidence to say that the Waikato Region has the worst overall lake health, followed by Manawatū-Whanganui (when examining lakes with the worst lake health). This is because both of these regions have many occurences having the highest proportions of their lakes within the top 100 'worst' scoring lakes.  
+Further analysis should examine these findings alongside the overall means and medians of the regions on the lake health variables. Further Analysis could also look at ranking regions based on their overall lake health scores. 
+ <br />
+  <br />
+  
+### 5.2 Do the lake health variables predict one another?
+*Please note that this section is not complete, did not have time to examine whether all of the assumptions were met or to do AIC and BIC*
+We learned from the EDA that the Lake Health variables are almost all correlated. Because of this, we guess that we will be able to make predictions using regression from these variables. What we most want to explore is if the other lake health variables are good predictors of clarity. The reason why we wish to explore this is that if the other lake variables are good predictors of clarity, then by knowing clarity, the average person could makes some assumptions about the other lake health variables.  
+  
+Before we can produce a multiple linear regression model, we must first check that the assumptions of multiple linear regression are met. These assumptions are:  
+  
+- That linear relationships between the outcome variable and the independent variables exist.
+-  Multivariate Normality such that the residuals are normally distributed.
+- No Multicollinearity such that the independent variables are not highly correlated with each other.
+- Homoscedasticity.
+  
+  To investigate whether the assumption of linear relationships have been met we have produced scatterplots.  
+    
+To investigate whether the assumption of multivariate normality has been met we have conducted a Mardia's Test.
+  
+To investigate whether the assumption of multicollinearity has been met we examine the a the correlation matrix
+
+```{r , message=FALSE, echo= FALSE}
+##Total Nitrogen
+ggplot(df1, aes(x= TN, y= SECCHI)) + 
+  geom_point(alpha = 0.4)+
+  geom_smooth(se = FALSE)+
+  theme_bw()
+
+## Total Phosphorus
+ggplot(df1, aes(x= TP, y= SECCHI)) + 
+  geom_point(alpha = 0.4)+
+  geom_smooth(se = FALSE)+
+  theme_bw()
+
+## Chlorophyll A
+ggplot(df1, aes(x= CHLA, y= SECCHI)) + 
+  geom_point(alpha = 0.4)+
+  geom_smooth(se = FALSE)+
+  theme_bw()
+
+## Ammoniacal Nitrogen
+ggplot(df1, aes(x=NH4N, y=SECCHI)) + 
+  geom_point(alpha = 0.4)+
+  geom_smooth(se = FALSE)+
+  theme_bw()
+
+
+
+```
+*Where TN is Total Nitrogen, CHLA is Chlorphyll-A, NH4N is ammoniacal NItrogen, TP is Total Phosphorus and SECCHI is clarity*  
+ <br />
+  <br />
+The Scatterplots seem to show a non-linear relationship suggesting that the assumption of linearity is not met.
+
+
+
+```{r , echo = FALSE}
+
+#library(energy)
+
+#mvnorm.etest(df1)
+
+
+round(cor(df1),2)
+
+```
+As none of the correlations are greater than or equal to 0.9 or less than or equal to 0.9 we assume that the assumption of non-multicollinearity is met.  
+  
+  
+**Multi-linear Regression model**
+We mad an multiple linear regression model where the explanatory variables are Ammoniacal Nitrogen (NH4N), Total Phosphorus (TP), Total Nitrogen (TN), and Chlorophyll-A (CHLA) and the response variable is Clarity (SECCHI).
+```{r clarityReg, echo = FALSE}
+###df1 contains all of the lake health variables
+
+multiLin1 <- lm(SECCHI ~  TN + CHLA+ NH4N + TP ,data = df1)
+summary(multiLin1)
+
+```
+At an alpha of 0.5, all of the explanatory variables are significant. At an alpha of 0.1, all of the explanatory variables except for Total Phosphorus (TP) are significant.
+We see from the model summary that our lake health variables (minus clarity) explain about 62% of the variance in clarity (SECCHI).
+
+
+
+```{r ,message=FALSE, warning=FALSE}
+
+
+multReg1 <- ggplot(df1,aes(x=SECCHI,y= TN, CHLA, NH4N, TP))+
+         geom_point(alpha = 0.3)+
+ geom_smooth(method=lm,se=FALSE,fullrange=TRUE)+
+  theme_bw()+
+  labs( title = "Lake Health varibales as predictors of clarity", y = "TN, CHLA, NH4N, TP", x = "SECCHI/Clarity")
+          
+
+  
+# Plotting a single Regression Line
+multReg1
+```
+
+The above graph for predicting clarity suggests that with the explanatory variables that we have included, they are not a good fit for a multi-linear regression model for predicting clarity. What we can see from the graph though is that higher values of the lake health variables predict reduced clarity; we cannot say necessarily though that lower values of the lake health variables predict high clarity.
+
+After examining the evidence, we have decided that when predicting clarity, the other lake health variables should not follow a multi-linear relationship. Further Analysis could look into curvilinear regression. Further analysis should also take into account the depth of the lakes being examined.
+
+
+
+
+
+
+
+
+
+### 5.3 How can we model the Lake Dimension variables?
+We have already gathered evidence to suggest that the lake dimension variables do not follow a normal distribution. We can further examine what distribution they do follow.
+
+We have conducted Anderson-Darling tests for normality for lake area, perimeter and depth along with constructing a Cullen and Frey graph to investigate what distribution these variables may follow. 
+
+Table \ref{tab:adarea} shows the test statistic and p-value from the Anderson-Darling test on lake area. The null hypothesis for this test is that the distribution of lake area is Gaussian, and the alternative hypothesis is that the distribution of lake area is not normal. The test statistic for this test is 1381.847, and the p-value is 3.7e-24. As the p-value is very small, we can reject the null hypothesis and conclude the distribution of lake area is not normal. Next we constructed a Cullen and Frey graph with 1000 bootstrapped observations. This is shown in figure \ref{fig:cfarea}. We can see the observation of the kurtosis and square of skewness of the observations of lake area, and all bootstrapped observations, lie within the beta region, indicating the distribution of lake area could be beta. 
+
+```{r adarea, fig.cap = "Anderson-Darling Test for Normality of Lake Area", fig.pos = "center", echo = FALSE}
+tab <- ad.test(lake$lake_area)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Area"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Area")
+```
+
+
+```{r cfarea, fig.cap = "Cullen and Frey Graph of Lake Area", echo = FALSE}
+descdist(lake$lake_area, boot = 1000)
+```
+
+Table \ref{tab:adperim} shows the test statistic and p-value from the Anderson-Darling test on lake perimeter. The null hypothesis for this test is that the distribution of lake perimeter is Gaussian, and the alternative hypothesis is that the distribution of lake perimeter is not normal. The test statistic for this test is 1130.8425, and the p-value is 3.7e-24. As the p-value is very small, we can reject the null hypothesis and conclude the distribution of lake perimeter is not normal. Next we constructed a Cullen and Frey graph with 1000 bootstrapped observations. This is shown in figure \ref{fig:cfperim}. We can see the observation of the kurtosis and square of skewness of the observations of lake perimeter, and almost all bootstrapped observations, lie within the beta region, indicating the distribution of lake perimeter could be beta. 
+
+```{r adperim, fig.cap = "Anderson-Darling Test for Normality of Lake Perimeter", fig.pos = "center", echo = FALSE}
+tab <- ad.test(lake$lake_perimeter)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Perimeter"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Perimeter")
+```
+
+
+```{r cfperim, fig.cap = "Cullen and Frey Graph of Lake Perimeter", echo = FALSE}
+descdist(lake$lake_perimeter, boot = 1000)
+```
+
+Table \ref{tab:addepth} shows the test statistic and p-value from the Anderson-Darling test on lake depth The null hypothesis for this test is that the distribution of lake depth is Gaussian, and the alternative hypothesis is that the distribution of lake depth is not normal. The test statistic for this test is 621.2451, and the p-value is 3.7e-24. As the p-value is very small, we can reject the null hypothesis and conclude the distribution of lake depth is not normal. Next we constructed a Cullen and Frey graph with 1000 bootstrapped observations. This is shown in figure \ref{fig:cfdepth}. We can see the observation of the kurtosis and square of skewness of the observations of lake depth, and most of the bootstrapped observations, lie within the beta region, indicating the distribution of lake depth could be beta. 
+
+```{r addepth, fig.cap = "Anderson-Darling Test for Normality of Lake Depth", fig.pos = "center", echo = FALSE}
+tab <- ad.test(lake$lake_depth)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Depth"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Depth")
+```
+
+
+```{r cfdepth, fig.cap = "Cullen and Frey Graph of Lake Depth", echo = FALSE}
+descdist(lake$lake_depth, boot = 1000)
+
+```
+
+
+
+
+
+### 5.4 Do any types of dominant landcover have poorer lake health than others?
+We have seen an association between landcover and the lake health variables, it would be interesting to test for difference in means between each type of landcover and each lake health variable. We wanted to do a test for difference in means between each type of landcover for each lake health variable. Originally we wanted to do a one-way ANOVA test, however this test requires normality of each group. We did Anderson-Darling tests for normality of each landcover type in each lake health variable, and when these concluded the data was not normally distributed, we did a 
+
+Table \ref{tab:adexnh4n} shows the test statistic and p-value from the Anderson-Darling test on Ammoniacal Nitrogen levels in lakes with predominantly Exotic Forest landcover. The null hypothesis for this test is that the distribution of Ammoniacal Nitrogen in lakes with exotic forest landcover is Gaussian, and the alternative hypothesis is that the distribution is not normal. The test statistic for this test is 12.2369, and the p-value is 3.7e-24. As the p-value is very small, we can reject the null hypothesis and conclude the distribution of Ammoniacal Nitrogen in lakes with predominantly exotic forest landcover is not normal. Therefore, we cannot use a one-way ANOVA test. We have also done this test on the other landcover types with similar results. For Native landcover, the test statistic was 208.5689 and the p-value was 3.7e-24. For "other" landcover, the test statistic was 1.1297 and the p-value was 3.5818e-3. For Pastoral landcover the test statistic is 50.8314 and the p-value was 3.7e-24. Finally, for Urban landcover, the test statistic was 3.7878 and the p-value was 1.5945. This information is shown in tables \ref{tab:adnatnh4n}, \ref{tab:adothnh4n}, \ref{tab:adpastnh4n} and \ref{tab:adurbnh4n}. 
+
+```{r adexnh4n, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
+land <- as.factor(lake$dominant_landcover)
+df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Ammoniacal Nitrogen in Exotic Forest Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Ammoniacal Nitrogen in Exotic Forest Landcovers")
+```
+
+```{r adnatnh4n, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Native Landcover", fig.pos = "center", echo = FALSE}
+A <- filter(df2, land == "Native")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Ammoniacal Nitrogen in Native Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Ammoniacal Nitrogen in Native Landcovers")
+```
+
+```{r adothnh4n, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Other Landcover", fig.pos = "center", echo = FALSE}
+A <- filter(df2, land == "Other")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Ammoniacal Nitrogen in Other Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Ammoniacal Nitrogen in Other Landcovers")
+```
+
+```{r adpastnh4n, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Pastoral Landcover", fig.pos = "center", echo = FALSE}
+A <- filter(df2, land == "Pastoral")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Ammoniacal Nitrogen in Pastoral Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Ammoniacal Nitrogen in Pastoral Landcovers")
+```
+
+```{r adurbnh4n, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Urban Landcover", fig.pos = "center", echo = FALSE}
+A <- filter(df2, land == "Urban area")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Ammoniacal Nitrogen in Urban Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Ammoniacal Nitrogen in Urban Landcovers")
+```
+
+
+As the groups are not all normally distributed, we cannot perform a one-way ANOVA test, so we have performed a Kruskal-Wallis test for difference in means. The null hypothesis for this test is that the mean Ammoniacal Nitrogen level in each landcover type is equal, and the alternative hypothesis is that at least one of the means is different to the others. The test statistic for this test was 558.22 and the p-value was less than 2.2e-16. This means we reject the null hypothesis and conclude that at least one of the landcover types has a different mean Ammoniacal Nitrogen level than the others. 
+```{r krnh4n, echo = FALSE}
+
+kruskal.test(NH4N ~ land, data = df2)
+```
+
+Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Ammoniacal Nitrogen levels in lakes with Exotic forest landcover and lakes with 'Other' landcover, as the p-value is 0.0004. There is also a difference in mean Ammoniacal Nitrogen levels in lakes with 'Other' landcover and lakes with Native landcover, with a p-value of 0.0001. Lakes with Pastoral landcover have a different mean Ammoniacal Nitrogen level than lakes with Exotic forest landcover, and lakes with Native landcover, both have a p-value of less than 2e-16. Lakes with Urban landcover have a different mean Ammoniacal Nitrogen level than lakes with Exotic forest landcover, and lakes with Native landcover, both have a p-value of less than 2e-16. And lakes with Urban landcover have a different mean Ammoniacal Nitrogen level than lakes with Pastoral landcover, as the p-value is 9e-7. The pairs that failed to reject the null hypothesis were Exotic forest and Native landcovers, Pastoral and 'other' landcovers and Urban and 'other' landcovers so there could be no difference between the mean Ammoniacal Nitrogen level in lakes in these landcover pairs. 
+```{r krnh4npair, echo = FALSE}
+pairwise.wilcox.test(NH4N, land,
+                 p.adjust.method = "BH")
+
+```
+
+
+For Chlorophyll-A, we have conducted an Anderson-Darling test for normality on the Exotic forest group. The test statistic was 3.5283 and the p-value was 7.4946e-9 (shown in table \ref{tab:adexchla}), rejecting the null hypothesis that the distribution of Chlorophyll-A in lakes with Exotic landcover is normal, and concluding the distribution of Chlorophyll-A in lakes with Exotic l=forest landcover is not normal, and therfore we cannot use a one-way ANOVA test.
+
+
+```{r adexchla, fig.cap = "Anderson-Darling Test for Normality of Chlorophyll-A in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$CHLA)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Chlorophyll-A in Exotic Forest Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Chlorophyll-A in Exotic Forest Landcovers")
+```
+
+
+We have performed a Kruskal-Wallis test for difference in means. The null hypothesis for this test is that the mean Chlorophyll-A level in each landcover type is equal, and the alternative hypothesis is that at least one of the means is different to the others. The test statistic for this test was 1155.6 and the p-value was less than 2.2e-16. This means we reject the null hypothesis and conclude that at least one of the landcover types has a different mean Chlorophyll-A level than the others. 
+```{r krchla, echo = FALSE}
+
+kruskal.test(CHLA ~ land, data = df2)
+```
+
+Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Chlorophyll-A levels in lakes with Native landcover and every other type of landcover. The p-value for the Native and Exotic forest pair was less than 2e-16, Native and 'Other' pair was 6.4e-5, Native and Pastoral pair was less than 2e-16 and Native and Urban was less than 2e-16. No other pair had a p-value small enough to reject the null hypothesis that there is not a difference in mean Chlorophyll-A level between those two landcovers. We can conclude that lakes with Native landcover had a different mean Chlorophyll-A level than any other landcover type. 
+```{r krchlapair, echo = FALSE}
+pairwise.wilcox.test(CHLA, land,
+                 p.adjust.method = "BH")
+
+```
+
+
+
+For Total Phosphorus, we have conducted an Anderson-Darling test for normality on the Exotic forest group. The test statistic was 9.7701 and the p-value was 1.0097e-23 (shown in table \ref{tab:adextp}), rejecting the null hypothesis that the distribution of Total Phosphorus in lakes with Exotic landcover is normal, and concluding the distribution of Total Phosphorus in lakes with Exotic forest landcover is not normal, and therefore we cannot use a one-way ANOVA test.
+
+
+```{r adextp, fig.cap = "Anderson-Darling Test for Normality of Total Phosphorus in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$TP)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Total Phosphorus in Exotic Forest Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Total Phosphorus in Exotic Forest Landcovers")
+```
+
+
+We have performed a Kruskal-Wallis test for difference in means. The null hypothesis for this test is that the mean Total Phosphorus level in each landcover type is equal, and the alternative hypothesis is that at least one of the means is different to the others. The test statistic for this test was 1449.6 and the p-value was less than 2.2e-16. This means we reject the null hypothesis and conclude that at least one of the landcover types has a different mean total Phosphorus level than the others. 
+```{r krtp, echo = FALSE}
+
+kruskal.test(TP ~ land, data = df2)
+```
+
+Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Total Phosphorus levels in lakes with Native landcover and every other type of landcover. The p-value for the Native and Exotic forest pair was less than 2e-16, Native and 'Other' pair was 4.0e-6, Native and Pastoral pair was less than 2e-16 and Native and Urban was less than 2e-16. We can conclude that lakes with Native landcover had a different mean Total Phosphorus level than any other landcover type. The p-value for Pastoral and Exotic forest is 1.4e-7 and the p-value for Urban and Exotic forest was 0.001. So we can conclude lakes with Exotic forest landcover had a different mean Total Phosphorus level than lakes with Pastoral landcover or lakes with Urban landcover. No other pair had p-values small enough to conclude a difference in means.  
+```{r krtppair, echo = FALSE}
+pairwise.wilcox.test(TP, land,
+                 p.adjust.method = "BH")
+
+```
+
+
+
+
+
+For Total Nitrogen, we have conducted an Anderson-Darling test for normality on the Exotic forest group. The test statistic was 3.5616 and the p-value was 6.2207e-9 (shown in table \ref{tab:adextn}), rejecting the null hypothesis that the distribution of Total Phosphorus in lakes with Exotic landcover is normal, and concluding the distribution of Total Nitrogen in lakes with Exotic forest landcover is not normal, and therefore we cannot use a one-way ANOVA test.
+
+
+```{r adextn, fig.cap = "Anderson-Darling Test for Normality of Total Nitrogen in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$TN)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Total Nitrogen in Exotic Forest Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Total Nitrogen in Exotic Forest Landcovers")
+```
+
+
+We have performed a Kruskal-Wallis test for difference in means. The null hypothesis for this test is that the mean Total Nitrogen level in each landcover type is equal, and the alternative hypothesis is that at least one of the means is different to the others. The test statistic for this test was 1340.3 and the p-value was less than 2.2e-16. This means we reject the null hypothesis and conclude that at least one of the landcover types has a different mean total Nitrogen level than the others. 
+```{r krtn, echo = FALSE}
+
+kruskal.test(TN ~ land, data = df2)
+```
+
+Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Total Nitrogen levels in lakes with Native landcover and every other type of landcover. The p-value for the Native and Exotic forest pair was less than 2e-16, Native and 'Other' pair was 8.9e-7, Native and Pastoral pair was less than 2e-16 and Native and Urban was less than 2e-16. We can conclude that lakes with Native landcover had a different mean Total Nitrogen level than any other landcover type. The p-value for 'other' and Exotic forest is 0.0017 and the p-value for Urban and Exotic forest was 4.4e-8. So we can conclude lakes with Exotic forest landcover had a different mean Total Nitrogen level than lakes with 'Other' landcover or lakes with Urban landcover. The p-value for Pastoral and Urban lancovers was 8.9e-7. indicating there is a difference in mean Total Nitrogen levels in lakes with Pastoral landcover and lakes with Urban. No other pair had p-values small enough to conclude a difference in means.  
+```{r krtnpair, echo = FALSE}
+pairwise.wilcox.test(TN, land,
+                 p.adjust.method = "BH")
+
+```
+
+
+
+
+For Clarity, we have conducted an Anderson-Darling test for normality on the Exotic forest group. The test statistic was 4.3504 and the p-value was 7.522e-11 (shown in table \ref{tab:adexsecchi}), rejecting the null hypothesis that the distribution of Clarity in lakes with Exotic landcover is normal, and concluding the distribution of Clarity in lakes with Exotic forest landcover is not normal, and therefore we cannot use a one-way ANOVA test.
+
+
+```{r adexsecchi, fig.cap = "Anderson-Darling Test for Normality of Clarity in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$SECCHI)
+tstatr <- tab$statistic
+tstatr <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr, pvalr))
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- "Clarity in Exotic Forest Landcovers"
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Clarity in Exotic Forest Landcovers")
+```
+
+
+We have performed a Kruskal-Wallis test for difference in means. The null hypothesis for this test is that the mean Clarity level in each landcover type is equal, and the alternative hypothesis is that at least one of the means is different to the others. The test statistic for this test was 602.61 and the p-value was less than 2.2e-16. This means we reject the null hypothesis and conclude that at least one of the landcover types has a different mean Clarity level than the others. 
+```{r krsecchi, echo = FALSE}
+
+kruskal.test(SECCHI ~ land, data = df2)
+```
+
+Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Clarity in lakes with Native landcover and every other type of landcover. The p-value for the Native and Exotic forest pair was less than 2e-16, Native and 'Other' pair was 6.1e-6, Native and Pastoral pair was less than 2e-16 and Native and Urban was less than 2e-16. We can conclude that lakes with Native landcover had a different mean Clarity level than any other landcover type. The p-value for Pastoral and urban area is 1.9e-10 and the p-value for Urban and Exotic forest was 2.6e-7. So we can conclude lakes with Urban area landcover had a different mean level of Clarity than lakes with Pastoral landcover or lakes with Exotic forest landcover. No other pair had p-values small enough to conclude a difference in means.  
+```{r ksecchippair, echo = FALSE}
+pairwise.wilcox.test(SECCHI, land,
+                 p.adjust.method = "BH")
+
+```
+
+
+
