@@ -1,0 +1,37 @@
+---
+title: "Group 8 Presentation 1"
+author: "Russel and Frances"
+dataset: "Lake Quality"
+date: "September 10th 2022"
+output: beamer_presentation
+---
+
+
+---
+# Group 8
+
+*Russell Snyder*
+
+<br />
+
+email: russellsyder@gmail.com 
+
+<br />
+
+ORCHID ID: 0000-0002-4582-5909
+
+*Frances Smith*
+
+<br />
+
+email: frances.j.smith.nz@gmail.com 
+
+<br />
+
+ORCHID ID: 0000-0002-5168-3134
+
+```{r}
+#photo
+```
+
+
