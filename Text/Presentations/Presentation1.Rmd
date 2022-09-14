@@ -10,7 +10,7 @@ output: beamer_presentation
 ---
 # Group 8
 
-**Russell Snyder**  
+**Russell Syder**  
 email: russellsyder@gmail.com  
 ORCHID ID: 0000-0002-4582-5909  
 
@@ -22,6 +22,11 @@ ORCHID ID: 0000-0002-5168-3134
 
 ```{r frances, out.width="30%", out.height="40%", echo = FALSE}
 knitr::include_graphics("Frances.png")
+
+```
+```{r russell, out.width="20%", out.height="34%", echo = FALSE}
+
+knitr::include_graphics("RUSSELLwazHere.png")
 ```
 
 # Textual Description of the Dataset
@@ -34,3 +39,4 @@ knitr::include_graphics("Frances.png")
 
 
 # Future Steps
+
