@@ -10,28 +10,27 @@ output: beamer_presentation
 ---
 # Group 8
 
-*Russell Snyder*
+**Russell Snyder**  
+email: russellsyder@gmail.com  
+ORCHID ID: 0000-0002-4582-5909  
 
-<br />
+PHOTO
 
-email: russellsyder@gmail.com 
-
-<br />
-
-ORCHID ID: 0000-0002-4582-5909
-
-*Frances Smith*
-
-<br />
-
-email: frances.j.smith.nz@gmail.com 
-
-<br />
-
+**Frances Smith**  
+email: frances.j.smith.nz@gmail.com  
 ORCHID ID: 0000-0002-5168-3134
 
-```{r}
-#photo
+```{r frances, out.width="30%", out.height="40%", echo = FALSE}
+knitr::include_graphics("Frances.png")
 ```
 
+# Textual Description of the Dataset
 
+
+# Visualisations
+
+
+# Anything we found interesting
+
+
+# Future Steps
