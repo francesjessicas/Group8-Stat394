@@ -1,6 +1,6 @@
 ---
 title: "Group 8 Presentation 1"
-author: "Russel and Frances"
+author: "Russell and Frances"
 dataset: "Lake Quality"
 date: "September 10th 2022"
 output: beamer_presentation
