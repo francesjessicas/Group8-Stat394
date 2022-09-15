@@ -3,7 +3,7 @@ title: "Group 8 Presentation 1"
 author: "Russell and Frances"
 dataset: "Lake Quality"
 date: "September 10th 2022"
-output: ioslides_presentation
+output: beamer_presentation
 ---
 
 
@@ -22,10 +22,6 @@ ORCHID ID: 0000-0002-5168-3134
 
 ```{r frances, out.width="30%", out.height="40%", echo = FALSE}
 knitr::include_graphics("Frances.png")
-
-```
-```{r russell, out.width="20%", out.height="34%", echo = FALSE}
-
 knitr::include_graphics("RUSSELLwazHere.png")
 ```
 
