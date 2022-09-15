@@ -14,13 +14,11 @@ output: beamer_presentation
 email: russellsyder@gmail.com  
 ORCHID ID: 0000-0002-4582-5909  
 
-PHOTO
-
 **Frances Smith**  
 email: frances.j.smith.nz@gmail.com  
 ORCHID ID: 0000-0002-5168-3134
 
-```{r frances, out.width="30%", out.height="40%", echo = FALSE}
+```{r frances, echo = FALSE}
 knitr::include_graphics("Frances.png")
 knitr::include_graphics("RUSSELLwazHere.png")
 ```
