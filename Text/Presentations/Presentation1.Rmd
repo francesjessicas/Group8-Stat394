@@ -35,7 +35,72 @@ For analysis we split the dataset into two main categories; the lake health vari
 - Dominant landcover; split into Exotic Forest, Native, Pastoral, Urban Area and Other, Dominant landcover describes the landscape surrounding the lake. 
 
 # Visualisations
+Our first visualisation is an example of one of the histograms that we produced to visualise the distribution of the Lake Health Variables. Below is the distribution of Total Phosphorus.
 
+```{r setup, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(300570258, kind = "Mersenne-Twister")
+lake <- read.csv("modelled_lake_water_quality_altered.csv")
+
+require(tinytex)
+require(ggplot2)
+require(ggthemes)
+require(extrafont)
+require(ggstance)
+require(fitdistrplus)
+require(ggcorrplot)
+require(GGally)
+require(ggExtra)
+require(moments)
+require(kable)
+require(reshape2)
+require(dplyr)
+
+df <- data.frame(lake)
+TP <- lake$median_TP_mg.m.3
+
+```
+
+```{r tphist, fig.cap="Histogram of Total Phosphorus", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=TP)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(TP)),
+                 col="black", fill="white") +
+  xlab("Observations of Total Phosphorus") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(TP), sd=sd(TP)),
+                col="red", size=2, alpha=.5) +
+  geom_vline(xintercept = mean(TP), col="red") +
+  geom_segment(aes(x=mean(TP)-sd(TP),
+                   y=0.007,
+                   xend=mean(TP)+sd(TP),
+                   yend=0.007), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-.005), width=.003, notch = TRUE)+
+  theme_tufte()
+```
+
+Our second Visualisation is are side-by-side boxplot of the Lake Health Variables by values of Dominant Lancover:
+
+```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen,  Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+
+region <- as.factor(lake$region)
+land <- as.factor(lake$dominant_landcover)
+Ammoniacal_Nitrogen <- lake$median_NH4N_mg.L..1
+Chlorophyll_A <- lake$median_CHLA_mg.m.3
+Total_Phosphorus <- lake$median_TP_mg.m.3
+Total_Nitrogen <- lake$median_TN_mg.m.3
+Clarity <- lake$median_SECCHI_metre
+
+df12 <- data.frame(land, Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
+df12melt <- melt(df12,id.vars = "land" ,variable.name = "Measure")
+ggplot(df12melt, aes(x=Measure, y=value)) +
+geom_boxplot(aes(col=Measure), notch = TRUE) +
+facet_grid(~ land) +
+  scale_y_log10() +
+theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")
+```
 
 # Anything we found interesting
 
