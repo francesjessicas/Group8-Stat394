@@ -5,6 +5,7 @@ dataset: "Lake Quality"
 date: "September 10th 2022"
 fontsize: 10pt
 output: beamer_presentation
+
 ---
 
 
@@ -34,20 +35,17 @@ For analysis we split the dataset into two main categories; the lake health vari
 - Region; which New Zealand region the lake was located in.  
 - Dominant landcover; split into Exotic Forest, Native, Pastoral, Urban Area and Other, Dominant landcover describes the landscape surrounding the lake. 
 
-# Visualisations
-Our first visualisation is an example of one of the histograms that we produced to visualise the distribution of the Lake Health Variables. Below is the distribution of Total Phosphorus.
+# Visualisation 1
+Our first visualisation is an example of one of the histograms that we produced to visualise the distribution of the lake health variables (shown in figure \ref{fig:tphist}). 
 
-```{r setup, echo=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 set.seed(300570258, kind = "Mersenne-Twister")
-lake <- read.csv("modelled_lake_water_quality_altered.csv")
+lake <- read.csv("../../Data/modelled_lake_water_quality_altered.csv")
 
-require(tinytex)
 require(ggplot2)
 require(ggthemes)
 require(extrafont)
-require(ggstance)
-require(fitdistrplus)
 require(ggcorrplot)
 require(GGally)
 require(ggExtra)
@@ -59,9 +57,11 @@ require(dplyr)
 df <- data.frame(lake)
 TP <- lake$median_TP_mg.m.3
 
+
 ```
 
-```{r tphist, fig.cap="Histogram of Total Phosphorus", fig.pos="center", echo=FALSE}
+
+```{r tphist, fig.cap="Histogram of Total Phosphorus", out.width = "60%", out.height = "60%", fig.pos="center", echo=FALSE}
 ggplot(df, aes(x=TP)) +
   geom_histogram(aes(y=..density..),
                  bins = nclass.FD(unlist(TP)),
@@ -80,9 +80,11 @@ ggplot(df, aes(x=TP)) +
   theme_tufte()
 ```
 
-Our second Visualisation is are side-by-side boxplot of the Lake Health Variables by values of Dominant Lancover:
+# Visualisation 2
 
-```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen,  Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+Our second visualisation is are side-by-side boxplot of the log-transformed lake health variables by dominant landcover in figure \ref{fig:boxx3}. 
+
+```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen,  Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", out.width = "60%", out.height = "60%", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 
 region <- as.factor(lake$region)
 land <- as.factor(lake$dominant_landcover)
@@ -102,7 +104,10 @@ theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
 legend.position = "none")
 ```
 
-# Anything we found interesting
+
+
+
+# Interesting Observations
 
 From our exploratory data analysis, we found each of the lake health variables differed between landcovers, especially between the Native and Urban landcovers. The data suggested lakes with predominantly Native landcover had lower levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen, and were clearer than lakes in Urban areas. We also found that there was a relationship between the regions and the lake health variables. Specifically, lakes in the Waikato region tended to be of poorer health. 
 
