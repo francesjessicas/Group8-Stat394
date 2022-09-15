@@ -39,7 +39,7 @@ For analysis we split the dataset into two main categories; the lake health vari
 
 # Anything we found interesting
 
-From our exploratory data analysis, we found each of the lake health variables differed between landcovers, especially between the Native and Urban landcovers. The data suggested lakes with predominantly Native landcover had lower levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen, and were clearer than lakes in Urban areas. 
+From our exploratory data analysis, we found each of the lake health variables differed between landcovers, especially between the Native and Urban landcovers. The data suggested lakes with predominantly Native landcover had lower levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen, and were clearer than lakes in Urban areas. We also found that there was a relationship between the regions and the lake health variables. Specifically, lakes in the Waikato region tended to be of poorer health. 
 
 
 
@@ -47,9 +47,9 @@ From our exploratory data analysis, we found each of the lake health variables d
 # Future Steps
 
 Our future steps include:  
-- Doing a Principal Component Analysis on the lake health and dimension variables, to determine which variables 
+- Doing a Principal Component Analysis on the lake health and dimension variables, to determine which lake health variables can predict the others, and whether the lake dimension variables can predict any of the lake health variables  
 - Multivariate testing for differences in lake health and dimension variables for each region and type of landcover  
-- 
+
 
 
 
