@@ -3,6 +3,7 @@ title: "Group 8 Presentation 1"
 author: "Russell and Frances"
 dataset: "Lake Quality"
 date: "September 10th 2022"
+fontsize: 10pt
 output: beamer_presentation
 ---
 
@@ -10,47 +11,45 @@ output: beamer_presentation
 ---
 # Group 8
 
-**Russell Syder**  
-email: russellsyder@gmail.com  
-ORCHID ID: 0000-0002-4582-5909  
-
 **Frances Smith**  
 email: frances.j.smith.nz@gmail.com  
 ORCHID ID: 0000-0002-5168-3134
 
-```{r frances, echo = FALSE}
-knitr::include_graphics("Frances.png")
-knitr::include_graphics("RUSSELLwazHere.png")
+**Russell Syder**  
+email: russellsyder@gmail.com  
+ORCHID ID: 0000-0002-4582-5909  
+
+```{r frances, out.width = "40%", out.height = "30%", echo = FALSE}
+knitr::include_graphics("Russell and Frances.png")
 ```
 
+
 # Textual Description of the Dataset
-Our dataset contains information from 3801 lakes in New Zealand.   
-  
-This dataset which, we refer to as the lakes dataset, was extracted from Stats NZ.
-https://www.stats.govt.nz/indicators/modelled-lake-water-quality/
+Our dataset contains information from 3801 lakes in New Zealand. This dataset was extracted from Stats NZ.
+https://www.stats.govt.nz/indicators/modelled-lake-water-quality/  
 
 ## Variables
-For analysis we split the dataset into two main categories:
-- The Lake Health Variables
-- The Lake Dimension Variables
 
-The Lake Health Variables measure as a whole give an indication of the "health" of an individual lake. The five lake health variables are Clarity (SECCHI), Ammoniacal Nitrogen, Total Nitrogen, Total phosphorus, and Chlorophyll a. A high value in any of these variables is an indicator of possible poor lake health (with the exception of clarity where a lower value is an indicator of poor lake health).  
-  
-The Lake Dimension Variables measure the dimesnions of the lake. The three Lake Dimension Variables are Lake Depth, Lake Area, Lake Perimeter.
-
-Additional variables that we examined were:
-- Region; which New Zealand Region the lake was located in.
-- Dominant Landcover; split into Exotic Forest, Native, Pastoral, Urban Area and Other, Dominant Lancover describes the landscape surrounding the lake. 
+For analysis we split the dataset into two main categories; the lake health variables and the lake dimension variable. The lake health variables measure as a whole give an indication of the "health" of an individual lake. The five lake health variables are Clarity, Ammoniacal Nitrogen, Total Nitrogen, Total phosphorus, and Chlorophyll-A. A high value in any of these variables is an indicator of possible poor lake health (with the exception of clarity where a lower value is an indicator of poor lake health). The lake dimension variables measure the dimensions of the lake. The three lake dimension variables are depth, area, perimeter. Additional variables that we examined were:  
+- Region; which New Zealand region the lake was located in.  
+- Dominant landcover; split into Exotic Forest, Native, Pastoral, Urban Area and Other, Dominant landcover describes the landscape surrounding the lake. 
 
 # Visualisations
 
 
 # Anything we found interesting
 
+From our exploratory data analysis, we found each of the lake health variables differed between landcovers, especially between the Native and Urban landcovers. The data suggested lakes with predominantly Native landcover had lower levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen, and were clearer than lakes in Urban areas. 
+
+
+
 
 # Future Steps
 
-Our future steps include, doing a factor analysis 
+Our future steps include:  
+- Doing a Principal Component Analysis on the lake health and dimension variables, to determine which variables 
+- Multivariate testing for differences in lake health and dimension variables for each region and type of landcover  
+- 
 
 
 
