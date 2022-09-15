@@ -30,7 +30,23 @@ knitr::include_graphics("RUSSELLwazHere.png")
 ```
 
 # Textual Description of the Dataset
+Our dataset contains information from 3801 lakes in New Zealand.   
+  
+This dataset which, we refer to as the lakes dataset, was extracted from Stats NZ.
+https://www.stats.govt.nz/indicators/modelled-lake-water-quality/
 
+## Variables
+For analysis we split the dataset into two main categories:
+- The Lake Health Variables
+- The Lake Dimension Variables
+
+The Lake Health Variables measure as a whole give an indication of the "health" of an individual lake. The five lake health variables are Clarity (SECCHI), Ammoniacal Nitrogen, Total Nitrogen, Total phosphorus, and Chlorophyll a. A high value in any of these variables is an indicator of possible poor lake health (with the exception of clarity where a lower value is an indicator of poor lake health).  
+  
+The Lake Dimension Variables measure the dimesnions of the lake. The three Lake Dimension Variables are Lake Depth, Lake Area, Lake Perimeter.
+
+Additional variables that we examined were:
+- Region; which New Zealand Region the lake was located in.
+- Dominant Landcover; split into Exotic Forest, Native, Pastoral, Urban Area and Other, Dominant Lancover describes the landscape surrounding the lake. 
 
 # Visualisations
 
