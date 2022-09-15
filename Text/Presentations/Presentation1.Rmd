@@ -61,7 +61,7 @@ TP <- lake$median_TP_mg.m.3
 ```
 
 
-```{r tphist, fig.cap="Histogram of Total Phosphorus", out.width = "60%", out.height = "60%", fig.pos="center", echo=FALSE}
+```{r tphist, fig.cap="Histogram of Total Phosphorus", out.width = "80%", out.height = "60%", fig.pos="center", echo=FALSE}
 ggplot(df, aes(x=TP)) +
   geom_histogram(aes(y=..density..),
                  bins = nclass.FD(unlist(TP)),
@@ -84,7 +84,7 @@ ggplot(df, aes(x=TP)) +
 
 Our second visualisation is are side-by-side boxplot of the log-transformed lake health variables by dominant landcover in figure \ref{fig:boxx3}. 
 
-```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen,  Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", out.width = "60%", out.height = "60%", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen,  Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", out.width = "80%", out.height = "60%", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 
 region <- as.factor(lake$region)
 land <- as.factor(lake$dominant_landcover)
