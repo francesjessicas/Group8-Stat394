@@ -3,7 +3,7 @@ title: "Group 8 Presentation 1"
 author: "Russell and Frances"
 dataset: "Lake Quality"
 date: "September 10th 2022"
-output: beamer_presentation
+output: ioslides_presentation
 ---
 
 
@@ -39,4 +39,14 @@ knitr::include_graphics("RUSSELLwazHere.png")
 
 
 # Future Steps
+
+Our future steps include, doing a factor analysis 
+
+
+
+
+
+
+
+
 

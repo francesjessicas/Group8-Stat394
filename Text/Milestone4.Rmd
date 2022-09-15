@@ -114,7 +114,6 @@ MySummary2 <- function(x){
 
 ```{r laketable, echo = FALSE}
 lake <- read.csv("../Data/modelled_lake_water_quality_altered.csv")
-head(lake)
 laketype <- as.factor(lake$nof_lake_type)
 
 region <- as.factor(lake$region)
