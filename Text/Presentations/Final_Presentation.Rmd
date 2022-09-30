@@ -35,8 +35,23 @@ For analysis we split the dataset into two main categories; the lake health vari
 - Region; which New Zealand region the lake was located in.  
 - Dominant landcover; split into Exotic Forest, Native, Pastoral, Urban Area and Other, Dominant landcover describes the landscape surrounding the lake. 
 
+## Exploratory Data Analysis
 
 
+
+
+
+
+
+
+
+
+
+
+Perform an EDA of the variables that we grouped together. At this point in time, we did not have a specific leading question that we were interested in. As such, we thought it would be prudent to make the goal of our EDA to extract as much interesting information from our data as  we could; then use the results to come up with leading questions.
+RussBuss - Today at 1:00 PM
+Once the EDA was performed we came up with some interesting questions that we could investigate further for the Preliminary Report. WE then conducted more analyses. The results of this were then refined.
+The results of these were then refined into our Final Report.
 
 
 
