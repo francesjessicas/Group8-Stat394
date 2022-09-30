@@ -1,0 +1,987 @@
+---
+title: "Group8_EDA"
+author: "Russell and Frances"
+date: "2022-08-16"
+output:  bookdown::pdf_document2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(300570258, kind = "Mersenne-Twister")
+
+require(tinytex)
+require(ggplot2)
+require(ggthemes)
+require(extrafont)
+require(ggstance)
+require(fitdistrplus)
+require(ggcorrplot)
+require(GGally)
+require(ggExtra)
+require(moments)
+require(kable)
+require(reshape2)
+require(dplyr)
+```
+
+```{r functab, echo = FALSE}
+MySummary2 <- function(x){
+  return(c(
+    length(x),
+    min(x),
+    quantile(x, .25),
+    median(x),
+    quantile(x, .75),
+    max(x),
+    IQR(x),
+    sd(x),
+    mean(x),
+    mad(x),
+    kurtosis(x), 
+    skewness(x))
+  )
+}
+```
+
+
+# Exploratory Data Analysis of Lake Data  
+  
+  
+## Introduction
+In this EDA we investigate the relationship between ou the modelled median Ammoniacal Nitrogen, median Chlorophyll-A, median Clarity, median Total Nitrogen and median Total Phosphorus in New Zealand lakes over one hectare in area, for the period 2013 to 2017.  
+  
+From the above variables, we examine their individual distributions, their correlations with one another, their relationship with Dominant Landcover, various sample statistics, and Regional differences.  
+  
+We also examine Regional differences in lake areas, perimeters and depths.   
+
+
+This is a Stats NZ dataset from https://www.stats.govt.nz/indicators/modelled-lake-water-quality/.   
+  
+  
+## Explanation of variables
+*Ammoniacal Nitrogen* is a form of nitrogen that supports algae and plant growth, but in large concentrations can be toxic to aquatic life. This is measured in milligrams per litre. The national bottom line for this measure is 1.3mg/L, which none of the observations exceed.
+  
+*Chlorophyll-a* is an organic molecule found in plant cells that allows plants to photosynthesize. The variable Chlorophyll-a is a measure of the concentration of phytoplankton biomass in milligrams per cubic metre. High concentrations of chlorophyll is a symptom of degraded water quality. The national bottom line for this measure is 12.
+
+*Total Phosphorus* is the sum of all phosphorus forms in the water, including phosphorus bound to sediment. Large amounts of phosphorus in lakes can reduce dissolved oxygen in the water. This can cause low oxygen areas in the lake, where some aquatic life cannot survive. Total Phosphorus is measured in milligrams per cubic metre and has a national bottom line of 50mg/m3.  
+  
+*Clarity* is measured in Secchi depth. This is the maximum depth (in metres) a black and white Secchi disk is visible from the surface of the lake.  
+  
+*Dominant Landcover* is split into four types; Exotic Forest, Native, Pastoral and Urban area. There are 12 lakes with no entry for dominant land cover, however in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called ‘other’ that includes ‘Gorse and/or Broom’, ‘Surface mines and dumps’, ‘Mixed exotic shrubland’, and ‘Transport infrastructure’ so we have assigned these to the other category. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral exceeds 25 percent of catchment area and not already assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral.  
+  
+*Regions* in this dataset are; Auckland, Bay of Plenty, Canterbury, Gisborne, Hawke’s Bay, Whanganui, Marlborough, Northland, Otago, Southland, Taranaki, Tasman, Waikato, Wellington and West Coast. Each lake corresponds to the region it is located in.
+
+
+## Sample Statistics of Lake Health variables
+
+Table \ref{tab:laketable} shows the summary statistics for each of these three measures. 
+
+```{r laketable, echo = FALSE}
+lake <- read.csv("../../Data/modelled_lake_water_quality_altered.csv")
+laketype <- as.factor(lake$nof_lake_type)
+
+region <- as.factor(lake$region)
+land <- as.factor(lake$dominant_landcover)
+df <- data.frame(lake)
+NH4N <- lake$median_NH4N_mg.L..1
+CHLA <- lake$median_CHLA_mg.m.3
+TP <- lake$median_TP_mg.m.3
+TN <- lake$median_TN_mg.m.3
+SECCHI <- lake$median_SECCHI_metre
+
+df1 <- data.frame(NH4N, CHLA, TP, TN, SECCHI)
+df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+tab <- apply(df1, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c('Ammoniacal Nitrogen', 'Chloropyll-A', 'Phosphorus', "Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics", "simple")
+```
+
+
+Figure \ref{fig:nh4nhist} shows the distribution of Ammoniacal Nitrogen. The fitted normal distribution (in red) differs significantly from the smoothed histogram (purple). The smoothed histogram is more skewed and the mode is well below the mean. The median 0.0096 and mean 0.0120. Table \ref{tab:laketable} confirms this with a skewness of 2.0339. The kurtosis is 8.1158, indicating the distribution of Ammoniacal Nitrogen has heavy tails. There are two extreme values, at around 0.06 mg per litre. There is a large amount of observations around the first quantile, 0.0073 mg per litre. 
+
+```{r nh4nhist, fig.cap="Histogram of Ammoniacal Nitrogen", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=NH4N)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(NH4N)),
+                 col="black", fill="white") +
+  xlab("Observations of Ammonical Nitrogen") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(NH4N), sd=sd(NH4N)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(NH4N), col="red") +
+  geom_segment(aes(x=mean(NH4N)-sd(NH4N),
+                   y=15,
+                   xend=mean(NH4N)+sd(NH4N),
+                   yend=15), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-10), width=7, notch = TRUE)+
+  theme_tufte()
+```
+  
+  
+      
+
+Figure \ref{fig:chlahist} shows the distribution of Chlorophyll-A. We can see the fitted normal distribution differs slightly from the smoothed histogram. Table \ref{tab:laketable} shows the median is 3.9482 and the mean is 4.6093. The kurtosis is 18.3408, indicating the distribution of Chlorophyll-A is very heavy tailed, and the skewness is 2.5484, indicating the distribution is right skewed. 
+
+
+
+```{r chlahist, fig.cap="Histogram of Chlorophyll-A", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=CHLA)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(CHLA)),
+                 col="black", fill="white") +
+  xlab("Observations of Chlorophyll-A") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(CHLA), sd=sd(CHLA)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(CHLA), col="red") +
+  geom_segment(aes(x=mean(CHLA)-sd(CHLA),
+                   y=0.02,
+                   xend=mean(CHLA)+sd(CHLA),
+                   yend=0.02), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-0.01), width=0.01, notch = TRUE)+
+  theme_tufte()
+```
+
+Figure \ref{fig:tphist} shows the distribution of Total Phosphorus. The fitted normal distribution (red) fits quite well to the smoothed histogram (purple), although the kurtosis is very high, 26.2763. We would expect the kurtosis of a normally distributed variable to be close to 3 and with a skewness of 0, however the sample statistics of Total Phosphorus show the kurtosis much larger than 3 and the skewness 2.8722. This indicates the tails of this distribution are much heavier than a normal distribution, and it is right skewed. Table \ref{tab:laketable} shows the median of Total Phosphorus is 17.8966 mg per cubic meter, and the mean is 18.7206 mg per cubic meter. 
+
+
+```{r tphist, fig.cap="Histogram of Total Phosphorus", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=TP)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(TP)),
+                 col="black", fill="white") +
+  xlab("Observations of Total Phosphorus") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(TP), sd=sd(TP)),
+                col="red", size=2, alpha=.5) +
+  geom_vline(xintercept = mean(TP), col="red") +
+  geom_segment(aes(x=mean(TP)-sd(TP),
+                   y=0.007,
+                   xend=mean(TP)+sd(TP),
+                   yend=0.007), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-.005), width=.003, notch = TRUE)+
+  theme_tufte()
+```
+  
+  
+  Figure \ref{fig:TNhist} shows the distribution of Total Nitrogen. The fitted normal distribution (in red) differs significantly from the smoothed histogram (purple). The smoothed histogram is more skewed and the mode is well below the mean. The median 416.7044 and mean 505.8606. Table \ref{tab:laketable} confirms this with a skewness of 1.0799. The kurtosis is 3.5463, indicating the distribution of Total Nitrogen has reasonable tails.  
+
+```{r TNhist, fig.cap="Histogram of Total Nitrogen", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=TN)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(TN)),
+                 col="black", fill="white") +
+  xlab("Observations of Total Nitrogen") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(TN), sd=sd(TN)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(TN), col="red") +
+  geom_segment(aes(x=mean(TN)-sd(TN),
+                   y=0.00035,
+                   xend=mean(TN)+sd(TN),
+                   yend=0.00035), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-.0005), width=.0003, notch = TRUE)+
+  theme_tufte()
+```
+  
+Figure \ref{fig:SECCHIhist} shows the distribution of Clarity. The fitted normal distribution (in red) differs from the smoothed histogram (purple). The smoothed histogram is slightly asymmetrical but not skewed, with a median of 4.4677 and a mean of 4.4510. Table \ref{tab:laketable} confirms this with a skewness of 0.2342. The kurtosis is 1.9983, indicating the distribution of Clarity has slightly lighter tails than a normal distribution. These statistics indicate the distribution of Clarity is close to normal. 
+  
+```{r SECCHIhist, fig.cap="Histogram of Clarity (in metres)", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=SECCHI)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(SECCHI)),
+                 col="black", fill="white") +
+  xlab("Observations of Clarity in metres") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(SECCHI), sd=sd(SECCHI)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(SECCHI), col="red") +
+  geom_segment(aes(x=mean(SECCHI)-sd(SECCHI),
+                   y=0.05,
+                   xend=mean(SECCHI)+sd(SECCHI),
+                   yend=0.05), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-.05), width=.03, notch = TRUE)+
+  theme_tufte()
+
+```  
+  
+  
+Table \ref{tab:meaanvect} shows the sample mean vector of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity. 
+
+```{r meaanvect, echo = FALSE}
+tab <- colMeans(df1)
+tab <- as.table(tab)
+rownames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, col.names=c("", "Sample Means"), caption = "Means Vector")
+```
+
+The covariance matrix is shown in table \ref{tab:covamat}. The variance of Ammoniacal Nitrogen is 0.000047, Chlorophyll-A is 7.8796, Phosphorus is 83.6068, Total Nitrogen is 77280.9259 and the variance of Clarity is 5.0866. The covariance of Ammoniacal Nitrogen and Chlorophyll-A is 0.0040, the covariance of Ammoniacal Nitrogen and Phosphorus is 0.0234, Ammoniacal Nitrogen and Total Nitrogen is 1.3861 and the covariance of Ammoniacal Nitrogen and Clarity is -0.0079. These indicate there is a Positive relationship between Ammoniacal Nitrogen and the other measures, but a negative relationship with Clarity. The covariance of Chlorophyll-A and Phosphorus is 17.8102, Chlorophyll-A and Nitrogen is 433.3090, and Chlorophyll-A and Clarity is -3.7018. Similar to Ammoniacal Nitrogen, all variables except Clarity have a positive relationship with Chloropyll-A. The covariance of Total Phosphorus and Total Nitrogen is 1640.3594, yet again indicating a positive relationship. However, the covariance of Total Phosphorus and Clarity is -11.0049 and Total Nitrogen and Clarity is -490.5207. These indicate a negative relationship between Phosphorus and Clarity, and Nitrogen and Clarity. 
+
+```{r covamat, echo = FALSE}
+tab <- round(var(df1), 6)
+tab <- as.table(tab)
+rownames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Covariance Matrix")
+```
+
+Table \ref{tab:corramat} shows a visualisation of the correlation matrix. The strength of relationship is interpreted the size of the circles with strong relationships having larger circles and weaker relationships having small circles. Strength is also communicated via colour with darker colours indicating stronger relationship. Colour also indicates the direction of the relationship via a colour spectrum with reddish indicating a positive relationship, blue indicating a negative relationship and white indicating no relationship. 
+
+Ammoniacal Nitrogen has a weak, positive relationship with Chlorophyll-A (0.2076) and a Moderate, positive relationship with Total Phosphorus (0.3746). It has quite a strong relationship with Total Nitrogen (0.7294, which is to be expected asTotal Nitrogen includes Ammoniacal Nitrogen).
+Chlorophyll-A has a reasonably strong relationship with both Total Phosphorus (0.6939), and  a moderate relationship with Total Nitrogen (0.5553).
+Total Phosphorus has a reasonable strong relationship with Total Nitrogen of (0.64533).
+These statistics suggest that there may be a positive relationship between the different molecules in water.
+
+
+Clarity is the only variable to have any negative relationship with the other variables. Clarity has a negative correlation with all of the other variables of at least -0.5. It has an especially strong relationship with Total Nitrogen of -0.7823. These negative relationships are tp be expected as it makes sense that an increase of other molecules in water would reduce the water's clarity. We can see this represented as dark blue circles in figure \ref{fig:correlationplot}
+
+
+```{r corramat, echo = FALSE}
+tab <- cor(df1)
+tab <- as.table(tab)
+rownames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Correlation Matrix")
+```
+
+```{r correlationplot, fig.cap="Visualisation of the Correlation Matrix", fig.pos="center", echo=FALSE, warning = FALSE}
+Ammoniacal_Nitrogen <- lake$median_NH4N_mg.L..1
+Chlorophyll_A <- lake$median_CHLA_mg.m.3
+Total_Phosphorus <- lake$median_TP_mg.m.3
+Total_Nitrogen <- TN
+Clarity <- SECCHI
+df11 <- data.frame(Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
+ggcorrplot(cor(df11), method = "circle", hc.order = TRUE, type = "lower")
+```
+
+The pairs plot is shown in figure \ref{fig:pairsplot}.
+
+```{r pairsplot, fig.cap="Pairs Plot", fig.pos="center", echo=FALSE, message = FALSE}
+ggpairs(df11)
+```
+
+Figure \ref{fig:scNC} shows the relationship between Ammoniacal Nitrogen and Chlorophyll-A. We can see a very weak relationship, as shown with the low correlation of 0.2076. 
+
+```{r scNC, fig.cap = "Pairs Plot of Ammoniacal Nitrogen and Chlorophyll-A", echo = FALSE}
+p <- ggplot(df, aes(x=NH4N, y=CHLA)) +
+  geom_point() +
+  xlab("Ammonical Nitrogen")+
+  ylab("Chlorophyll-A")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot") 
+```
+
+The linear relationship between Ammoniacal Nitrogen and Phosphorus is shown clearly in figure \ref{fig:scNP}. The correlation of 0.3746 is still classified as a weak positive relationship but we can identify this relationship in the scatterplot. 
+
+```{r scNP, fig.cap = "Pairs Plot of Ammoniacal Nitrogen and Total Phosphorus", echo = FALSE}
+p <- ggplot(df, aes(x=NH4N, y=TP)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Total Phosphorus")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot") 
+```
+
+The strong correlation between Ammoniacal Nitrogen and Total Nitrogen is apparent in the scatterplot of their relationship shown in figure \ref{fig:scNN}. We can see a positive linear relationship, with very slight to no curvature. 
+
+```{r scNN, fig.cap = "Pairs Plot of Ammoniacal Nitrogen and Total Nitrogen", echo = FALSE}
+p <- ggplot(df, aes(x=NH4N, y=TN)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Total Nitrogen")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+
+Figure \ref{fig:scNSC} shows the pairs plot for Ammoniacal Nitrogen and Clarity. We can see a clearly non-linear, negative relationship. This can be seen in the correlation of -0.5093. 
+
+```{r scNSC, fig.cap = "Pairs Plot of Ammoniacal Nitrogen and Clarity", echo = FALSE}
+p <- ggplot(df, aes(x=NH4N, y=SECCHI)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Clarity")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+
+Figure \ref{fig:scCP} shows a linear relationship between Chlorophyll-A and Total Phosphorus. However, we can see there is non-constant variance. As the amount of Chlorophyll-A and Phosphorus increases, the variance also increases. This can be seen in the funneling of the data. The relationship is strong in the lower values, but becomes weaker as Chlorophyll-A and Phosphorus increases, resulting in a reasonably strong correlation of 0.6939.
+
+```{r scCP, fig.cap = "Pairs Plot of Chlorophyll-A and Total Phosphorus", echo = FALSE}
+p <- ggplot(df, aes(x=CHLA, y=TP)) +
+  geom_point() +
+  xlab("Chlorophyll-A")+
+  ylab("Total Phosphorus")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+
+Figure \ref{fig:scCN} shows a similar relationship between Chlorophyll-A and Nitrogen as the relationship between Chlorophyll-A and Phosphorus in figure \ref{fig:scCP}. Once again we can see funneling but a relatively strong linear relationship. This pairs plot shows an odd concentration of observations above the trend, around 1000mg/cubic metre of Total Nitrogen. The correlation is influenced by this, and the moderate sample correlation of 0.5553 reflects the strength of the trend, weakened by the odd concentration of observations away from the trend. 
+
+```{r scCN, fig.cap = "Pairs Plot of Chlorophyll-A and Total Nitrogen", echo = FALSE}
+p <- ggplot(df, aes(x=CHLA, y=TN)) +
+  geom_point() +
+  xlab("Chlorophyll-A")+
+  ylab("Total Nitrogen")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+
+The pairs plot of Chlorophyll-A and Clarity is shown in figure \ref{fig:scCS} with correlation -0.5847. Similar to the pairs plot of Ammoniacal Nitrogen and Clarity, we can see a non-linear, negative trend. The clarity appears to decrease exponentially as Chlorophyll-A increases. 
+
+```{r scCS, fig.cap = "Pairs Plot of Chlorophyll-A and Clarity", echo = FALSE}
+p <- ggplot(df, aes(x=CHLA, y=SECCHI)) +
+  geom_point() +
+  xlab("Chlorophyll-A")+
+  ylab("Clarity")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+
+Figure \ref{fig:scNP} shows the pairs plot of Nitrogen and Phosphorus. The correlation is 0.6453 and this is shown in the graph by a strong increasing trend. Once again, we can see some non-constant scatter, which may affect the correlation. 
+
+```{r scPN, fig.cap = "Pairs Plot of Total Phosphorus and Total Nitrogen", echo = FALSE}
+p <- ggplot(df, aes(x=TP, y=TN)) +
+  geom_point() +
+  xlab("Total Phosphorus")+
+  ylab("Total Nitrogen")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+
+The pairs plot of Total Phosphorus and Clarity is shown in figure \ref{fig:scPS}. There is less curvature in this plot than in figures \ref{fig:scNSC} and \ref{fig:scCS}. The correlation of -0.5336 is seen in the moderate, negative trend. The trend appears to show the clarity of the water reduces as the level of total phosphorus increases. 
+
+```{r scPS, fig.cap = "Pairs Plot of Total Phosphorus and Clarity", echo = FALSE}
+p <- ggplot(df, aes(x=TP, y=SECCHI)) +
+  geom_point() +
+  xlab("Total Phosphorus")+
+  ylab("Clarity")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+
+In comparison to figures \ref{fig:scNSC}, \ref{fig:scCS} and \ref{fig:scPS}, figure \ref{fig:scNS} shows much more curvature in the relationship between Total Nitrogen and Clarity. We can clearly see a strong, non-linear, negative relationship between these two measures, supported by the sample correlation of -0.7824. This indicates as Total Nitrogen increases, the water becomes less clear. 
+
+```{r scNS, fig.cap = "Pairs Plot of Total Nitrogen and Clarity", echo = FALSE}
+p <- ggplot(df, aes(x=TN, y=SECCHI)) +
+  geom_point() +
+  xlab("Total Nitrogen")+
+  ylab("Clarity")+
+  theme(legend.position="none")
+  
+ggMarginal(p, type="boxplot")
+```
+
+
+I have made Cullen and Frey plots for Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity, each with 1000 bootstrapped observations, shown in orange. 
+
+In figure \ref{fig:cfNH4N}, the Cullen and Frey graph of Ammoniacal Nitrogen, we can see the observed kurtosis and square of skewness was much larger than a normal distribution. The observation and all bootstrapped values were within the Beta distribution region, indicating the distribution of Ammoniacal Nitrogen in New Zealand lakes may follow a Beta distribution. 
+
+Figure \ref{fig:cfCHLA} shows the Cullen and Frey graph of Chlorophyll-A. The observed kurtosis and square of skewness were both much larger than we would expect for a normal distribution. The observed value and the bootstrapped observations lie on or just below the line all lognormal distributions lie on. This could tell us the distribution of Chlorophyll-A in New Zealand lakes could follow a lognormal distribution.
+
+The Cullen and Frey graph of Total Phosphorus is shown in figure \ref{fig:cfTP}. The observed kurtosis and square of skewness were larger than both Ammoniacal Nitrogen and Chlorophyll-A. Similar to the Cullen and Frey graph of Chlorophyll-A, the observed value and bootstrapped observations seem to lie close to the line that contains all lognormal distributions. However, very few of the bootstrapped observations lie on this line, indicating Total Phosphorus in New Zealand lakes likely does not follow a lognormal, or any other distribution illustrated on this graph. 
+
+The Cullen and Frey graph of Total Nitrogen is shown in figure \ref{fig:cfTN}. The observed value and the boostrapped observations all lie within the grey area suggesting that Total Nitrogen follows a Beta distribution. 
+
+The Cullen and Frey graph of Clarity is shown in figure \ref{fig:cfSECCHI}. The observed value and bootstrapped values of the skewness and kurtosis of Clarity lies within the area all beta distributions exist within, and very close to the Uniform distributions, indicating the distribution of Clarity could e Uniform or Beta.
+
+```{r cfNH4N, fig.cap = "Cullen and Frey Graph of Ammoniacal Nitrogen", echo = FALSE}
+descdist(NH4N, boot = 1000)
+```
+
+```{r cfCHLA, fig.cap = "Cullen and Frey Graph of Chlorophyll-A", echo = FALSE}
+descdist(CHLA, boot = 1000)
+```
+
+```{r cfTP, fig.cap = "Cullen and Frey Graph of Total Phosphorus", echo = FALSE}
+descdist(TP, boot = 1000)
+```
+  
+    
+```{r cfTN, fig.cap = "Cullen and Frey Graph of Total Nitrogen", echo = FALSE}
+descdist(TN, boot = 1000)
+```
+  
+```{r cfSECCHI, fig.cap = "Cullen and Frey Graph of Clarity", echo = FALSE}
+descdist(SECCHI, boot = 1000)
+```
+
+## Dominant Landcover
+There are five types of dominant land cover; Exotic Forest, Native, Pastoral, Urban area and Other. 'Other' includes 'Gorse and/or Broom', 'Surface mines and dumps', 'Mixed exotic shrubland', and 'Transport infrastructure'. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral exceeds 25 percent of catchment area and not already assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral. 
+
+Figure \ref{fig:boxx3} shows side-by-side box plots of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity for each type of landcover. The observations have been log transformed to show the spread of the distributions more clearly. 
+
+
+Figures \ref{fig:boxNH4N}, \ref{fig:boxCHLA}, \ref{fig:boxTP}, \ref{fig:boxTN} and \ref{fig:boxSECCHI} show comparisons for each type of landcover, for Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity, respectively. 
+
+
+```{r boxx3, fig.cap = "Box Plots of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", echo = FALSE, warning = FALSE}
+df12 <- data.frame(land, Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
+df12melt <- melt(df12,id.vars = "land" ,variable.name = "Measure")
+ggplot(df12melt, aes(x=Measure, y=value)) +
+geom_boxplot(aes(col=Measure), notch = TRUE) +
+facet_grid(~ land) +
+  scale_y_log10() +
+theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")
+```
+
+Figure \ref{fig:boxNH4N} illustrates the box plots for each type of landcover. The observations have been log transformed to show the distributions better. We can see the highest 75% of Ammoniacal Nitrogen measures in Urban areas are above the lower 75% of measures in Exotic forest and Native landcovers. This could inidcate a relationship between landcover and Ammoniacal Nitrogen. Exotic forest and Native landcovers tend to have lower amounts of Ammoniacal Nitrogen in the lake water than in Pastoral, Urban and Other landcovers. The medians are shown in tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median Ammoniacal Nitrogen for lakes with Exotic forest, Native, Other, Pastoral and Urban dominant landcover to be 0.0084040, 0.0075540, 0.0123870, 0.0124780 and 0.0150880, respectively. There is a clear difference between the medians, with lower medians in Exotic forest and Native landcovers. 
+
+```{r boxNH4N, fig.cap = "Box Plot of Landcover and Ammoniacal Nitrogen", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=land, y=NH4N)) + 
+    geom_boxplot(notch = TRUE, fill = "pink")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Dominant Landcover")+
+  ylab("Ammoniacal Nitrogen")+  
+  scale_y_log10() +
+  theme_tufte()
+```
+
+Figure \ref{fig:boxCHLA} shows the distribution of Chlorophyll-A in each type of landcover. The observations have been log transformed to show the distributions better. We can see very similar distributions in Exotic forest, Other, Pastoral and Urban landcovers, however, lakes with Native landcover tended to have much lower levels of Chlorophyll-A than other landcovers. The medians support this, with the median Chlorophyll-A level of lakes with Native landcover being 2.8754, while all other types of landcover had medians above 5 mg per cubic meter (as shown in tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby}).
+
+```{r boxCHLA, fig.cap = "Box Plot of Landcover and Chlorophyll-A", echo = FALSE, warnings=FALSE, message = FALSE}
+ggplot(df, aes(x=land, y=CHLA)) + 
+    geom_boxplot(notch = TRUE, fill = "lightblue")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Dominant Landcover")+
+  ylab("Chlorophyll-A")+  
+  scale_y_log10() +
+  theme_tufte()
+```
+
+Figure \ref{fig:boxTP} shows the distribution of Total Phosphorus for each type of dominant landcover. The observations have been log transformed to show the distributions better. The Native landcover group appears to have lower levels of Phosphorus than the other landcover types, with the third quantile being below the first quantile of all other categories. 
+
+Tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median levels of Phosphorus are 22.610470, 12.176880, 21.836995, 21.650210 and 21.416020 for Exotic forest, Native, Other, Pastoral and Urban landcovers, respectively. We can clearly see the level of Phosphorus in lakes with Native landcover tended to be much lower than other landcover types. 
+
+
+```{r boxTP, fig.cap = "Box Plot of Landcover and Total Phosphorus", echo = FALSE, warnings=FALSE}
+ggplot(df, aes(x=land, y=TP)) + 
+    geom_boxplot(notch = TRUE, fill = "lightgreen")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Dominant Landcover")+
+  ylab("Total Phosphorus")+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+Figure \ref{fig:boxTN} shows the distributions of Total Nitrogen for each type of dominant landcover. Similarly to Ammoniacal Nitrogen, Chlorophyll-A and Total Phosphorus, the lakes with native landcover appeared to have lower levels of Total Nitrogen. The other types of dominant landcover appear to have very similar distributions, with the distribution of Total Nitrogen in lakes with Urban landcover being slightly higher. Tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median levels of Nitrogen are 556.8908, 286.4589, 724.3681, 558.8725 and 725.8646 for Exotic forest, Native, Other, Pastoral and Urban landcovers, respectively. These statistics support the claim that lakes with Native landcover tend to have lower levels of Nitrogen than other types of dominant landcover.
+
+```{r boxTN, fig.cap = "Box Plot of Landcover and Total Nitrogen", echo = FALSE, warnings=FALSE}
+ggplot(df, aes(x=land, y=TN)) + 
+    geom_boxplot(notch = TRUE, fill = "violet")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Dominant Landcover")+
+  ylab("Total Nitrogen")+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+The distribution of Clarity by dominant landcover is shown in figure \ref{fig:boxSECCHI}. The lakes with Native landcover appear to have a higher clarity, or appear clearer than lakes with other types of dominant landcover. Lakes with Urban or 'Other' landcover are less clear. This is to be expected as we have found that higher levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen are associated with lower levels of Clarity. Tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median levels of Clarity are 2.9450, 5.4663, 2.3282, 3.3240 and 2.1811 for Exotic forest, Native, Other, Pastoral and Urban landcovers, respectively. We can say that lakes with Native landcover tend to be clearer than lakes with other types of dominant landcover. 
+
+
+```{r boxSECCHI, fig.cap = "Box Plot of Landcover and Clarity", echo = FALSE, warnings=FALSE}
+ggplot(df, aes(x=land, y=SECCHI)) + 
+    geom_boxplot(notch = TRUE, fill = "yellow")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Dominant Landcover")+
+  ylab("Clarity")+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+```{r eftabby, echo = FALSE}
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Exotic Forest Landcover", "simple")
+```
+
+```{r nattabby, echo = FALSE}
+A <- filter(df2, land == "Native")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Native Landcover", "simple")
+```
+
+```{r ottabby, echo = FALSE}
+A <- filter(df2, land == "Other")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Other Landcover", "simple")
+```
+
+```{r pasttabby, echo = FALSE}
+A <- filter(df2, land == "Pastoral")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Pastoral Landcover", "simple")
+```
+
+
+```{r urbtabby, echo = FALSE}
+A <- filter(df2, land == "Urban area")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Urban Landcover", "simple")
+```
+
+
+```{r datafix1, echo = FALSE}
+lake<-rename(lake, Region = region)
+lake <- filter(lake, Region == "Wellington" | Region == "Manawatū-Whanganui" | Region == "Otago"
+                | Region == "Canterbury"| Region == "Taranaki"| Region == "Waikato"
+                  | Region == "Bay of Plenty" | Region == "Northland"| Region == "Tasman district council"
+                  | Region == "Southland" | Region == "Marlborough district council" | Region == "West Coast"
+                  | Region == "Hawke's Bay" | Region == "Gisborne" | Region ==  "Auckland")
+```
+
+
+
+### Investigating lake area, depth, and perimeter
+
+
+What we next wanted to investigate was if there was any noticeable difference between area and perimeter as these dimensions are strongly linked. We know from mathematical formulas such as the formula for a circle that there is a relationship between area and perimeter.  
+
+As such, we look at the correlation between these two variables. We have decided that if the correlation is greater than 0.95 than the variables are practically the same and can be used interchangeably. If not, then they will be used separately.  
+
+Because of the high asymmetry of lakes, we would expect that lakes with the same perimeter can have very different areas. As such, we are expecting there will be a very noticeable difference.
+  
+    
+Below is a plot of the correlation between 
+```{r, echo = FALSE}
+
+area<- data.frame(lake$lake_area)
+perim<- data.frame(lake$lake_perimeter)
+
+peri_area <- cbind(area,perim)
+
+
+pl_peri_area<- ggplot(peri_area, aes(x=lake.lake_area, y=lake.lake_perimeter)) + 
+  geom_point()+
+  ggtitle("Scatterplot of relationship Lake Area and Perimeter")+
+  labs(x = "Lake Area", y = "Lake perimeter")+
+scale_x_log10()+
+  scale_y_log10()
+  
+pl_peri_area
+```
+  
+It is difficult to see the distribution from a regular plot as we have some large outliers. As such, I plotted the above graph using x and y scaling of log10 to improve the display. The data shows a clear correlation however because of the log transformations the strength of the correlations may not be as strong as they appear in the above graph. What We can also tell is that there appears to be many "small" lakes relative to a handful of much much larger ones. This informs us for when we later examine Regions to expect large outliers to skew the distribution. 
+
+<br />
+
+Correlation output for Lake area and perimeter:  
+
+```{r, echo = FALSE}
+ 
+ round(cor(peri_area), 3)
+
+```
+<br />
+<br />
+
+The correlation matrix returns a value of 0.797 for the correlation between Lake area and perimeter. This result makes logical sense as lakes with the same perimeter can have drastically different areas.  
+  
+From this analysis we know not to treat area and perimeter as equivalent.
+
+
+### Lake Data Summary Statistics:  
+  
+Number of Lakes in each Region:
+
+```{r, echo = FALSE, message = FALSE}
+##Some Summary statistics
+LakeNum<-select(lake, c(lake_perimeter, lake_depth, lake_area))
+LakeCat<-select(lake, Region)
+
+
+tab <- table(LakeCat)
+knitr::kable(tab, caption = "Table of Sample Statistics for Urban Landcover", "simple")
+```
+  
+    
+    
+Table of summary statistics of Area (m^2), Perimeter(m), Depth(m)  
+```{r, echo = FALSE, message = FALSE}
+
+Minimum<- c(min(lake$lake_area), min(lake$lake_perimeter), min(lake$lake_depth))
+Maximum <- c(max(lake$lake_area), max(lake$lake_perimeter), max(lake$lake_depth))
+Median <- c(median(lake$lake_area), median(lake$lake_perimeter), median(lake$lake_depth))
+Sample_Size <- dim(lake$lake_area)[1]
+quantileArea <- quantile(lake$lake_area)
+quantilePerimeter <- quantile(lake$lake_perimeter)
+quantileDepth <- quantile(lake$lake_depth)
+First_Quartile <- c(quantileArea[2], quantilePerimeter[2], quantileDepth[2])
+Third_Quartile <- c(quantileArea[4], quantilePerimeter[4], quantileDepth[4])
+
+tablething <- rbind(Minimum, Maximum, Median, Sample_Size, First_Quartile, Third_Quartile)
+colnames(tablething) <- (c("Area", "Perimeter", "Depth"))
+
+knitr::kable(tablething, caption = "Table of Sample Statistics for Urban Landcover", "simple")
+
+```
+  
+   
+    
+#### Variance in our Area (m^2), Perimeter(m) and Depth(m)
+#### Second Moment of Variances
+```{r, echo=FALSE}
+##Variance/2nd moment
+Area_var<-var(lake$lake_area)
+print(c("Area:", Area_var))
+
+Perimeter_var<-var(lake$lake_perimeter)
+print(c("Perimeter:", Perimeter_var))
+
+Depth_var<-var(lake$lake_depth)
+print(c("Depth:", Depth_var))
+```
+
+#### Skewness in our Area (m^2), Perimeter(m) and Depth(m)
+```{r, echo = FALSE}
+##Skewness/3rd moment
+skew2<- skewness(LakeNum)
+skew2
+```
+Our positive skews indicate that data is skewed right and is therefore not normally distributed around the mean; where high skewness is greater than 1, moderate skewness is between 0.5 and 1, minor skewness is between 0 and <0.5. As such we see that all three variables have a huge amount of skew. To visualize this skew and to see the distribution of our data we will create histograms.  
+  
+
+  
+Histogram for Area figure \ref{fig:histarea}
+Histogram for Perimeter figure \ref{fig:histPerimeter}
+Histogram for depth figure \ref{fig:histDepth}
+
+```{r histarea, fig.cap = "Histogram of Lake Area in meters squared. Blue Rectangles indicate skewed distribution, green dotted line indicates the placement of the median value", fig.pos = "center", echo = FALSE, warnings = FALSE}
+ggplot(lake, aes(x=lake_perimeter)) + 
+  geom_histogram(color = "lightblue", fill = "lightblue", alpha = 2, bins = 50)+
+  xlab("Lake Meters in meters^2")+
+  ylab("Count")+
+  geom_vline(aes(xintercept=median(lake_depth)),
+            color="green", linetype="dashed", size=1)+
+  scale_y_log10()+
+  theme_bw()
+```
+ *Above Histogram includes y scaling of log10 (+scale_y_log10()) as it provides a better visual display of the data. 
+  
+    
+    
+    
+   
+```{r histPerimeter, fig.cap = "Histogram of Lake perimeter in meters. Blue Rectangles indicate skewed distribution, green dotted line indicates the placement of the median value.", warning =FALSE, echo = FALSE, message = FALSE}
+ggplot(lake, aes(x=lake_perimeter)) + 
+  geom_histogram(color = "lightblue", fill = "lightblue", alpha = 2, bins = 50)+
+  labs(x = "Lake Perimeter in meters", y = "Count", title = "Histogram of count of Lake Perimeter in Meters")+
+   geom_vline(aes(xintercept=median(lake_depth)),
+            color="green", linetype="dashed", size=1)+
+  scale_y_log10()+
+  theme_bw()
+```
+*Above Histogram includes y scaling of log10 (+scale_y_log10()) as it provides a better visual display of the data.
+  
+  
+  
+  
+```{r histDepth, fig.cap = "Histogram of Lake Depth in meters. Blue Rectangles indicate skewed distribution, green dotted line indicates the placement of the median value.", echo = FALSE, message = FALSE, warning = FALSE}
+ggplot(lake, aes(x=lake_depth)) + 
+  geom_histogram(color = "lightblue", fill = "lightblue", alpha = 2, bins = 50)+
+  labs(x = "Lake Depth in meters", y = "Count", title = "Histogram of count of Lake Depth in Meters")+
+   geom_vline(aes(xintercept=median(lake_depth)),
+            color="green", linetype="dashed", size=1)+
+  scale_y_log10()+
+  theme_bw()
+```
+*Above Histogram includes y scaling of log10 (+scale_y_log10()) as it provides a better visual display of the data.
+
+
+### Examining the Correlation between Area, Depth and Perimeter
+*Correlation matrix rounded to three decimal place 
+
+```{r, echo=FALSE}
+##correlation matrix, rounded to three decimal places
+round(cor(LakeNum), 3)
+
+```
+
+  
+  
+
+Visualisation of the Correlation Matrix:
+
+```{r VisCorr1, fig.cap= "Visual of correlation between, depth, perimeter and area where Strength and direction of relationship are indicated by circle size and colour", echo=FALSE, warning = FALSE}
+
+###A visualisation of the correlation matrix:
+ggcorrplot(cor(LakeNum), method = "circle",
+           hc.order = TRUE,
+           type = "lower") +
+  ggtitle("Visual correlation matrix of Area, Perimeter and Depth")+
+  theme_bw()
+
+```
+As to be expected, all three variables have positive correlations with one another. The correlation between lake area and lake depth isn't small but it is smaller than one may expect. Lake Perimeter has a rather strong relationship with both area and depth.  
+
+## Investigating Regional differences
+<br />
+<br />
+We first investigated Regional differences in our Lake Health variables.
+
+
+```{r LakeHealthByRegion, echo = FALSE}
+LakeTable <-filter(lake, !Region == "NA") %>%
+  group_by(Region) %>%
+  summarise_at(vars(c(median_TLI3, median_SECCHI_metre, median_NH4N_mg.L..1, median_TN_mg.m.3, median_TP_mg.m.3, median_CHLA_mg.m.3)), list(median = median))
+
+ LakeTable <- rename(LakeTable, c(Median_Trophic_Level3 = median_TLI3_median,
+                                  Median_Clarity_metres =  median_SECCHI_metre_median,
+                                  Median_NH4N_mg = median_NH4N_mg.L..1_median,
+                                  Median_Total_Nitrogen = median_TN_mg.m.3_median, 
+                                  Median_Total_Phosphorus = median_TP_mg.m.3_median,
+                                  Median_ChlorophyllA = median_CHLA_mg.m.3_median))
+                                  
+                                  
+knitr::kable(LakeTable, caption = "Table of Sample Statistics for Urban Landcover", "simple")
+```
+<br />
+Examining the above table there are some interesting points:  
+ - Southland lakes have a low value or the lowest value on every metric (with the exception clarity where it is about average).  
+ - We see that the opposite is true for Gisborne where it is high in all variables except clarity where it is low.
+ - There is quite a wide range of levels of clarity between regions suggesting that region may have a relationship with clarity.  
+ -
+ 
+
+<br />
+<br />
+
+### Investigating Regional differences of Lake Area, Perimeter and Depth  
+<br />
+
+
+#### View of the Mean and Median for Lake Area by Region:
+
+<br />
+
+```{r MeanArea, fig.cap= "Barplot of regional mean lake areas", echo = FALSE}
+
+LakeTable <-filter(lake, !Region == "NA") %>%
+  group_by(Region) %>%
+  summarise_at(vars(lake_area), list(mean = mean))
+
+
+
+LakeTable<- data.frame(LakeTable)
+
+ggplot(data=LakeTable, aes(x=Region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Mean Lake Area in metres squared", title = 
+         "Mean Lake Area of Region in metres squared")+
+  coord_flip()+
+  theme_bw()
+
+
+```
+  
+**Values of NA have been removed.
+<br />
+<br />
+  
+```{r MedianArea, fig.cap= "Barplot of regional median lake areas", echo = FALSE}
+
+LakeTable <-filter(lake, !Region == "NA") %>%
+  group_by(Region) %>%
+  summarise_at(vars(lake_area), list(median = median))
+
+#which.max(Lake$lake_perimeter)
+
+
+LakeDf<- data.frame(LakeTable)
+#Lake[3471,]
+
+ggplot(data=LakeDf, aes(x=Region, y=median)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Median Lake Area in metres squared", title = 
+         "Median Lake Area of Region in metres squared")+
+  coord_flip()+
+  theme_bw()
+
+
+```
+  
+**Values of NA have been removed.
+
+<br />
+Analysis of Lake Area:
+Of all of the Regional disparities we see the greatest in Area. There are some enormous Lakes in New Zealand and these skew the distribution.
+Judging by the median we would guess that the regions with the largest lakes by area are Southland and Bay of Plenty
+
+<br />
+
+#### View of the Mean and Median for Lake Perimeter:
+
+<br />
+
+```{r MeanPerimeter, fig.cap= "Barplot of regional mean lake perimeters",echo = FALSE}
+
+LakeTable <-filter(lake, !Region == "NA") %>%
+  group_by(Region) %>%
+  summarise_at(vars(lake_perimeter), list(mean = mean))
+
+
+
+LakeTable<- data.frame(LakeTable)
+
+ggplot(data=LakeTable, aes(x=Region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Mean Lake Perimeter in metres", title = 
+         "Mean Lake Perimeter of Region in metres")+
+  coord_flip()+
+  theme_bw()
+
+
+```
+  
+**Values of NA have been removed.
+<br />
+<br />
+  
+```{r MedianPerimeter, fig.cap= "Barplot of regional median lake perimeters", echo = FALSE}
+
+LakeTable <-filter(lake, !Region == "NA") %>%
+  group_by(Region) %>%
+  summarise_at(vars(lake_perimeter), list(median = median))
+
+#which.max(Lake$lake_perimeter)
+
+LakeDf<- data.frame(LakeTable)
+
+ggplot(data=LakeDf, aes(x=Region, y=median)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Median Lake Perimeter in metres", title = 
+         "Median Lake Perimeter of Region in metres")+
+  coord_flip()+
+  theme_bw()
+
+
+```
+  
+**Values of NA have been removed.
+<br />
+<br />
+Perimeter Analysis:
+Across all regions there is a disparity between the mean and the median. Most Regions have an median perimeter between 700 and 950 meters, however, most of their means are between 1000 and four thousand meters.  
+We see that on by median and average, the Bay of Plenty has the largest perimeter with Gisborne having the smallest in both categories.
+
+<br />
+#### View of the Mean and Median for Lake Depth:
+
+<br />
+
+```{r MeanDepth, fig.cap= "Barplot of regional mean lake Depth", echo = FALSE}
+
+LakeTable <-filter(lake, !Region == "NA") %>%
+  group_by(Region) %>%
+  summarise_at(vars(lake_depth), list(mean = mean))
+
+
+
+LakeTable<- data.frame(LakeTable)
+
+ggplot(data=LakeTable, aes(x=Region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Mean Lake Depth in metres", title = 
+         "Mean Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_bw()
+
+
+
+
+```
+
+  
+**Values of NA have been removed.
+<br />
+<br />
+  
+```{r MedianDepth, fig.cap= "Barplot of regional median lake depths", echo = FALSE}
+
+LakeTable <-filter(lake, !Region == "NA") %>%
+  group_by(Region) %>%
+  summarise_at(vars(lake_depth), c(list(mean = mean), list(median = median)))
+
+LakeTable
+
+#which.max(Lake$lake_perimeter)
+
+LakeDf<- data.frame(LakeTable)
+
+ggplot(data=LakeDf, aes(x=Region, y=median)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Median Lake Depth in metres", title = 
+         "Median Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_bw()
+
+
+```
+  
+**Values of NA have been removed.
+<br />
+<br />
+
+Depth:
+What we can tell from the bargraphs that there is not much difference in distribution between the regions in Lake Depth, however, the mean for each region is approximately 5 meters deeper than the median. This suggests that across most regions there are some much deeper lakes. There are some exceptions to this such as Gibsborne.
+
+
+## Further Analysis we would like to do:  
+From this EDA we have identified the following items that we would like to investigate further:  
+
+- The relationship between Region and Lake Health indicators. We expect that we may find much stronger predicting ability if we include covariates when predicting Health indicators. This will be especially interesting if we can locate data from outside our dataset to explain why there may be such a disparity in Regional differences.  
+  
+- The distribution of the Lake Health variables.    
+
+- The relationship between depth and the Lake Health variables. We suspect that depth may have more of an impact on the Lake Health variables than Area and Perimeter. We want to inspect this suspicion further.  
+
+
+
+
