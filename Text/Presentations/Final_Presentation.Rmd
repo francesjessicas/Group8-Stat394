@@ -35,15 +35,15 @@ For analysis we split the dataset into two main categories; the lake health vari
 - Region; which New Zealand region the lake was located in, and  
 - Dominant landcover; split into four types; Exotic Forest, Native, Pastoral and Urban area. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral exceeds 25 percent of catchment area and not already assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral.  
 
-# Lake Health Variables SUM UP THIS SECTION NEED SMALLER
+# Lake Health Variables
 
-*Ammoniacal Nitrogen* is a form of nitrogen that supports algae and plant growth, but in large concentrations can be toxic to aquatic life. This is measured in milligrams per litre. The national bottom line for this measure is 1.3mg/L, which none of the observations exceed.
+*Ammoniacal Nitrogen* is a form of nitrogen that supports algae and plant growth, but in large concentrations can be toxic to aquatic life. 
   
-*Chlorophyll-a* is an organic molecule found in plant cells that allows plants to photosynthesize. The variable Chlorophyll-a is a measure of the concentration of phytoplankton biomass in milligrams per cubic metre. High concentrations of chlorophyll is a symptom of degraded water quality. The national bottom line for this measure is 12.
+*Chlorophyll-a* is an organic molecule found in plant cells that allows plants to photosynthesize. The variable Chlorophyll-a is a measure of the concentration of phytoplankton biomass in milligrams per cubic metre. High concentrations of chlorophyll is a symptom of degraded water quality.  
 
-*Total Phosphorus* is the sum of all phosphorus forms in the water, including phosphorus bound to sediment. Large amounts of phosphorus in lakes can reduce dissolved oxygen in the water. This can cause low oxygen areas in the lake, where some aquatic life cannot survive. Total Phosphorus is measured in milligrams per cubic metre and has a national bottom line of 50mg/m3.  
+*Total Phosphorus* is the sum of all phosphorus forms in the water. Large amounts of phosphorus in lakes can reduce dissolved oxygen in the water. This can cause low oxygen areas in the lake, where some aquatic life cannot survive.   
 
-*Total Nitrogen* NEED TO WRITE STUFF
+*Total Nitrogen* is the sum of all nitrogens found in the water. An excess of nitrogen in lakes can cause an increase in algae and plant growth, possibly depriving the lake of oxygen.  
   
 *Clarity* is measured in Secchi depth. This is the maximum depth (in metres) a black and white Secchi disk is visible from the surface of the lake.  
   
@@ -56,10 +56,114 @@ For analysis we split the dataset into two main categories; the lake health vari
 
 # Exploratory Data Analysis
 
+First we analysed the distribution of the lake health variables by dominant landcover. Some sample statistics are below in table \ref{tab:WHAAAAAAAT}. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(300570258, kind = "Mersenne-Twister")
+
+require(tinytex)
+require(ggplot2)
+require(ggthemes)
+require(extrafont)
+require(ggstance)
+require(fitdistrplus)
+require(ggcorrplot)
+require(GGally)
+require(ggExtra)
+require(moments)
+require(kable)
+require(reshape2)
+require(dplyr)
+```
+
+```{r functab, echo = FALSE}
+MySummary2 <- function(x){
+  return(c(
+    length(x),
+    min(x),
+    median(x),
+    max(x),
+    var(x),
+    mean(x),
+    kurtosis(x), 
+    skewness(x))
+  )
+}
+
+lake <- read.csv("../../Data/modelled_lake_water_quality_altered.csv")
+laketype <- as.factor(lake$nof_lake_type)
+
+region <- as.factor(lake$region)
+land <- as.factor(lake$dominant_landcover)
+df <- data.frame(lake)
+NH4N <- lake$median_NH4N_mg.L..1
+CHLA <- lake$median_CHLA_mg.m.3
+TP <- lake$median_TP_mg.m.3
+TN <- lake$median_TN_mg.m.3
+SECCHI <- lake$median_SECCHI_metre
+
+df1 <- data.frame(NH4N, CHLA, TP, TN, SECCHI)
+df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+tab <- apply(df1, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+```
+
+```{r eftabby, echo = FALSE}
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Exotic Forest Landcover", "simple")
+```
+
+```{r nattabby, echo = FALSE}
+A <- filter(df2, land == "Native")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Native Landcover", "simple")
+```
+
+```{r ottabby, echo = FALSE}
+A <- filter(df2, land == "Other")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Other Landcover", "simple")
+```
+
+```{r pasttabby, echo = FALSE}
+A <- filter(df2, land == "Pastoral")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Pastoral Landcover", "simple")
+```
 
 
-
-
+```{r urbtabby, echo = FALSE}
+A <- filter(df2, land == "Urban area")
+A = A[,-1]
+A <- data.frame(A)
+tab <- apply(A, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics for Urban Landcover", "simple")
+```
 
 
 
@@ -73,8 +177,11 @@ Once the EDA was performed we came up with some interesting questions that we co
 The results of these were then refined into our Final Report.
 
 
+# Problems
 
- There are 12 lakes with no entry for dominant land cover, however in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called 'other' that includes 'Gorse and/or Broom', 'Surface mines and dumps', 'Mixed exotic shrubland', and 'Transport infrastructure' so we have assigned these to the 'other' category. 
+The dataset contained 12 lakes with no entry for dominant land cover. However in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called 'other' that includes 'Gorse and/or Broom', 'Surface mines and dumps', 'Mixed exotic shrubland', and 'Transport infrastructure' so we have assigned these to the 'other' category.  
+
+We also found one lake with no entry for region so we excluded this observation when analysing region with the lake health or dimension variables.  
 
 
 
