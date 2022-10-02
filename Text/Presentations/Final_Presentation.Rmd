@@ -56,7 +56,7 @@ For analysis we split the dataset into two main categories; the lake health vari
 
 # Exploratory Data Analysis
 
-First we analysed the distribution of the lake health variables by dominant landcover. Some sample statistics are below in table \ref{tab:WHAAAAAAAT}. 
+First we analysed the distribution of the lake health variables. Figure \ref{fig:correlationplot} shows the visualisation of the correlation matrix for the lake health variables.  
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -102,68 +102,36 @@ CHLA <- lake$median_CHLA_mg.m.3
 TP <- lake$median_TP_mg.m.3
 TN <- lake$median_TN_mg.m.3
 SECCHI <- lake$median_SECCHI_metre
+depth <- lake$lake_depth
+area <- lake$lake_area
+peri <- lake$lake_perimeter
 
 df1 <- data.frame(NH4N, CHLA, TP, TN, SECCHI)
 df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
-tab <- apply(df1, MySummary2, MARGIN = 2)
-tab <- as.table(tab)
-```
-
-```{r eftabby, echo = FALSE}
-A <- filter(df2, land == "Exotic forest")
-A = A[,-1]
-A <- data.frame(A)
-tab <- apply(A, MySummary2, MARGIN = 2)
-tab <- as.table(tab)
-rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
-colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
-knitr::kable(tab, caption = "Table of Sample Statistics for Exotic Forest Landcover", "simple")
-```
-
-```{r nattabby, echo = FALSE}
-A <- filter(df2, land == "Native")
-A = A[,-1]
-A <- data.frame(A)
-tab <- apply(A, MySummary2, MARGIN = 2)
-tab <- as.table(tab)
-rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
-colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
-knitr::kable(tab, caption = "Table of Sample Statistics for Native Landcover", "simple")
-```
-
-```{r ottabby, echo = FALSE}
-A <- filter(df2, land == "Other")
-A = A[,-1]
-A <- data.frame(A)
-tab <- apply(A, MySummary2, MARGIN = 2)
-tab <- as.table(tab)
-rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
-colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
-knitr::kable(tab, caption = "Table of Sample Statistics for Other Landcover", "simple")
-```
-
-```{r pasttabby, echo = FALSE}
-A <- filter(df2, land == "Pastoral")
-A = A[,-1]
-A <- data.frame(A)
-tab <- apply(A, MySummary2, MARGIN = 2)
-tab <- as.table(tab)
-rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
-colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
-knitr::kable(tab, caption = "Table of Sample Statistics for Pastoral Landcover", "simple")
 ```
 
 
-```{r urbtabby, echo = FALSE}
-A <- filter(df2, land == "Urban area")
-A = A[,-1]
-A <- data.frame(A)
-tab <- apply(A, MySummary2, MARGIN = 2)
-tab <- as.table(tab)
-rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
-colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
-knitr::kable(tab, caption = "Table of Sample Statistics for Urban Landcover", "simple")
+```{r correlationplot, fig.cap="Visualisation of the Correlation Matrix", fig.pos="center", echo=FALSE, warning = FALSE}
+Ammoniacal_Nitrogen <- lake$median_NH4N_mg.L..1
+Chlorophyll_A <- lake$median_CHLA_mg.m.3
+Total_Phosphorus <- lake$median_TP_mg.m.3
+Total_Nitrogen <- TN
+Clarity <- SECCHI
+df11 <- data.frame(Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
+ggcorrplot(cor(df11), method = "circle", hc.order = TRUE, type = "lower")
 ```
+
+# Exploratory Data Analysis
+
+The pairs plot of the lake health and dimension variables, coloured by dominant landcover, is shown in figure \ref{fig:pairsplot}.  
+
+```{r pairsplot, fig.cap="Pairs Plot", fig.pos="center", echo=FALSE, message = FALSE}
+ggpairs(df11, aes(col=land, alpha=.5))
+```
+
+# Exploratory Data Analysis
+
+Next, we wanted to compare the distribution of the lake health variables by types of dominant landcover. The side-by-side boxplots are shown in figure \ref{fig:boxx3}.  
 
 
 ```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen,  Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", out.width = "80%", out.height = "60%", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
@@ -187,7 +155,11 @@ legend.position = "none")
 ```
 
 
-```{r boxNH4N, fig.cap = "Box Plot of Landcover and Ammoniacal Nitrogen", echo = FALSE, warnings = FALSE}
+# Exploratory Data Analysis
+
+Next we analysed the distribution of the lake health variables by region. The box plots of Ammoniacal Nitrogen by region is shown in figure \ref{fig:boxNH4N}.  
+
+```{r boxNH4N, fig.cap = "Box Plot of Region and Ammoniacal Nitrogen", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
 ggplot(df, aes(x=region, y=NH4N)) + 
     geom_boxplot(notch = TRUE, fill = "pink")+
   theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
@@ -199,8 +171,184 @@ legend.position = "none")+
   theme_tufte()
 ```
 
+# Exploratory Data Analysis
+
+The box plots of Chloorphyll-A by region is shown in figure \ref{fig:boxCHLA}.  
+
+```{r boxCHLA, fig.cap = "Box Plot of Region and Chloropyll-A", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=region, y=CHLA)) + 
+    geom_boxplot(notch = TRUE, fill = "lightgreen")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Chloropyll-A")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+# Exploratory Data Analysis
+
+The box plots of Total Phosphorus by region is shown below in figure \ref{fig:boxTP}.  
+
+```{r boxTP, fig.cap = "Box Plot of Region and Total Phosphorus", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=region, y=TP)) + 
+    geom_boxplot(notch = TRUE, fill = "lightblue")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Total Phosphorus")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
 
 
+# Exploratory Data Analysis
+
+The box plots of Total Nitrogen by region is shown in figure \ref{fig:boxTN}.  
+
+```{r boxTN, fig.cap = "Box Plot of Region and Total Nitrogen", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=region, y=TN)) + 
+    geom_boxplot(notch = TRUE, fill = "orange")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Total Nitrogen")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+# Exploratory Data Analysis
+
+Figure \ref{fig:boxSECCHI} shows the box plots of clarity by region. 
+
+
+```{r boxSECCHI, fig.cap = "Box Plot of Region and Clarity", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=region, y=SECCHI)) + 
+    geom_boxplot(notch = TRUE, fill = "violet")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Clarity")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+```{r scAN, fig.cap = "Pairs Plots of Ammoniacal Nitrogen and Dimension Variables", echo = FALSE}
+p1 <- ggplot(df, aes(x=NH4N, y=depth)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Depth")+
+  theme(legend.position="none")
+p2 <- ggplot(df, aes(x=NH4N, y=area)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Area")+
+  theme(legend.position="none")
+p3 <- ggplot(df, aes(x=NH4N, y=peri)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Perimeter")+
+  theme(legend.position="none")
+  
+ggMarginal(p1, type="boxplot")
+ggMarginal(p2, type="boxplot")
+ggMarginal(p3, type="boxplot")
+```
+
+```{r scAN, fig.cap = "Pairs Plots of Ammoniacal Nitrogen and Dimension Variables", echo = FALSE}
+p1 <- ggplot(df, aes(x=NH4N, y=depth)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Depth")+
+  theme(legend.position="none")
+p2 <- ggplot(df, aes(x=NH4N, y=area)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Area")+
+  theme(legend.position="none")
+p3 <- ggplot(df, aes(x=NH4N, y=peri)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Perimeter")+
+  theme(legend.position="none")
+  
+ggMarginal(p1, type="boxplot")
+ggMarginal(p2, type="boxplot")
+ggMarginal(p3, type="boxplot")
+```
+
+```{r scAN, fig.cap = "Pairs Plots of Ammoniacal Nitrogen and Dimension Variables", echo = FALSE}
+p1 <- ggplot(df, aes(x=NH4N, y=depth)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Depth")+
+  theme(legend.position="none")
+p2 <- ggplot(df, aes(x=NH4N, y=area)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Area")+
+  theme(legend.position="none")
+p3 <- ggplot(df, aes(x=NH4N, y=peri)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Perimeter")+
+  theme(legend.position="none")
+  
+ggMarginal(p1, type="boxplot")
+ggMarginal(p2, type="boxplot")
+ggMarginal(p3, type="boxplot")
+```
+
+```{r scAN, fig.cap = "Pairs Plots of Ammoniacal Nitrogen and Dimension Variables", echo = FALSE}
+p1 <- ggplot(df, aes(x=NH4N, y=depth)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Depth")+
+  theme(legend.position="none")
+p2 <- ggplot(df, aes(x=NH4N, y=area)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Area")+
+  theme(legend.position="none")
+p3 <- ggplot(df, aes(x=NH4N, y=peri)) +
+  geom_point() +
+  xlab("Ammoniacal Nitrogen")+
+  ylab("Perimeter")+
+  theme(legend.position="none")
+  
+ggMarginal(p1, type="boxplot")
+ggMarginal(p2, type="boxplot")
+ggMarginal(p3, type="boxplot")
+```
+
+```{r scSECCHI, fig.cap = "Pairs Plots of Clarity and Dimension Variables", echo = FALSE}
+p1 <- ggplot(df, aes(x=SECCHI, y=depth)) +
+  geom_point() +
+  xlab("Clarity")+
+  ylab("Depth")+
+  theme(legend.position="none")
+p2 <- ggplot(df, aes(x=SECCHI, y=area)) +
+  geom_point() +
+  xlab("Clarity")+
+  ylab("Area")+
+  theme(legend.position="none")
+p3 <- ggplot(df, aes(x=SECCHI, y=peri)) +
+  geom_point() +
+  xlab("Clarity")+
+  ylab("Perimeter")+
+  theme(legend.position="none")
+  
+ggMarginal(p1, type="boxplot")
+ggMarginal(p2, type="boxplot")
+ggMarginal(p3, type="boxplot")
+```
+
+
+# wat
 Perform an EDA of the variables that we grouped together. At this point in time, we did not have a specific leading question that we were interested in. As such, we thought it would be prudent to make the goal of our EDA to extract as much interesting information from our data as  we could; then use the results to come up with leading questions.
 RussBuss - Today at 1:00 PM
 Once the EDA was performed we came up with some interesting questions that we could investigate further for the Preliminary Report. WE then conducted more analyses. The results of this were then refined.
@@ -211,7 +359,7 @@ The results of these were then refined into our Final Report.
 
 The dataset contained 12 lakes with no entry for dominant land cover. However in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called 'other' that includes 'Gorse and/or Broom', 'Surface mines and dumps', 'Mixed exotic shrubland', and 'Transport infrastructure' so we have assigned these to the 'other' category.  
 
-We also found one lake with no entry for region so we excluded this observation when analysing region with the lake health or dimension variables.  
+We also found one lake with no entry for region so we excluded this observation when analysing region with the lake health or dimension variables further.  
 
 
 
