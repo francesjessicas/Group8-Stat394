@@ -84,18 +84,9 @@ ggplot(df, aes(x=TP)) +
 
 Our second visualisation is are side-by-side boxplot of the log-transformed lake health variables by dominant landcover in figure \ref{fig:boxx3}. 
 
-```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen,  Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", out.width = "80%", out.height = "60%", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-
-region <- as.factor(lake$region)
-land <- as.factor(lake$dominant_landcover)
-Ammoniacal_Nitrogen <- lake$median_NH4N_mg.L..1
-Chlorophyll_A <- lake$median_CHLA_mg.m.3
-Total_Phosphorus <- lake$median_TP_mg.m.3
-Total_Nitrogen <- lake$median_TN_mg.m.3
-Clarity <- lake$median_SECCHI_metre
-
+```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", echo=FALSE, message=FALSE, warning=FALSE}
 df12 <- data.frame(land, Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
-df12melt <- melt(df12,id.vars = "land" ,variable.name = "Measure")
+df12melt <- melt(df12,id.vars = "region" ,variable.name = "Measure")
 ggplot(df12melt, aes(x=Measure, y=value)) +
 geom_boxplot(aes(col=Measure), notch = TRUE) +
 facet_grid(~ land) +

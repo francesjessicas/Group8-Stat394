@@ -227,7 +227,7 @@ knitr::kable(tab, caption = "Table of Frequencies of Dominant Landcover", col.na
   
 We wanted to examine the relationship between our health variables and dominant land cover so we began by producing side-by-side boxplots to display this as seen in figure \ref{fig:boxx3}. 
   
-```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen, message=FALSE, warning=FALSE, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", echo=FALSE}
+```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", echo=FALSE, message=FALSE, warning=FALSE}
 df12 <- data.frame(land, Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
 df12melt <- melt(df12,id.vars = "land" ,variable.name = "Measure")
 ggplot(df12melt, aes(x=Measure, y=value)) +

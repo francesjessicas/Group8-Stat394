@@ -58,10 +58,126 @@ TP <- lake$median_TP_mg.m.3
 TN <- lake$median_TN_mg.m.3
 SECCHI <- lake$median_SECCHI_metre
 
-df1 <- data.frame(NH4N, CHLA, TP, TN, SECCHI)
+df1 <- data.frame(SECCHI, NH4N, CHLA, TP, TN)
 df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
 ```
 
+
+```{r}
+ggpairs(df2, columns=2:6, ggplot2::aes(colour=land, alpha=.7))
+```
+
+
+```{r}
+ggcorrplot(cor(df1),
+method = "circle",
+hc.order = TRUE,
+type = "lower",
+lab = TRUE)
+
+```
+
+
+```{r}
+health.PCA <- prcomp(df1, center=TRUE, scale=TRUE)
+plot(health.PCA, type="l")
+
+```
+
+
+```{r}
+summary(health.PCA)
+```
+
+1st PC captures 65.6% of variance so we continue with just PC1
+
+eigenvectors
+
+```{r}
+health.PCA$rotation
+
+```
+
+
+```{r}
+Rotation.df <- data.frame(t(health.PCA$rotation))
+Rotation.df$PC <- c("PC1", "PC2", "PC3", "PC4", "PC5")
+Rotation.melt <- melt(Rotation.df, id.vars = "PC")
+ggplot(Rotation.melt) +
+geom_line(aes(x=variable, y=value, group=PC, col=PC), size=1.5, alpha=.7)
+```
+
+```{r}
+pvalues <- rep(0, 2)
+for(f in 1:2)
+  pvalues[f] <- factanal(df1, factors = f)$PVAL
+ggplot(data.frame(pvalues), aes(x=1:2, y=pvalues)) +
+geom_point(size=3) +
+xlab("Number of factors")
+```
+
+```{r}
+factanal(df1, factors = 2)
+
+```
+```{r}
+full.lm <- lm(data=df1, SECCHI~CHLA+TP+TN)
+summary(full.lm)
+plot(full.lm)
+```
+
+```{r}
+three.variables.pca <- prcomp(df1[,-2])
+summary(three.variables.pca)
+plot(three.variables.pca)
+three.variables.pca$rotation
+```
+
+```{r}
+three.variables.pca.x <- three.variables.pca$x
+df1$PC1 <- three.variables.pca.x[,1]
+df1$PC2 <- three.variables.pca.x[,2]
+df1$PC3 <- three.variables.pca.x[,3]
+
+
+full.lm.pca <- lm(data=df1, SECCHI~PC1+PC2+PC3)
+summary(full.lm.pca)
+plot(full.lm.pca)
+
+```
+
+
+
+
+
+
+
+
+```{r}
+full.lm <- lm(data=df1, CHLA~SECCHI+NH4N+TP+TN)
+summary(full.lm)
+plot(full.lm)
+```
+
+```{r}
+three.variables.pca <- prcomp(df1[,-2])
+summary(three.variables.pca)
+plot(three.variables.pca)
+three.variables.pca$rotation
+```
+
+```{r}
+three.variables.pca.x <- three.variables.pca$x
+df1$PC1 <- three.variables.pca.x[,1]
+df1$PC2 <- three.variables.pca.x[,2]
+df1$PC3 <- three.variables.pca.x[,3]
+
+
+full.lm.pca <- lm(data=df1, SECCHI~PC1+PC2+PC3)
+summary(full.lm.pca)
+plot(full.lm.pca)
+
+```
 
 
 

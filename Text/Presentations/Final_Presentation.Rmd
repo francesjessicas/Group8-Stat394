@@ -166,8 +166,38 @@ knitr::kable(tab, caption = "Table of Sample Statistics for Urban Landcover", "s
 ```
 
 
+```{r boxx3, fig.cap="Box Plots of Ammoniacal Nitrogen,  Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity by Landcover", out.width = "80%", out.height = "60%", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+
+region <- as.factor(lake$region)
+land <- as.factor(lake$dominant_landcover)
+Ammoniacal_Nitrogen <- lake$median_NH4N_mg.L..1
+Chlorophyll_A <- lake$median_CHLA_mg.m.3
+Total_Phosphorus <- lake$median_TP_mg.m.3
+Total_Nitrogen <- lake$median_TN_mg.m.3
+Clarity <- lake$median_SECCHI_metre
+
+df12 <- data.frame(land, Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
+df12melt <- melt(df12,id.vars = "land" ,variable.name = "Measure")
+ggplot(df12melt, aes(x=Measure, y=value)) +
+geom_boxplot(aes(col=Measure), notch = TRUE) +
+facet_grid(~ land) +
+  scale_y_log10() +
+theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")
+```
 
 
+```{r boxNH4N, fig.cap = "Box Plot of Landcover and Ammoniacal Nitrogen", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=region, y=NH4N)) + 
+    geom_boxplot(notch = TRUE, fill = "pink")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Ammoniacal Nitrogen")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
 
 
 
