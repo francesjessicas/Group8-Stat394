@@ -116,6 +116,10 @@ geom_point(size=3) +
 xlab("Number of factors")
 ```
 
+
+Factor analysis on health variables, with null hypothesis that two factors are sufficient. P-value <0.01 so reject null and conclude 2 factors are not sufficient. 
+
+
 ```{r}
 factanal(df1, factors = 2)
 
@@ -127,7 +131,7 @@ plot(full.lm)
 ```
 
 ```{r}
-three.variables.pca <- prcomp(df1[,-2])
+three.variables.pca <- prcomp(df1)
 summary(three.variables.pca)
 plot(three.variables.pca)
 three.variables.pca$rotation
@@ -138,9 +142,10 @@ three.variables.pca.x <- three.variables.pca$x
 df1$PC1 <- three.variables.pca.x[,1]
 df1$PC2 <- three.variables.pca.x[,2]
 df1$PC3 <- three.variables.pca.x[,3]
+df1$PC4 <- three.variables.pca.x[,4]
+df1$PC5 <- three.variables.pca.x[,5]
 
-
-full.lm.pca <- lm(data=df1, SECCHI~PC1+PC2+PC3)
+full.lm.pca <- lm(data=df1, SECCHI~PC1+PC2+PC3+PC4+PC5)
 summary(full.lm.pca)
 plot(full.lm.pca)
 

@@ -108,6 +108,7 @@ peri <- lake$lake_perimeter
 
 df1 <- data.frame(NH4N, CHLA, TP, TN, SECCHI)
 df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+df3 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI, depth, area, peri)
 ```
 
 
@@ -237,115 +238,32 @@ legend.position = "none")+
   theme_tufte()
 ```
 
-```{r scAN, fig.cap = "Pairs Plots of Ammoniacal Nitrogen and Dimension Variables", echo = FALSE}
-p1 <- ggplot(df, aes(x=NH4N, y=depth)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Depth")+
-  theme(legend.position="none")
-p2 <- ggplot(df, aes(x=NH4N, y=area)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Area")+
-  theme(legend.position="none")
-p3 <- ggplot(df, aes(x=NH4N, y=peri)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Perimeter")+
-  theme(legend.position="none")
-  
-ggMarginal(p1, type="boxplot")
-ggMarginal(p2, type="boxplot")
-ggMarginal(p3, type="boxplot")
+# Exploratory Data Analysis
+
+Figure \ref{fig:pairhd} shows the pairs plot of the lake health variables by the lake dimension variables. 
+
+```{r pairhd, fig.cap = "Pairs Plot of Lake Health Variables by Lake Dimension Variables", out.width = "80%", out.height = "60%", echo = FALSE}
+p <- df3 %>% ggpairs(.,
+               title = "A Nice Plot Using ggpairs", 
+               mapping = ggplot2::aes(colour=land), 
+               diag = list(discrete="barDiag", 
+                           continuous = wrap("densityDiag", alpha=0.5 )), 
+               upper = list(combo = wrap("box_no_facet", alpha=0.5),
+                            continuous = wrap("cor", size=4, alignPercent=0.8))) + 
+               theme(panel.grid.major = element_blank())    # remove gridlines 
+
+plots <- apply(expand.grid(i=7:9, j=2:6), 1, function(ij) getPlot(p, i=ij[1], j=ij[2]))
+ggmatrix(plots,
+         byrow=FALSE,
+         nrow = 3,
+         ncol=5,
+         xAxisLabels = c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity"),
+         yAxisLabels = c("Depth", "Area", "Perimeter"),
+         title="Lake Health Variables by Lake Dimension Variables")
 ```
 
-```{r scAN, fig.cap = "Pairs Plots of Ammoniacal Nitrogen and Dimension Variables", echo = FALSE}
-p1 <- ggplot(df, aes(x=NH4N, y=depth)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Depth")+
-  theme(legend.position="none")
-p2 <- ggplot(df, aes(x=NH4N, y=area)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Area")+
-  theme(legend.position="none")
-p3 <- ggplot(df, aes(x=NH4N, y=peri)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Perimeter")+
-  theme(legend.position="none")
-  
-ggMarginal(p1, type="boxplot")
-ggMarginal(p2, type="boxplot")
-ggMarginal(p3, type="boxplot")
-```
 
-```{r scAN, fig.cap = "Pairs Plots of Ammoniacal Nitrogen and Dimension Variables", echo = FALSE}
-p1 <- ggplot(df, aes(x=NH4N, y=depth)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Depth")+
-  theme(legend.position="none")
-p2 <- ggplot(df, aes(x=NH4N, y=area)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Area")+
-  theme(legend.position="none")
-p3 <- ggplot(df, aes(x=NH4N, y=peri)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Perimeter")+
-  theme(legend.position="none")
-  
-ggMarginal(p1, type="boxplot")
-ggMarginal(p2, type="boxplot")
-ggMarginal(p3, type="boxplot")
-```
 
-```{r scAN, fig.cap = "Pairs Plots of Ammoniacal Nitrogen and Dimension Variables", echo = FALSE}
-p1 <- ggplot(df, aes(x=NH4N, y=depth)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Depth")+
-  theme(legend.position="none")
-p2 <- ggplot(df, aes(x=NH4N, y=area)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Area")+
-  theme(legend.position="none")
-p3 <- ggplot(df, aes(x=NH4N, y=peri)) +
-  geom_point() +
-  xlab("Ammoniacal Nitrogen")+
-  ylab("Perimeter")+
-  theme(legend.position="none")
-  
-ggMarginal(p1, type="boxplot")
-ggMarginal(p2, type="boxplot")
-ggMarginal(p3, type="boxplot")
-```
-
-```{r scSECCHI, fig.cap = "Pairs Plots of Clarity and Dimension Variables", echo = FALSE}
-p1 <- ggplot(df, aes(x=SECCHI, y=depth)) +
-  geom_point() +
-  xlab("Clarity")+
-  ylab("Depth")+
-  theme(legend.position="none")
-p2 <- ggplot(df, aes(x=SECCHI, y=area)) +
-  geom_point() +
-  xlab("Clarity")+
-  ylab("Area")+
-  theme(legend.position="none")
-p3 <- ggplot(df, aes(x=SECCHI, y=peri)) +
-  geom_point() +
-  xlab("Clarity")+
-  ylab("Perimeter")+
-  theme(legend.position="none")
-  
-ggMarginal(p1, type="boxplot")
-ggMarginal(p2, type="boxplot")
-ggMarginal(p3, type="boxplot")
-```
 
 
 # wat
