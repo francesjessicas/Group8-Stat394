@@ -307,21 +307,61 @@ ggmatrix(plots,
 
 # Leading Question
 
-Our leading question was; is there a difference in the lake health variables between the different types of dominant landcover?  
+Our leading question was; What are some statistics that we can produce that may be beneficial for informing restorative actions that improve the health of lakes in New Zealand?  
 
-We wanted to investigate this along with whether clarity can be explained by the other four lake health variables. 
+To investigate this we came up with the following questions;  
+
+- Are there any particular regions that have poor lake health?  
+
+- Do the lake health variables predict one another?  
+
+- How can we model the lake dimension variables?  
+
+- Do any types of dominant landcover have poorer lake health than others?
 
 
+# Tools We Applied
+
+In further analysis of these questions we applied the following tools;
+
+- Cullen and Frey graphs  
+
+- Kruskal-Wallis tests with pairwise Wilcox tests
+
+- Factor analysis  
+
+- Linear discriminant analysis
+
+# Cullen and Frey
+
+We used Cullen and Frey graphs on the lake health variables to try to determine what distribution they follow. An example for Ammoniacal Nitrogen is shown below in figure \ref{fig:cfNH4N}.
+
+```{r cfNH4N, fig.cap = "Cullen and Frey Graph of Ammoniacal Nitrogen", out.width = "80%", out.height = "60%", echo = FALSE}
+descdist(NH4N, boot = 1000)
+```
+
+# Kruskal-Wallis and Pairwise Wilcox Tests
+
+We conducted Kruskal-Wallis tests for each lake health variable to determine whether there is a difference in those measures between types of dominant landcover. Following this, we conducted pairwise Wilcox tests. An example for clarity is shown below. 
+
+```{r krsecchi, out.width = "80%", out.height = "60%", echo = FALSE}
+kruskal.test(SECCHI ~ land, data = df2)
+pairwise.wilcox.test(SECCHI, land,
+                 p.adjust.method = "BH")
+```
+
+# Factor Analysis
+
+We conducted a factor analysis on the lake health variables with the null hypothesis that two factors is sufficient to capture the full dimensionality of the lake health variables. The output of this test showed a chi-square test statistic of 65.57 on one degree of freedom and a p-value of less than 0.0001. 
+
+FINISH THIS
 
 
+# Linear Discriminant Analysis
+
+FILL THIS IN
 
 
-
-# wat
-Perform an EDA of the variables that we grouped together. At this point in time, we did not have a specific leading question that we were interested in. As such, we thought it would be prudent to make the goal of our EDA to extract as much interesting information from our data as  we could; then use the results to come up with leading questions.
-RussBuss - Today at 1:00 PM
-Once the EDA was performed we came up with some interesting questions that we could investigate further for the Preliminary Report. WE then conducted more analyses. The results of this were then refined.
-The results of these were then refined into our Final Report.
 
 
 # Problems
@@ -329,6 +369,10 @@ The results of these were then refined into our Final Report.
 The dataset contained 12 lakes with no entry for dominant land cover. However in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called 'other' that includes 'Gorse and/or Broom', 'Surface mines and dumps', 'Mixed exotic shrubland', and 'Transport infrastructure' so we have assigned these to the 'other' category.  
 
 We also found one lake with no entry for region so we excluded this observation when analysing region with the lake health or dimension variables further.  
+
+# Conclusions
+
+After our analysis, we can conclude that .............................
 
 
 
