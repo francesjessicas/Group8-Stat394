@@ -60,7 +60,58 @@ SECCHI <- lake$median_SECCHI_metre
 
 df1 <- data.frame(SECCHI, NH4N, CHLA, TP, TN)
 df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+plot(health.PCA, type="l")
 ```
+
+
+
+
+Factor analysis on health variables, with null hypothesis that two factors are sufficient. P-value <0.01 so reject null and conclude 2 factors are not sufficient. 
+
+
+```{r}
+factanal(df1, factors = 2)
+health.PCA <- prcomp(df1, center=TRUE, scale=TRUE)
+
+```
+
+
+
+```{r}
+
+S <- cov(df1)
+S
+S.eigen <- eigen(S)
+S.eigen
+plot(S.eigen$values, xlab = 'Eigenvalue Number', ylab = 'Eigenvalue Size', main = 'Scree Graph', type = 'b', xaxt = 'n')
+axis(1, at = seq(1, 4, by = 1))
+C <- as.matrix(S.eigen$vectors[,1:2])
+
+D <- matrix(0, dim(C)[2], dim(C)[2])
+diag(D) <- S.eigen$values[1:2]
+S.loadings <- C %*% sqrt(D)
+S.loadings
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r}
