@@ -25,11 +25,11 @@ knitr::include_graphics("Russell and Frances.png")
 ```
 
 
-# Textual Description of the Dataset
+# Textual Description of the Dataset  
 Our dataset contains information from 3801 lakes in New Zealand. This dataset was extracted from Stats NZ.
 https://www.stats.govt.nz/indicators/modelled-lake-water-quality/  
 
-## Variables
+## Variables  
 
 For analysis we split the dataset into two main categories; the lake health variables and the lake dimension variable. The lake health variables measure as a whole give an indication of the "health" of an individual lake. The five lake health variables are Clarity, Ammoniacal Nitrogen, Total Nitrogen, Total phosphorus, and Chlorophyll-A. The lake dimension variables measure the dimensions of the lake. The three lake dimension variables are depth, area, perimeter. Additional variables that we examined were:  
 - Region; which New Zealand region the lake was located in, and  
@@ -75,6 +75,7 @@ require(moments)
 require(kable)
 require(reshape2)
 require(dplyr)
+require(gridExtra)
 ```
 
 ```{r functab, echo = FALSE}
@@ -225,7 +226,6 @@ legend.position = "none")+
 
 Figure \ref{fig:boxSECCHI} shows the box plots of clarity by region. 
 
-
 ```{r boxSECCHI, fig.cap = "Box Plot of Region and Clarity", out.width = "80%", out.height = "60%", echo = FALSE, message = FALSE}
 ggplot(df, aes(x=region, y=SECCHI)) + 
     geom_boxplot(notch = TRUE, fill = "violet")+
@@ -237,6 +237,45 @@ legend.position = "none")+
   scale_y_log10() +
   theme_tufte()
 ```
+
+# Exploratory Data Analysis
+
+We also looked into the relationship between the dimension variables and region, shown in figure \ref{fig:dimensions}.
+
+```{r dimensions, fig.cap = "Bar Graphs of Lake Dimensions by Region", out.width = "100%", out.height = "60%",  echo = FALSE}
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_depth), list(mean = mean))
+LakeTable1<- data.frame(LakeTable)
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_area), list(mean = mean))
+LakeTable2<- data.frame(LakeTable)
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_perimeter), list(mean = mean))
+LakeTable3<- data.frame(LakeTable)
+p <- ggplot(data=LakeTable1, aes(x=region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 0.7, stat="identity")+
+  labs(y = "Mean Lake Depth in metres", title = 
+         "Mean Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_bw()
+q <- ggplot(data=LakeTable2, aes(x=region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 0.7, stat="identity")+
+  labs(y = "Mean Lake Area in metres", title = 
+         "Mean Lake Area of Region in metres")+
+  coord_flip()+
+  theme_bw()
+r <- ggplot(data=LakeTable3, aes(x=region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 0.7, stat="identity")+
+  labs(y = "Mean Lake Perimeter in metres", title = 
+         "Mean Lake Perimeter of Region in metres")+
+  coord_flip()+
+  theme_bw()
+grid.arrange(p, q, r, ncol=3)
+```
+
 
 # Exploratory Data Analysis
 
@@ -261,6 +300,18 @@ ggmatrix(plots,
          yAxisLabels = c("Depth", "Area", "Perimeter"),
          title="Lake Health Variables by Lake Dimension Variables")
 ```
+
+
+
+
+
+# Leading Question
+
+Our leading question was; is there a difference in the lake health variables between the different types of dominant landcover?  
+
+We wanted to investigate this along with whether clarity can be explained by the other four lake health variables. 
+
+
 
 
 
