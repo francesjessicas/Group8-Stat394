@@ -112,7 +112,7 @@ df3 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI, depth, area, peri)
 ```
 
 
-```{r correlationplot, fig.cap="Visualisation of the Correlation Matrix", fig.pos="center", echo=FALSE, warning = FALSE}
+```{r correlationplot, fig.cap="Visualisation of the Correlation Matrix", out.width = "80%", out.height = "60%", fig.pos="center", echo=FALSE, warning = FALSE}
 Ammoniacal_Nitrogen <- lake$median_NH4N_mg.L..1
 Chlorophyll_A <- lake$median_CHLA_mg.m.3
 Total_Phosphorus <- lake$median_TP_mg.m.3
@@ -126,7 +126,7 @@ ggcorrplot(cor(df11), method = "circle", hc.order = TRUE, type = "lower")
 
 The pairs plot of the lake health and dimension variables, coloured by dominant landcover, is shown in figure \ref{fig:pairsplot}.  
 
-```{r pairsplot, fig.cap="Pairs Plot", fig.pos="center", echo=FALSE, message = FALSE}
+```{r pairsplot, fig.cap="Pairs Plot", out.width = "80%", out.height = "60%", fig.pos="center", echo=FALSE, message = FALSE}
 ggpairs(df11, aes(col=land, alpha=.5))
 ```
 
@@ -160,7 +160,7 @@ legend.position = "none")
 
 Next we analysed the distribution of the lake health variables by region. The box plots of Ammoniacal Nitrogen by region is shown in figure \ref{fig:boxNH4N}.  
 
-```{r boxNH4N, fig.cap = "Box Plot of Region and Ammoniacal Nitrogen", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+```{r boxNH4N, fig.cap = "Box Plot of Region and Ammoniacal Nitrogen", out.width = "80%", out.height = "60%", message = FALSE, echo = FALSE, warnings = FALSE}
 ggplot(df, aes(x=region, y=NH4N)) + 
     geom_boxplot(notch = TRUE, fill = "pink")+
   theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
@@ -209,7 +209,7 @@ legend.position = "none")+
 
 The box plots of Total Nitrogen by region is shown in figure \ref{fig:boxTN}.  
 
-```{r boxTN, fig.cap = "Box Plot of Region and Total Nitrogen", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+```{r boxTN, fig.cap = "Box Plot of Region and Total Nitrogen", out.width = "80%", out.height = "60%", echo = FALSE, message = FALSE}
 ggplot(df, aes(x=region, y=TN)) + 
     geom_boxplot(notch = TRUE, fill = "orange")+
   theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
@@ -226,7 +226,7 @@ legend.position = "none")+
 Figure \ref{fig:boxSECCHI} shows the box plots of clarity by region. 
 
 
-```{r boxSECCHI, fig.cap = "Box Plot of Region and Clarity", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+```{r boxSECCHI, fig.cap = "Box Plot of Region and Clarity", out.width = "80%", out.height = "60%", echo = FALSE, message = FALSE}
 ggplot(df, aes(x=region, y=SECCHI)) + 
     geom_boxplot(notch = TRUE, fill = "violet")+
   theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
