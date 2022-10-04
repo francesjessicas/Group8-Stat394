@@ -1,0 +1,513 @@
+---
+
+title: "Group 8 leaflet"
+author: "Russell Syder"
+date: "2022-09-30"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 4
+    number_sections: FALSE
+    theme: united
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(300570258, kind = "Mersenne-Twister")
+
+require(tinytex)
+require(ggplot2)
+require(ggthemes)
+require(extrafont)
+require(ggstance)
+require(fitdistrplus)
+require(ggcorrplot)
+require(GGally)
+require(ggExtra)
+require(moments)
+require(kable)
+require(reshape2)
+require(nortest)
+require(dplyr)
+library(MASS)
+library(klaR)
+theme_set(theme_classic())
+
+```
+
+```{r functab1, echo = FALSE}
+MySummary2 <- function(x){
+  return(c(
+    length(x),
+    min(x),
+    quantile(x, .25),
+    median(x),
+    quantile(x, .75),
+    max(x),
+    IQR(x),
+    sd(x),
+    mean(x),
+    mad(x),
+    kurtosis(x), 
+    skewness(x))
+  )
+}
+```
+
+
+# Group 8 Final Presentation!  
+
+Hi everyone! You should be able to find the leaflet on discord under via the Group8-"Leaflet". 
+
+This is our "leaflet". The leaflet is designed to be a more in-depth version, easily accessible version of the presentation that you are about to witness. We considered producing a paper leaflet but wanted an opportunity to show anyone who is interested all of the hard work that we have done so decided to go with this instead.   
+  
+Basically, if there is anything in our presentation that you would like more information on, you merely need to look at the corresponding section in this leaflet. For example, if there is a variable that you are particularly interested in, there will be greater detail about it in the leaflet. There is also a collapsing drop-down menu for convenience.  
+Anyway, on with the presentation!!  
+  
+
+## **Introduction**
+Hi again Everyone! We are Russell and Frances and we form the entirety of Group 8. Below are our pretty faces as well as some additional information.
+  
+```{r frances, out.width = "40%", out.height = "30%", echo = FALSE}
+knitr::include_graphics("RussellAndFrances.png")
+```
+  
+**Frances Smith**  
+email: frances.j.smith.nz@gmail.com  
+ORCHID ID: 0000-0002-5168-3134
+
+**Russell Syder**  
+email: russellsyder@gmail.com  
+ORCHID ID: 0000-0002-4582-5909
+
+## Introduction to our data
+  
+Our original dataset was extracted from Stats NZ.
+https://www.stats.govt.nz/indicators/modelled-lake-water-quality/ 
+
+We made some manipulations to the original dataset such as removing extraneous variables (like Date which was the same for every lake) or variables that we were not interested in. We also reshaped some aspects of the dataset so that the data would be easier to analyse. We also checked for missing values; there were none so imputation was not necessary.  
+  
+
+Our final dataset contains information from 3801 lakes in New Zealand measured across 22 variables. Of these 22 variables we selected 10 that we would use for further analysis. They are as follows:  
+  
+*Ammoniacal Nitrogen* is a form of nitrogen that supports algae and plant growth, but in large concentrations can be toxic to aquatic life. This is measured in milligrams per litre. The national bottom line for this measure is 1.3mg/L, which none of the observations exceed. It acts as as measure of toxicity.
+  
+*Chlorophyll-a* is an organic molecule found in plant cells that allows plants to photosynthesize. The variable Chlorophyll-a is a measure of the concentration of phytoplankton biomass in milligrams per cubic metre. High concentrations of chlorophyll is a symptom of degraded water quality. The national bottom line for this measure is 12.
+
+*Total Phosphorus* is the sum of all phosphorus forms in the water, including phosphorus bound to sediment. Large amounts of phosphorus in lakes can reduce dissolved oxygen in the water. This can cause low oxygen areas in the lake, where some aquatic life cannot survive. Total Phosphorus is measured in milligrams per cubic metre and has a national bottom line of 50mg/m3.  
+
+*Total Nitrogen* is the sum of all nitrogens found in the water, including organic nitrogen from plant tissue. An excess of nitrogen in lakes can cause an increase in algae and plant growth, possibly depriving the lake of oxygen. Total Nitrogen is measured in milligrams per cubic metre and the national bottom line for stratified lakes is 750mg/m3, and for polymictic lakes is 800mg/m3. There are observations exceeding the national bottom line.  
+  
+*Clarity* is measured in Secchi depth. This is the maximum depth (in metres) a black and white Secchi disk is visible from the surface of the lake.  
+
+*Lake Depth* Maximum depth of the lake measured in metres.  
+  
+*Perimeter* Overall perimeter of the lake.  
+
+*Area* Surface Area of the lake measured in metres squared.  
+  
+*Dominant Landcover* is split into four types; Exotic Forest, Native, Pastoral and Urban area. There are 12 lakes with no entry for dominant land cover, however in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called ‘other’ that includes ‘Gorse and/or Broom’, ‘Surface mines and dumps’, ‘Mixed exotic shrubland’, and ‘Transport infrastructure’ so we have assigned these to the other category. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral exceeds 25 percent of catchment area and not already assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral.  
+  
+*Regions* in this dataset are; Auckland, Bay of Plenty, Canterbury, Gisborne, Hawke’s Bay, Whanganui, Marlborough, Northland, Otago, Southland, Taranaki, Tasman, Waikato, Wellington and West Coast. Each lake corresponds to the region it is located in.
+
+Upon first examining our data we thought that it would be prudent to group certain similar variables together for analysis. Specifically, the 4 variables that gave a measure of the levels of a given substance in a lake, and additionally clarity, we grouped as the "Lake Health variables" as for all of them, high levels of any of these variables can indicate poor lake health, with the exception of clarity, where, in general, higher values indicate better lake health (not always possible as you may just have a shallow lake).  
+We also grouped together lake area, perimeter, and depth and classified this group as the Lake Dimension variables.
+
+As such the variables that we examined in their groups are as follows:  
+  
+**Lake Health Variables:**
+- Ammoniacal Nitrogen: measured in milligrams per litre.  
+- Total Phosphorus: measured in milligrams per cubic metre.
+- Total Nitrogen: measured in milligrams per cubic metre
+- Chlorophyll-a: measured in milligrams per cubic metre.
+- Clarity: measured in Secchi depth.
+
+
+**Lake Dimension Variables:**
+- Depth: measured in metres
+- Perimerter: measured in metres
+- Area : surface area of the lake measured in metres squared.
+
+**Additional Variables:**  
+- Region: which Region in New Zealand a given lake is located.  
+- Dominant Landcover: The overall surroundings of the lake.  
+
+
+Much of our EDA would be examining these groupings as well as Region and Dominant Landcover. We later examined more closely the relationship between groupings and other variables in our preliminary report.  
+
+
+##  Methodology of the Exploratory Data Analysis
+  
+The goal of our EDA was to examine our data groupings and the relationship between some of the variables in order to inform a leading question.  
+  
+The kind of statistics we produced were:  
+- Sample Statistics of all of our ten selected variables.
+- Visuals of the distributions of some of the variables.
+- Correlation Matrices of the groups (Health variables, and Dimension Variables).
+- Pairs plots of the groups.
+- Box-plots of Dominant Landcover and the Lake Health Variables.
+- Cullen and Frey Graphs of Lake Health Variables.
+- Barplots of the Lake Dimension Variables by Region.
+- Median values of the Lake Health variables by Region.
+- Mean and Median Values of the Lake Dimension Variables.
+- Histograms of the Lake Dimension variables.  
+  
+Overall we produced and analysed over 50 tables and graphs.  
+  
+Of course, we analysed all of the above statistics.  
+  
+Below are some examples of the plots and tables that we made.  
+
+*Below is a table of the summary statistics of the lake health variables: table \ref{tab:laketable}:*  
+
+```{r laketable, echo = FALSE}
+lake <- read.csv("modelled_lake_water_quality_altered.csv")
+laketype <- as.factor(lake$nof_lake_type)
+
+region <- as.factor(lake$region)
+land <- as.factor(lake$dominant_landcover)
+df <- data.frame(lake)
+NH4N <- lake$median_NH4N_mg.L..1
+CHLA <- lake$median_CHLA_mg.m.3
+TP <- lake$median_TP_mg.m.3
+TN <- lake$median_TN_mg.m.3
+SECCHI <- lake$median_SECCHI_metre
+
+df1 <- data.frame(NH4N, CHLA, TP, TN, SECCHI)
+df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+tab <- apply(df1, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c('Ammoniacal Nitrogen', 'Chloropyll-A', 'Phosphorus', "Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics", "simple")
+```
+  
+  
+We also produced histograms of all of the lake health variables. An example of this is seen below where where we model Chlorophyll-A in lakes:  
+
+
+```{r chlahist, fig.cap="Histogram of Chlorophyll-A", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=CHLA)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(CHLA)),
+                 col="black", fill="white") +
+  xlab("Observations of Chlorophyll-A") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(CHLA), sd=sd(CHLA)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(CHLA), col="red") +
+  geom_segment(aes(x=mean(CHLA)-sd(CHLA),
+                   y=0.02,
+                   xend=mean(CHLA)+sd(CHLA),
+                   yend=0.02), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-0.01), width=0.01, notch = TRUE)+
+  theme_tufte()
+```
+  *Figure \ref{fig:chlahist} shows the distribution of Chlorophyll-A. We can see the fitted normal distribution differs slightly from the smoothed histogram. Table \ref{tab:laketable} shows the median is 3.9482 and the mean is 4.6093. The kurtosis is 18.3408, indicating the distribution of Chlorophyll-A is very heavy tailed, and the skewness is 2.5484, indicating the distribution is right skewed. *  
+  
+  We then examined the means and medians of the Lake Dimension variables for the Regions. We produced means and medians for each of the variables into a table and also produced barplot. The table, mean barplot, and median barplot for depth are shown in figure \ref{fig:MeanDepth}. 
+<br />
+ View of the Mean Lake Depth by Region
+
+<br />
+
+```{r MeanDepth, fig.cap= "Barplot of regional mean lake Depth", echo = FALSE}
+
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_depth), list(mean = mean))
+
+
+
+LakeTable<- data.frame(LakeTable)
+
+ggplot(data=LakeTable, aes(x=region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 0.7, stat="identity")+
+  labs(y = "Mean Lake Depth in metres", title = 
+         "Mean Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_bw()
+
+
+```
+    
+## Results of the Exporatory Data Analysis  
+A summary of the main takeaways from performing our EDA that we used to inform our future research.  
+  
+### Lake Health Variables Takeaways
+
+**Correlations: **  
+- Chlorophyll-A, Total Nitrogen, Ammoniacal Nitrogen and Total Phosphorus are all positively correlated with one another.  
+- The strongest of these correlations are the relationships between Ammoniacal Nitrogen and Total Nitrogen, Total Phosphorus and Chlorophyll-A, and Total Phosphorus and Total Nitrogen.
+- Clarity has a negative relationship with all of the other lake health variables with all correlations between moderate and strong in strength. The strongest of these correlations is between Clarity and Total Nitrogen.  
+- These consistent correlations suggest that the Lake Health variables may be good predictors of one another.  
+  
+  
+**Dominant Landcover**
+The distribution of Lake Health variables differs between landcover categories. We found that lakes with predominantly native landcover tended to have lower levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen, and were clearer than lakes with other dominant landcovers. Pastoral and Urban landcovers tended to have higher median levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen and tended to be less clear than the other landcovers. 
+
+### Lake Dimension takeaways
+- The Lake Dimensions do not appear to be normally distributed.
+- The median lake areas for each Region are noticeably different.  
+- The mean lake areas for each Region are drastically different.  
+- The median lake perimeters for each Region are quite different.  
+- The mean each  lake perimeters Region are drastically different.  
+- The median lake depths are about the same but the means are quite different.
+- There were strong correlations between Lake Perimeter and Lake Area, and  
+
+The considerable difference of lake dimensions in means and medians that some of the regions have suggests that some lakes have considerable influence on the data. We could examine this further with Cooke's Distance. As the Lake Dimensions do not appear to be normally distributed we could also attempt to see what model does fit them.  
+
+
+## Further Research from the EDA  
+The main Takeaway from the EDA was to inspire the following leading question:
+
+**What are some statistics that we can produce that may be beneficial for informing restorative actions that improve the health of lakes in New Zealand?**
+  
+To answer this question, for our preliminary report we looked at the following questions:  
+
+Are there any particular regions that have poor lake health? 
+  
+Do the lake health variables predict one another?  
+
+How can we model the Lake Dimension variables?  
+  
+Do any types of dominant landcover have poorer lake health than others?   
+    
+    
+## Methodology of Preliminary Report  
+  
+We summarised the EDA.
+
+As we outlined just above, we wanted to produce information that could inform future lake restoration actions.  
+
+### Examining which Region's lakes were the unhealthiest  
+We began by examining which Regions had the Unhealthiest lakes. To do this, for each of the Lake Health Variables we extracted the 100 lakes with the highest value for a given lake Health Variable (with the exception of clarity where we looked at the lowest value). We then looked at which Regions had the highest number of lakes, and the highest proportion of lakes out of the 100.  
+  An example of this with Total Phosphorus is shown below: 
+  
+```{r, echo = FALSE}
+####Creating a dataset with the health variables and region for max values of
+Region <- lake$region
+df.Health_Region<-cbind(df1, Region)
+
+```
+  
+  **Frequency table, by region, of the 100 lakes with the highest values of Total Phosphorus**
+```{r TPprop, echo = FALSE}
+df.TP_Region <- select(df.Health_Region, Region, TP)
+#head(df.TP_Region,100)
+
+ds.TP_Region <- df.TP_Region[order(-TP),]
+ds.TP_Region2<-(head(ds.TP_Region, 100))
+
+TP1<-as.data.frame((table(ds.TP_Region2$Region)))
+TP1<-TP1[-1,]
+
+TP2<-as.data.frame((table(lake$region)))
+TP2<-TP2[-1,]
+
+TP_prop <-  merge(x=TP2,y=TP1,by="Var1",all.x=TRUE)
+TP_prop[is.na(TP_prop)]<-0
+TP_prop2 <- data.frame( TP_prop$Freq.y / TP_prop$Freq.x)
+TP_propFinal <- cbind(TP_prop, TP_prop2)
+
+names(TP_propFinal) <- c('Region', 'No.Of.Lakes.Total', 'No.High.TP.Lakes', 'Proportion')
+
+TP_propFinal
+
+
+```
+  
+The investigation of 100 lakes containing the highest values of total phosphorus revealed that:  
+- The Canterbury region contained 20 of the 100 lakes with the highest total phosphorus.  
+- This was followed by the Manawatu-Whanagnui region with 19 of the 100 lakes.  
+- The third highest was the Otago region with 13 of the 100 lakes.  
+  
+ - of the 100 lakes with the highest total phosphorus, the region with the largest proportion of its lakes within the top 100 was Gisborne with 10%.
+ - This was followed by Manawatu-Whanagnui with 8.4%.
+ - The third highest was Wellington with 5.6%.  
+ 
+An overall summary of the unhealthiest lakes is given below:
+  
+**Summary of unhealthiest lakes analysis**
+This analysis gives evidence to say that the Waikato Region has the worst overall lake health, followed by Manawatū-Whanganui (when examining lakes with the worst lake health). This is because both of these regions have many occurences having the highest proportions of their lakes within the top 100 'worst' scoring lakes.  
+Further analysis should examine these findings alongside the overall means and medians of the regions on the lake health variables.   
+  
+
+### Do the Lake Health Variables predict one another?   
+   We then wanted to look at whether the Lake Health Variables predict one another. The thinking behind this is that if there was a strong relationship between some of the Lake Health Variables, then hopefully by just examining one we could predict the others. This could potentially save research time and resources. For example, if there is a lake that is difficult or dangerous to access, being able to do one test may be beneficial. As such we wanted to see if we could get them to predict one another. 
+   
+   We learned from the EDA that the Lake Health variables are almost all correlated. We thought that clarity would be our best Y variable. As such we thought that it would be appropriate to attempt to build a linear-regression model with Clarity as our Y variable.
+   
+   
+   Before we can produce a multiple linear regression model, we must first check that the assumptions of multiple linear regression are met. These assumptions are:  
+  
+- That linear relationships between the outcome variable and the independent variables exist.
+-  Multivariate Normality such that the residuals are normally distributed.
+- No Multicollinearity such that the independent variables are not highly correlated with each other.
+- Homoscedasticity.
+  
+  To investigate whether the assumption of linear relationships have been met we have produced scatterplots.
+  
+  We found from examining the scatterplots that the assumption that there is a linear relationship between the outcome variable and the independent variables was not met. While we did produce a multilinear regression model (as shown below), we abandoned further analysis as the above assumption was not met. We speculated that a curvilinear model may be more appropriate for future analysis.
+  
+  
+```{r ,message=FALSE, warning=FALSE}
+
+multReg1 <- ggplot(df1,aes(x=SECCHI,y= TN, CHLA, NH4N, TP))+
+         geom_point(alpha = 0.3)+
+ geom_smooth(method=lm,se=FALSE,fullrange=TRUE)+
+  theme_bw()+
+  labs( title = "Lake Health variables as predictors of clarity", y = "TN, CHLA, NH4N, TP", x = "SECCHI/Clarity")
+          
+
+  
+# Plotting a single Regression Line
+multReg1
+```
+
+As we were unable to use liner regression to examine the relationship between Clarity and and the other Lake Health Variables we decided we instead use PCA (discussed later on). 
+
+
+### How can we model the Lake Dimension variables?
+We have already gathered evidence to suggest that the lake dimension variables do not follow a normal distribution. We further examined what distribution they do follow. 
+
+We examined this mostly for our own interest. The lake dimension variables are interesting as they have have some absolutely enormous values. We had found that these values made analysis of the Lake dimensions difficult as averages would be skewed and graphs would be distorted. Because of this, knowing the best distribution to describe the Lake Dimension Variables we hoped would help future analysis easier.
+
+We performed Anderson-Darling tests on each of the Lake Dimension Variables. We found that they all had p-values of 3.7e-24. As such, we had sufficient rejected the null hypothesis that the distributions were gaussian.   
+
+  We then produced Cullen and Frey Graphs of the Lake Dimension Variables. An example of the the Cullen and Frey Graph for Area and analysis is given below.  
+    
+    ```{r cfarea, fig.cap = "Cullen and Frey Graph of Lake Area", echo = FALSE}
+descdist(lake$lake_area, boot = 1000)
+```
+The table above shows the test statistic and p-value from the Anderson-Darling test on lake perimeter. The null hypothesis for this test is that the distribution of lake perimeter is Gaussian, and the alternative hypothesis is that the distribution of lake perimeter is not normal. The test statistic for this test is 1130.8425, and the p-value is 3.7e-24. As the p-value is very small, we can reject the null hypothesis and conclude the distribution of lake perimeter is not normal. Next we constructed a Cullen and Frey graph with 1000 bootstrapped observations. We can see the observation of the kurtosis and square of skewness of the observations of lake perimeter, and almost all bootstrapped observations, lie within the beta region, indicating the distribution of lake perimeter could be beta.
+
+The Cullen and Frey Graphs suggested that the Lake Dimension Variables were best described by a beta distribution.
+
+### Do any types of dominant landcover have poorer lake health than others?
+We wanted to investigate whether a particular landcover type had tended to have poorer lake health. To investigate this we wanted to employ an ANOVA test. An assumption of the ANOVA test is that each group needs to be normally distributed. As such we performed Cullen and Frey tests for each of the Lake Health Variables. Unfortunately, the Cullen and Frey test showed that the data were not normally distributed. As such we were unable to perform the ANOVA.
+
+## Results of the Preliminary Report
+In our preliminary report we researched the following four questions:  
+  
+1. Examining which Region's lakes were the unhealthiest?  
+  
+2. Do the Lake Health Variables predict one another?  
+
+3. How can we model the Lake Dimension variables?  
+
+4. Do any types of dominant landcover have poorer lake health than others?  
+
+For 1. we came up with a crude method for identifying which regions lakes were the unhealthiest. We did this by finding which 100 lakes had the worst scores on each of the Lake Health Variables and then identifying the corresponding regions. We found that, in general, the Waikato region had the worst results followed by the Manawatū-Whanganui region. The reverse of this method was not implementable to find out the healthiest lakes.  
+  
+For 2. We attempted to implement Linear regression to predict clarity using the other Lake Health variables. While we did produce a model that was reasonably accurate at preicting clarity, the assumption of linearity was not met so we did not do further analysis.
+
+For 3. We tested and found that the Lake Dimension variables were not normally distributed. We performed Cullen and Frey tests and found that the Dimension variables were each best described by beta distributions.
+
+For 4. We attempted to implement an ANOVA but we could not assume that the assumption of normality was met for our variables. As such we did not continue further analysis.
+
+## PCA and LDA
+
+After finishing our Preliminary Report we also looked at ways we could implement Principal Components Analysis (PCA) and Linear Discriminant Analysis (LDA) with our data.
+  
+### Linear Discriminant Analysis  
+For LDA, we wanted to see if there was potential to implement LDA if there was information loss. As such, we attempted to predict which Dominant Landcover a lake was had, based on the Lake Health Variables.
+
+Reminder -  the categories that dominant landcover can take on are: Pastoral, Native, Urban area, Exotic forest, and Other
+  
+We first scaled the Lake Health Variables. We then randomly created training and test sets with 70% of the data in the training set and 30% in the test set. We then fit the lda model using the train data. The output was shown below.
+
+
+
+```{r, echo = FALSE}
+lake3 <- select(lake, dominant_landcover, median_TN_mg.m.3, median_CHLA_mg.m.3, median_SECCHI_metre, median_TP_mg.m.3, median_NH4N_mg.L..1)
+lake4 <- filter(lake3, dominant_landcover == "Pastoral" | dominant_landcover == "Native")
+
+lake3[2:6] <- scale(lake3[2:6])
+
+set.seed(123)
+sample <- sample(c(TRUE, FALSE), nrow(lake3), replace=TRUE, prob=c(0.7,0.3))
+
+train <- lake3[sample, ]
+test <- lake3[!sample, ]
+
+model1 <- lda(dominant_landcover~., data=train)
+model1
+
+```
+From the Prior Probabilities we see that Pastoral Landcover and Native Landcover each explain about 46% of the prior probabilities.  
+  
+  From examining the coefficients of the linear discriminants, it seems that Total nitrogen (TN) impacts the first linear discriminant the most(-0.8323.). 
+
+Examining the proportion of traces we see that the LD1 accounts for approximately 91 percent of the seperation. LD2 and LD3 account for approximately 4.8 and 3.5 percent of the seperation respectively. The remainder is explained by LD4.
+
+We produced a partition plot to examine the seperation.
+
+
+```{r, echo = FALSE}
+lake3$dominant_landcover<- as.factor(lake3$dominant_landcover)
+partimat(dominant_landcover ~ ., data=lake3, method="lda")
+
+```
+
+It is very difficult to get any useful information from the the Partition Plot. What we can see is that there is a reasonable number of errors. What we can seem to makeout is that most of the data seems to be in two of the partitions and some of the partitions have no observations in them. 
+
+
+```{r echo=FALSE, include=FALSE}
+predicted <- predict(model1, test)
+mean(predicted$class==test$dominant_landcover)
+
+```
+
+  
+  We then looked at the accuracy of the model and found that the model had approximately 73% accuracy (with seed = 123). We were reasonably happy with this. However, one thing that bothered us was the partition plot and how difficult it was to decipher and the fact the prior probabilities for two of our classes (Pastoral Landcover and Native Landcover) were so much higher than the others. We decided to investigate just these two classes as they accounted for about 93% of the observations in our sample.
+  
+  
+
+
+```{r, echo = FALSE}
+
+lake4[2:6] <- scale(lake4[2:6])
+
+set.seed(123)
+sample <- sample(c(TRUE, FALSE), nrow(lake4), replace=TRUE, prob=c(0.7,0.3))
+
+train <- lake4[sample, ]
+test <- lake4[!sample, ]
+
+
+lake4$dominant_landcover<- as.factor(lake4$dominant_landcover)
+
+model <- lda(dominant_landcover~., data=train)
+model
+
+predicted <- predict(model, test)
+
+
+lake5 <- sample(lake4, size = 100, replace = TRUE )
+
+#partimat(dominant_landcover ~ ., data=lake4, method="lda")
+
+```
+
+In the second LDA both groups had prior probabilities of 0.5 (this is because the train happened to split them with an equal number of observations of 1242 each (seed = 123)).  
+  
+The Partition plot was not any easier to interpret.
+
+  
+```{r, include =FALSE}
+mean(predicted$class==test$dominant_landcover)
+```
+
+The accuracy was only slightly better at 76.7%.
+
+
+
+
+
+  
+  
+

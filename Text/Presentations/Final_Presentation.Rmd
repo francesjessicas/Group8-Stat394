@@ -175,7 +175,7 @@ legend.position = "none")+
 
 # Exploratory Data Analysis
 
-The box plots of Chloorphyll-A by region is shown in figure \ref{fig:boxCHLA}.  
+The box plots of Chlorophyll-A by region is shown in figure \ref{fig:boxCHLA}.  
 
 ```{r boxCHLA, fig.cap = "Box Plot of Region and Chloropyll-A", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
 ggplot(df, aes(x=region, y=CHLA)) + 
@@ -354,7 +354,6 @@ pairwise.wilcox.test(SECCHI, land,
 
 We conducted a factor analysis on the lake health variables with the null hypothesis that two factors is sufficient to capture the full dimensionality of the lake health variables. The output of this test showed a chi-square test statistic of 65.57 on one degree of freedom and a p-value of less than 0.0001. 
 
-FINISH THIS
 
 
 # Linear Discriminant Analysis
