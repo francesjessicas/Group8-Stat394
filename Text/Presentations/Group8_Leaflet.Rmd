@@ -70,7 +70,7 @@ Anyway, on with the presentation!!
 Hi again Everyone! We are Russell and Frances and we form the entirety of Group 8. Below are our pretty faces as well as some additional information.
   
 ```{r frances, out.width = "40%", out.height = "30%", echo = FALSE}
-knitr::include_graphics("RussellAndFrances.png")
+knitr::include_graphics("Russell and Frances.png")
 ```
   
 **Frances Smith**  
@@ -162,7 +162,7 @@ Below are some examples of the plots and tables that we made.
 *Below is a table of the summary statistics of the lake health variables: table \ref{tab:laketable}:*  
 
 ```{r laketable, echo = FALSE}
-lake <- read.csv("modelled_lake_water_quality_altered.csv")
+lake <- read.csv("../../Data/modelled_lake_water_quality_altered.csv")
 laketype <- as.factor(lake$nof_lake_type)
 
 region <- as.factor(lake$region)
@@ -296,7 +296,7 @@ df.Health_Region<-cbind(df1, Region)
   
   **Frequency table, by region, of the 100 lakes with the highest values of Total Phosphorus**
 ```{r TPprop, echo = FALSE}
-df.TP_Region <- select(df.Health_Region, Region, TP)
+df.TP_Region <- dplyr::select(df.Health_Region, Region, TP)
 #head(df.TP_Region,100)
 
 ds.TP_Region <- df.TP_Region[order(-TP),]
@@ -423,7 +423,7 @@ We first scaled the Lake Health Variables. We then randomly created training and
 
 
 ```{r, echo = FALSE}
-lake3 <- select(lake, dominant_landcover, median_TN_mg.m.3, median_CHLA_mg.m.3, median_SECCHI_metre, median_TP_mg.m.3, median_NH4N_mg.L..1)
+lake3 <- dplyr::select(lake, dominant_landcover, median_TN_mg.m.3, median_CHLA_mg.m.3, median_SECCHI_metre, median_TP_mg.m.3, median_NH4N_mg.L..1)
 lake4 <- filter(lake3, dominant_landcover == "Pastoral" | dominant_landcover == "Native")
 
 lake3[2:6] <- scale(lake3[2:6])
