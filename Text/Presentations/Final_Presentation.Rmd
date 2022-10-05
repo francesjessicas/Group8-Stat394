@@ -31,9 +31,10 @@ https://www.stats.govt.nz/indicators/modelled-lake-water-quality/
 
 ## Variables  
 
-For analysis we split the dataset into two main categories; the lake health variables and the lake dimension variable. The lake health variables measure as a whole give an indication of the "health" of an individual lake. The five lake health variables are Clarity, Ammoniacal Nitrogen, Total Nitrogen, Total phosphorus, and Chlorophyll-A. The lake dimension variables measure the dimensions of the lake. The three lake dimension variables are depth, area, perimeter. Additional variables that we examined were:  
+For analysis we split the dataset into two main categories; the lake health variables and the lake dimension variable. The lake health variables measure as a whole give an indication of the "health" of an individual lake. The five lake health variables are Clarity, Ammoniacal Nitrogen, Total Nitrogen, Total phosphorus, and Chlorophyll-A. Additional variables that we examined were:  
+- The lake dimension variables measure the dimensions of the lake. The three lake dimension variables are depth, area, perimeter.  
 - Region; which New Zealand region the lake was located in, and  
-- Dominant landcover; split into four types; Exotic Forest, Native, Pastoral and Urban area. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral exceeds 25 percent of catchment area and not already assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral.  
+- Dominant landcover; split into five types; Exotic Forest, Native, Pastoral, Urban area and other.  
 
 # Lake Health Variables
 
@@ -149,11 +150,11 @@ Clarity <- lake$median_SECCHI_metre
 df12 <- data.frame(land, Ammoniacal_Nitrogen, Chlorophyll_A, Total_Phosphorus, Total_Nitrogen, Clarity)
 df12melt <- melt(df12,id.vars = "land" ,variable.name = "Measure")
 ggplot(df12melt, aes(x=Measure, y=value)) +
-geom_boxplot(aes(col=Measure), notch = TRUE) +
-facet_grid(~ land) +
+  geom_boxplot(aes(col=Measure), notch = TRUE) +
+  facet_grid(~ land) +
   scale_y_log10() +
-theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
-legend.position = "none")
+  theme(axis.text.x = element_blank(), legend.position = "bottom")+
+  theme_tufte()
 ```
 
 
@@ -260,19 +261,19 @@ p <- ggplot(data=LakeTable1, aes(x=region, y=mean)) +
   labs(y = "Mean Lake Depth in metres", title = 
          "Mean Lake Depth of Region in metres")+
   coord_flip()+
-  theme_bw()
+  theme_tufte()
 q <- ggplot(data=LakeTable2, aes(x=region, y=mean)) +
   geom_bar(color = "lightblue", fill = "lightblue", alpha = 0.7, stat="identity")+
   labs(y = "Mean Lake Area in metres", title = 
          "Mean Lake Area of Region in metres")+
   coord_flip()+
-  theme_bw()
+  theme_tufte()
 r <- ggplot(data=LakeTable3, aes(x=region, y=mean)) +
   geom_bar(color = "lightblue", fill = "lightblue", alpha = 0.7, stat="identity")+
   labs(y = "Mean Lake Perimeter in metres", title = 
          "Mean Lake Perimeter of Region in metres")+
   coord_flip()+
-  theme_bw()
+  theme_tufte()
 grid.arrange(p, q, r, ncol=3)
 ```
 
@@ -289,7 +290,8 @@ p <- df3 %>% ggpairs(.,
                            continuous = wrap("densityDiag", alpha=0.5 )), 
                upper = list(combo = wrap("box_no_facet", alpha=0.5),
                             continuous = wrap("cor", size=4, alignPercent=0.8))) + 
-               theme(panel.grid.major = element_blank())    # remove gridlines 
+               theme(panel.grid.major = element_blank()) 
+              
 
 plots <- apply(expand.grid(i=7:9, j=2:6), 1, function(ij) getPlot(p, i=ij[1], j=ij[2]))
 ggmatrix(plots,
