@@ -9,7 +9,7 @@ output: beamer_presentation
 ---
 
 
----
+
 # Group 8
 
 **Frances Smith**  
@@ -31,7 +31,7 @@ https://www.stats.govt.nz/indicators/modelled-lake-water-quality/
 
 ## Variables  
 
-For analysis we split the dataset into two main categories; the lake health variables and the lake dimension variable. The lake health variables measure as a whole give an indication of the "health" of an individual lake. The five lake health variables are Clarity, Ammoniacal Nitrogen, Total Nitrogen, Total phosphorus, and Chlorophyll-A. Additional variables that we examined were:  
+For analysis we split the dataset into two main categories; the lake health variables and the lake dimension variables. The lake health variables measure as a whole give an indication of the "health" of an individual lake. The five lake health variables are Clarity, Ammoniacal Nitrogen, Total Nitrogen, Total phosphorus, and Chlorophyll-A. Additional variables that we examined were:  
 - The lake dimension variables measure the dimensions of the lake. The three lake dimension variables are depth, area, perimeter.  
 - Region; which New Zealand region the lake was located in, and  
 - Dominant landcover; split into five types; Exotic Forest, Native, Pastoral, Urban area and other.  
@@ -64,6 +64,7 @@ knitr::opts_chunk$set(echo = TRUE)
 set.seed(300570258, kind = "Mersenne-Twister")
 
 require(tinytex)
+require(klaR)
 require(ggplot2)
 require(ggthemes)
 require(extrafont)
@@ -74,9 +75,11 @@ require(GGally)
 require(ggExtra)
 require(moments)
 require(kable)
+require(kableExtra)
 require(reshape2)
 require(dplyr)
 require(gridExtra)
+require(tidyverse)
 ```
 
 ```{r functab, echo = FALSE}
@@ -126,14 +129,6 @@ ggcorrplot(cor(df11), method = "circle", hc.order = TRUE, type = "lower")
 
 # Exploratory Data Analysis
 
-The pairs plot of the lake health and dimension variables, coloured by dominant landcover, is shown in figure \ref{fig:pairsplot}.  
-
-```{r pairsplot, fig.cap="Pairs Plot", out.width = "80%", out.height = "60%", fig.pos="center", echo=FALSE, message = FALSE}
-ggpairs(df11, aes(col=land, alpha=.5))
-```
-
-# Exploratory Data Analysis
-
 Next, we wanted to compare the distribution of the lake health variables by types of dominant landcover. The side-by-side boxplots are shown in figure \ref{fig:boxx3}.  
 
 
@@ -157,87 +152,151 @@ ggplot(df12melt, aes(x=Measure, y=value)) +
   theme_tufte()
 ```
 
-
 # Exploratory Data Analysis
 
-Next we analysed the distribution of the lake health variables by region. The box plots of Ammoniacal Nitrogen by region is shown in figure \ref{fig:boxNH4N}.  
+The pairs plot of the lake health and dimension variables, coloured by dominant landcover, is shown in figure \ref{fig:pairsplot}.  
 
-```{r boxNH4N, fig.cap = "Box Plot of Region and Ammoniacal Nitrogen", out.width = "80%", out.height = "60%", message = FALSE, echo = FALSE, warnings = FALSE}
-ggplot(df, aes(x=region, y=NH4N)) + 
-    geom_boxplot(notch = TRUE, fill = "pink")+
-  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
-legend.position = "none")+
-  xlab("Region")+
-  ylab("Ammoniacal Nitrogen")+ 
-  scale_x_discrete(guide = guide_axis(n.dodge=3))+
-  scale_y_log10() +
-  theme_tufte()
+```{r pairsplot, fig.cap="Pairs Plot", out.width = "80%", out.height = "60%", fig.pos="center", echo=FALSE, message = FALSE}
+ggpairs(df11, aes(col=land, alpha=.5))
 ```
 
-# Exploratory Data Analysis
 
-The box plots of Chlorophyll-A by region is shown in figure \ref{fig:boxCHLA}.  
-
-```{r boxCHLA, fig.cap = "Box Plot of Region and Chloropyll-A", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
-ggplot(df, aes(x=region, y=CHLA)) + 
-    geom_boxplot(notch = TRUE, fill = "lightgreen")+
-  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
-legend.position = "none")+
-  xlab("Region")+
-  ylab("Chloropyll-A")+ 
-  scale_x_discrete(guide = guide_axis(n.dodge=3))+
-  scale_y_log10() +
-  theme_tufte()
-```
-
-# Exploratory Data Analysis
-
-The box plots of Total Phosphorus by region is shown below in figure \ref{fig:boxTP}.  
-
-```{r boxTP, fig.cap = "Box Plot of Region and Total Phosphorus", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
-ggplot(df, aes(x=region, y=TP)) + 
-    geom_boxplot(notch = TRUE, fill = "lightblue")+
-  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
-legend.position = "none")+
-  xlab("Region")+
-  ylab("Total Phosphorus")+ 
-  scale_x_discrete(guide = guide_axis(n.dodge=3))+
-  scale_y_log10() +
-  theme_tufte()
-```
 
 
 # Exploratory Data Analysis
 
-The box plots of Total Nitrogen by region is shown in figure \ref{fig:boxTN}.  
-
-```{r boxTN, fig.cap = "Box Plot of Region and Total Nitrogen", out.width = "80%", out.height = "60%", echo = FALSE, message = FALSE}
-ggplot(df, aes(x=region, y=TN)) + 
-    geom_boxplot(notch = TRUE, fill = "orange")+
-  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
-legend.position = "none")+
-  xlab("Region")+
-  ylab("Total Nitrogen")+ 
-  scale_x_discrete(guide = guide_axis(n.dodge=3))+
-  scale_y_log10() +
-  theme_tufte()
+```{r, echo = FALSE}
+####Creating a dataset with the health variables and region
+Region <- lake$region
+df.Health_Region<-cbind(df1, Region)
 ```
+
+
+
+
+Next we wanted to investigate which regions in particular had the worst median lake health. We constructed the following tables, with Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen ordered in descending medians, and Clarity ordered in ascending medians. 
+
+```{r an, echo = FALSE}
+
+NH4N_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(NH4N), list(Mean_NH4N = mean))
+NH4N_mean<-NH4N_mean[-1,]
+
+
+NH4N_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(NH4N), list(Median_NH4N = median))
+NH4N_median <- NH4N_median[-1,]
+
+
+NH4N_region <- cbind(NH4N_mean, NH4N_median[,-1])
+
+taba <- NH4N_region %>% arrange(desc(Mean_NH4N))
+```
+  
+
+```{r c, echo = FALSE}
+
+CHLA_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(CHLA), list(Mean_CHLA = mean))
+CHLA_mean<-CHLA_mean[-1,]
+
+
+CHLA_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(CHLA), list(Median_CHLA = median))
+CHLA_median <- CHLA_median[-1,]
+
+
+CHLA_region <- cbind(CHLA_mean, CHLA_median[,-1])
+
+tabc <- CHLA_region %>% arrange(desc(Median_CHLA))
+
+```
+
+
+
+```{r tp, echo = FALSE}
+
+TP_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(TP), list(Mean_TP = mean))
+TP_mean<-TP_mean[-1,]
+
+
+TP_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(TP), list(Median_TP = median))
+TP_median <- TP_median[-1,]
+
+
+TP_region <- cbind(TP_mean, TP_median[,-1])
+
+tabp <- TP_region %>% arrange(desc(Median_TP))
+
+```
+ 
+
+```{r tn, echo = FALSE}
+
+
+TN_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(TN), list(Mean_TN = mean))
+TN_mean<-TN_mean[-1,]
+
+
+TN_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(TN), list(Median_TN = median))
+TN_median <- TN_median[-1,]
+
+
+TN_region <- cbind(TN_mean, TN_median[,-1])
+
+tabn <- TN_region %>% arrange(desc(Median_TN))
+
+
+```
+ 
+ 
+
+```{r sec, out.width = "20%", out.height = "20%", message = FALSE, warnings = FALSE, echo = FALSE}
+SECCHI_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(SECCHI), list(Mean_SECCHI = mean))
+SECCHI_mean<-SECCHI_mean[-1,]
+
+
+SECCHI_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(SECCHI), list(Median_SECCHI = median))
+SECCHI_median <- SECCHI_median[-1,]
+
+
+SECCHI_region <- cbind(SECCHI_mean, SECCHI_median[,-1])
+
+tabs <- SECCHI_region %>% arrange(Median_SECCHI)
+tab1 <- cbind(taba, tabc, tabp)
+tab2 <- cbind(tabn, tabs)
+knitr::kable(tab1, caption = "Regional Mean and Median Lake Health", format="latex") %>% kable_styling(latex_options="scale_down")
+```
+
 
 # Exploratory Data Analysis
 
-Figure \ref{fig:boxSECCHI} shows the box plots of clarity by region. 
+Below is the tables for the regional means and medians of Total Nitrogen and Clarity.
 
-```{r boxSECCHI, fig.cap = "Box Plot of Region and Clarity", out.width = "80%", out.height = "60%", echo = FALSE, message = FALSE}
-ggplot(df, aes(x=region, y=SECCHI)) + 
-    geom_boxplot(notch = TRUE, fill = "violet")+
-  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
-legend.position = "none")+
-  xlab("Region")+
-  ylab("Clarity")+ 
-  scale_x_discrete(guide = guide_axis(n.dodge=3))+
-  scale_y_log10() +
-  theme_tufte()
+```{r tab2, echo = FALSE, message = FALSE, warnings = FALSE}
+knitr::kable(tab2, caption = "Regional Mean and Median Lake Health", format="latex") %>% kable_styling(latex_options="scale_down")
 ```
+
+
+
+
+
 
 # Exploratory Data Analysis
 
@@ -330,6 +389,8 @@ In further analysis of these questions we applied the following tools;
 
 - Kruskal-Wallis tests with pairwise Wilcox tests
 
+- Principal Component Analysis  
+
 - Factor analysis  
 
 - Linear discriminant analysis
@@ -352,6 +413,22 @@ pairwise.wilcox.test(SECCHI, land,
                  p.adjust.method = "BH")
 ```
 
+
+# Principal Component Analysis
+
+We use Principal Component Analysis to try to simplify the complexity of the Lake Health variables, without losing trends and patterns. The summary of this analysis is shown below. 
+
+```{r scr, fig.cap = "Scree Graph", echo = FALSE}
+PCA <- prcomp(df1, center=TRUE, scale=TRUE)
+```
+
+
+
+```{r sum, echo = FALSE}
+summary(PCA)
+```
+
+
 # Factor Analysis
 
 We conducted a factor analysis on the lake health variables with the null hypothesis that two factors is sufficient to capture the full dimensionality of the lake health variables. The output of this test showed a chi-square test statistic of 65.57 on one degree of freedom and a p-value of less than 0.0001. 
@@ -360,12 +437,63 @@ We conducted a factor analysis on the lake health variables with the null hypoth
 
 # Linear Discriminant Analysis
 
-FILL THIS IN
+We performed a Linear Discriminant Analysis on the Lake Health variables, to try make a partition to determine the type of dominant landcover, from the Lake Health variables. The model had about 73% accuracy. 
+
+```{r, echo = FALSE}
+lake3 <- dplyr::select(lake, dominant_landcover, median_TN_mg.m.3, median_CHLA_mg.m.3, median_SECCHI_metre, median_TP_mg.m.3, median_NH4N_mg.L..1)
+lake4 <- filter(lake3, dominant_landcover == "Pastoral" | dominant_landcover == "Native")
+
+lake3[2:6] <- scale(lake3[2:6])
+
+set.seed(123)
+sample <- sample(c(TRUE, FALSE), nrow(lake3), replace=TRUE, prob=c(0.7,0.3))
+
+train <- lake3[sample, ]
+test <- lake3[!sample, ]
+
+model1 <- lda(dominant_landcover~., data=train)
+```
+We found that Pastoral Landcover and Native Landcover each explain about 46% of the prior probabilities. We then produced a partition plot to examine the separation.
 
 
+```{r, fig.cap = "Partition Plot", out.width = "80%", out.height = "60%", echo = FALSE}
+lake3$dominant_landcover<- as.factor(lake3$dominant_landcover)
+partimat(dominant_landcover ~ ., data=lake3, method="lda")
+
+```
+
+  
+  
+# Linear Discriminant Analysis
+
+We decided to investigate just the Pastoral and Native classes as they accounted for about 93% of the observations in our sample so we produced a second partition plot with just these two classes. The accuracy was only slightly better at 76.7%.
+
+```{r, echo = FALSE}
+
+lake4[2:6] <- scale(lake4[2:6])
+
+set.seed(123)
+sample <- sample(c(TRUE, FALSE), nrow(lake4), replace=TRUE, prob=c(0.7,0.3))
+
+train <- lake4[sample, ]
+test <- lake4[!sample, ]
 
 
+lake4$dominant_landcover<- as.factor(lake4$dominant_landcover)
 
+model <- lda(dominant_landcover~., data=train)
+
+predicted <- predict(model, test)
+
+
+lake5 <- sample(lake4, size = 100, replace = TRUE )
+```
+
+```{r, fig.cap = "Partition Plot", out.width = "80%", out.height = "60%", echo = FALSE}
+lake4$dominant_landcover<- as.factor(lake4$dominant_landcover)
+partimat(dominant_landcover ~ ., data=lake4, method="lda")
+
+```
 
 # Problems
 
@@ -373,9 +501,23 @@ The dataset contained 12 lakes with no entry for dominant land cover. However in
 
 We also found one lake with no entry for region so we excluded this observation when analysing region with the lake health or dimension variables further.  
 
+We wanted to conduct many more tests, such as ANOVA, which requires normally distributed data. However, our data was not normally distributed, so we used slightly different tests without the normality assumption.  
+
+We also tried to model relationships between the Lake Health variables using a linear model, however many of these relationships were not linear.  
+
 # Conclusions
 
-After our analysis, we can conclude that .............................
+After our analysis, we can conclude the following:  
+
+- Waikato in particular, had higher levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen than other regions, and the lakes in Waikato tended to be murkier than many other regions.  
+
+- We could not come up with a model for the Lake Health or Lake Dimension variables so we cannot determine whether the Lake Health variables predict one another.  
+
+- Lake with predominantly Native landcover tended to have lower levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen and be clearer than other landcover types, while Pastoral and Urban tended to have higher levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen and were more murky.  
+
+# Conclusion
+
+Finally, after investigating Lake Health, Dimension, Region and Dominant Landcover, we concluded that, while lakes in the Waikato region tended to have poorer lake health than other regions, they tended to have a larger area, which could mean these lakes require more resources to treat. We noticed the lakes in the South Island tended to be healthier than lakes in the North Island, so we would recommend focusing resources to improve the health of New Zealand lakes to the North Island, in particular, in Waikato.  
 
 
 

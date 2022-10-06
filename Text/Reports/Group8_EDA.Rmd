@@ -985,3 +985,113 @@ From this EDA we have identified the following items that we would like to inves
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Exploratory Data Analysis
+
+Next we analysed the distribution of the lake health variables by region. The box plots of Ammoniacal Nitrogen by region is shown in figure \ref{fig:boxNH4N}.  
+
+```{r boxNH4N, fig.cap = "Box Plot of Region and Ammoniacal Nitrogen", out.width = "80%", out.height = "60%", message = FALSE, echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=region, y=NH4N)) + 
+    geom_boxplot(notch = TRUE, fill = "pink")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Ammoniacal Nitrogen")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+# Exploratory Data Analysis
+
+The box plots of Chlorophyll-A by region is shown in figure \ref{fig:boxCHLA}.  
+
+```{r boxCHLA, fig.cap = "Box Plot of Region and Chloropyll-A", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=region, y=CHLA)) + 
+    geom_boxplot(notch = TRUE, fill = "lightgreen")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Chloropyll-A")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+# Exploratory Data Analysis
+
+The box plots of Total Phosphorus by region is shown below in figure \ref{fig:boxTP}.  
+
+```{r boxTP, fig.cap = "Box Plot of Region and Total Phosphorus", out.width = "80%", out.height = "60%", echo = FALSE, warnings = FALSE}
+ggplot(df, aes(x=region, y=TP)) + 
+    geom_boxplot(notch = TRUE, fill = "lightblue")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Total Phosphorus")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+
+# Exploratory Data Analysis
+
+The box plots of Total Nitrogen by region is shown in figure \ref{fig:boxTN}.  
+
+```{r boxTN, fig.cap = "Box Plot of Region and Total Nitrogen", out.width = "80%", out.height = "60%", echo = FALSE, message = FALSE}
+ggplot(df, aes(x=region, y=TN)) + 
+    geom_boxplot(notch = TRUE, fill = "orange")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Total Nitrogen")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
+
+
+
+
+
+
+
+# Exploratory Data Analysis
+
+Figure \ref{fig:boxSECCHI} shows the box plots of clarity by region. 
+
+```{r boxSECCHI, fig.cap = "Box Plot of Region and Clarity", out.width = "80%", out.height = "60%", echo = FALSE, message = FALSE}
+ggplot(df, aes(x=region, y=SECCHI)) + 
+    geom_boxplot(notch = TRUE, fill = "violet")+
+  theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
+legend.position = "none")+
+  xlab("Region")+
+  ylab("Clarity")+ 
+  scale_x_discrete(guide = guide_axis(n.dodge=3))+
+  scale_y_log10() +
+  theme_tufte()
+```
