@@ -4,3 +4,54 @@ author: "Russell and Frances"
 date: "5th October 2022"
 output: bookdown::pdf_document2
 ---
+
+
+
+# Introduction
+
+- intro dataset
+- leading question 
+  - secondary questions
+- outline of investigation
+
+
+
+
+# Methodology
+
+- EDA
+  - univariate health, dimension
+    - distributions
+    - cullen and frey
+    - small sample stats
+  - bivariate h/h, h/d, h/r, h/l, d/d, d/r
+    - corr/cov matrices
+    - pairs (from presentation cause pretty)
+    - sbs box plots
+    - small sample stats
+  
+- tests for normality
+
+
+# Results
+
+- test for difference in means health/land + pairwise tests
+- PCA
+- FA
+- LDA
+
+
+# Discussion
+
+- WHAT DOES IT MEEEAAAAAANNNNNNN
+- problems
+
+
+
+# Bibliography
+
+- I have some references from research into health variables and where data from 
+
+
+
+
