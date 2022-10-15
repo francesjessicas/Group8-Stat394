@@ -9,15 +9,34 @@ output: bookdown::pdf_document2
 
 ## Introduction
 
-- intro dataset
-- leading question 
-  - secondary questions
-- outline of investigation
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(300570258, kind = "Mersenne-Twister")
+
+require(tinytex)
+require(ggplot2)
+require(ggthemes)
+require(extrafont)
+require(ggstance)
+require(fitdistrplus)
+require(ggcorrplot)
+require(GGally)
+require(ggExtra)
+require(moments)
+require(kable)
+require(reshape2)
+require(nortest)
+require(dplyr)
+library(MASS)
+library(klaR)
+```
+
 
 We are Russell and Frances and we form Group 8. Below are our pictures as well as our contact details and ORCID ID numbers.  
   
 ```{r frances, out.width = "40%", out.height = "30%", echo = FALSE}
-knitr::include_graphics("Russell and Frances.png")
+knitr::include_graphics("../Presentations/Russell and Frances.png")
 ```
   
 **Frances Smith**  
@@ -28,23 +47,22 @@ ORCHID ID: 0000-0002-5168-3134
 email: russellsyder@gmail.com  
 ORCHID ID: 0000-0002-4582-5909
 
-## Introduction to our data
+### Introduction to our data
   
 Our original dataset was extracted from Stats NZ.
 https://www.stats.govt.nz/indicators/modelled-lake-water-quality/ 
 
-We made some manipulations to the original dataset such as removing extraneous variables (like Date which was the same for every lake) or variables that we were not interested in. We also reshaped some aspects of the dataset so that the data would be easier to analyse. We also checked for missing values; there were none so imputation was not necessary.  
+We made some manipulations to the original dataset such as removing extraneous variables (like Date which was the same for every lake) or variables that we were not interested in. We also reshaped some aspects of the dataset so that the data would be easier to analyse. We checked for missing values; there were some for the categorical variables, which we dealt with as described below, but there were no missing values for the numerical variables so imputation was not necessary.  
   
-
-Our final dataset contains information from 3801 lakes in New Zealand measured across 22 variables. Of these 22 variables we selected 10 that we would use for further analysis. They are as follows:  
+Our final dataset contains information from 3802 lakes (exceeding one hectare) in New Zealand measured across 22 variables. Of these 22 variables we selected 10 that we would use for further analysis. They are as follows:  
   
-*Ammoniacal Nitrogen* is a form of nitrogen that supports algae and plant growth, but in large concentrations can be toxic to aquatic life. This is measured in milligrams per litre. The national bottom line for this measure is 1.3mg/L, which none of the observations exceed. It acts as as measure of toxicity.
+*Ammoniacal Nitrogen* is a form of nitrogen that supports algae and plant growth, but in large concentrations can be toxic to aquatic life. This is measured in milligrams per litre. The national bottom line for this measure is 1.3mg/L, which none of the observations exceed. It acts as as measure of toxicity.  
   
-*Chlorophyll-a* is an organic molecule found in plant cells that allows plants to photosynthesize. The variable Chlorophyll-a is a measure of the concentration of phytoplankton biomass in milligrams per cubic metre. High concentrations of chlorophyll is a symptom of degraded water quality. The national bottom line for this measure is 12.
+*Chlorophyll-A* is an organic molecule found in plant cells that allows plants to photosynthesize. The variable Chlorophyll-A is a measure of the concentration of phytoplankton biomass in milligrams per cubic metre. High concentrations of chlorophyll is a symptom of degraded water quality. The national bottom line for this measure is 12.  
 
 *Total Phosphorus* is the sum of all phosphorus forms in the water, including phosphorus bound to sediment. Large amounts of phosphorus in lakes can reduce dissolved oxygen in the water. This can cause low oxygen areas in the lake, where some aquatic life cannot survive. Total Phosphorus is measured in milligrams per cubic metre and has a national bottom line of 50mg/m3.  
 
-*Total Nitrogen* is the sum of all nitrogens found in the water, including organic nitrogen from plant tissue. An excess of nitrogen in lakes can cause an increase in algae and plant growth, possibly depriving the lake of oxygen. Total Nitrogen is measured in milligrams per cubic metre and the national bottom line for stratified lakes is 750mg/m3, and for polymictic lakes is 800mg/m3. There are observations exceeding the national bottom line.  
+*Total Nitrogen* is the sum of all nitrogens found in the water, including organic nitrogen from plant tissue. An excess of nitrogen in lakes can cause an increase in algae and plant growth, possibly depriving the lake of oxygen. Total Nitrogen is measured in milligrams per cubic metre and the national bottom line for stratified lakes is 750mg/m3, and for polymictic lakes is 800mg/m3.  
   
 *Clarity* is measured in Secchi depth. This is the maximum depth (in metres) a black and white Secchi disk is visible from the surface of the lake.  
 
@@ -54,7 +72,7 @@ Our final dataset contains information from 3801 lakes in New Zealand measured a
 
 *Lake Depth* is the maximum depth of the lake measured in metres.  
   
-*Dominant Landcover* is split into four types; Exotic Forest, Native, Pastoral and Urban area. There are 12 lakes with no entry for dominant land cover, however in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called 'other' that includes 'Gorse and/or Broom', 'Surface mines and dumps', 'Mixed exotic shrubland', and 'Transport infrastructure' so we have assigned these to the Other category. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral exceeds 25 percent of catchment area and not already assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral.  
+*Dominant Landcover* is split into four types; Exotic Forest, Native, Pastoral and Urban area. There are 12 lakes with no entry for Dominant Landcover, however in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called 'Other' that includes 'Gorse and/or Broom', 'Surface mines and dumps', 'Mixed exotic shrubland', and 'Transport infrastructure' so we have assigned these to the Other category. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral landcover exceeds 25 percent of catchment area, if the lake has not already been assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral.  
   
 *Regions* in this dataset are; Auckland, Bay of Plenty, Canterbury, Gisborne, Hawke's Bay, Whanganui, Marlborough, Northland, Otago, Southland, Taranaki, Tasman, Waikato, Wellington and West Coast. Each lake corresponds to the region it is located in.
 
@@ -62,26 +80,51 @@ Upon first examining our data we thought that it would be prudent to group certa
 
 We also grouped together lake Area, Perimeter, and Depth and classified this group as the Lake Dimension variables.  
 
+### Leading Question
 
+Our leading question was; What are some statistics that we can produce that may be beneficial for informing restorative actions that improve the health of lakes in New Zealand?  
 
+To investigate this we came up with the following questions;  
 
-# Methodology
+- Are there any particular regions that have poor lake health?  
 
-- EDA
-  - univariate health, dimension
-    - distributions
-    - cullen and frey
-    - small sample stats
-  - bivariate h/h, h/d, h/r, h/l, d/d, d/r
-    - corr/cov matrices
-    - pairs (from presentation cause pretty)
-    - sbs box plots
-    - small sample stats
+- Do the Lake Health variables predict one another?  
+
+- How can we model the Lake Dimension variables?  
+
+- Do any types of Dominant Landcover have poorer lake health than others?
+
+## Methodology
+
+To answer these questions, we will conduct the following investigations:  
+
+- An exploratory data analysis on the Lake Health, Lake Dimension, Region and Dominant Landcover variables, which will consist of:  
+
+  - Univariate analysis of the Lake Health and Lake Dimension variables  
   
-- tests for normality
+  - Bivariate analysis with each of these four types of variables, specifically:  
+  
+    - Relationship between the Lake Health and Lake Dimension variables, and  
+    
+    - Comparisons of the Lake Health and Lake Dimension variables by Region and Dominant Landcover  
+
+- Tests for difference in means of the Lake Health variables by Dominant Landcover  
+
+- Principal Component Analysis on the Lake Health variables  
+
+- Factor Analysis on the Lake Health Variables  
+
+- Linear Discriminant Analysis on the Lake Health variables by Dominant Landcover  
 
 
-# Results
+### Exploratory Data Analysis
+
+
+
+
+
+
+## Results
 
 - test for difference in means health/land + pairwise tests
 - PCA
@@ -89,7 +132,7 @@ We also grouped together lake Area, Perimeter, and Depth and classified this gro
 - LDA
 
 
-# Discussion
+## Discussion
 
 - WHAT DOES IT MEEEAAAAAANNNNNNN
 - problems
@@ -97,9 +140,13 @@ We also grouped together lake Area, Perimeter, and Depth and classified this gro
 
 
 
-# Bibliography
+## Bibliography
 
 - I have some references from research into health variables and where data from 
+- APA referencing
+
+
+data: https://www.stats.govt.nz/indicators/modelled-lake-water-quality/ 
 
 
 
