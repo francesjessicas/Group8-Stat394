@@ -137,7 +137,7 @@ MySummary2 <- function(x){
 }
 ```
 
-## Sample Statistics of Lake Health variables
+#### Univariate Analysis of the Lake Health Variables
 
 Table \ref{tab:laketable} shows the summary statistics for each of these three measures. 
 
@@ -209,7 +209,7 @@ ggplot(df, aes(x=CHLA)) +
   theme_tufte()
 ```
 
-Figure \ref{fig:tphist} shows the distribution of Total Phosphorus. The fitted normal distribution (red) fits quite well to the smoothed histogram (purple), although the kurtosis is very high, 26.2763. We would expect the kurtosis of a normally distributed variable to be close to 3 and with a skewness of 0, however the sample statistics of Total Phosphorus show the kurtosis much larger than 3 and the skewness 2.8722. This indicates the tails of this distribution are much heavier than a normal distribution, and it is right skewed. Table \ref{tab:laketable} shows the median of Total Phosphorus is 17.8966 mg per cubic meter, and the mean is 18.7206 mg per cubic meter. Few of the lakes exceeded the natioal bottomline of 50mg per cubic metre. 
+Figure \ref{fig:tphist} shows the distribution of Total Phosphorus. The fitted normal distribution (red) fits quite well to the smoothed histogram (purple), although the kurtosis is very high, 26.2763. We would expect the kurtosis of a normally distributed variable to be close to 3 and with a skewness of 0, however the sample statistics of Total Phosphorus show the kurtosis much larger than 3 and the skewness 2.8722. This indicates the tails of this distribution are much heavier than a normal distribution, and it is right skewed. Table \ref{tab:laketable} shows the median of Total Phosphorus is 17.8966 mg per cubic meter, and the mean is 18.7206 mg per cubic meter. Few of the lakes exceeded the national bottomline of 50mg per cubic metre. 
 
 
 ```{r tphist, fig.cap="Histogram of Total Phosphorus", fig.pos="center", echo=FALSE}
@@ -233,7 +233,7 @@ ggplot(df, aes(x=TP)) +
 ```
   
   
-  Figure \ref{fig:TNhist} shows the distribution of Total Nitrogen. The fitted normal distribution (in red) differs significantly from the smoothed histogram (purple). The smoothed histogram is more skewed and the mode is well below the mean. The median 416.7044 and mean 505.8606. Table \ref{tab:laketable} confirms this with a skewness of 1.0799. The kurtosis is 3.5463, indicating the distribution of Total Nitrogen has reasonable tails. A significant proportion of the observations exceed the higher of the two national bottomlines, of 800mg per cubic metre. 
+Figure \ref{fig:TNhist} shows the distribution of Total Nitrogen. The fitted normal distribution (in red) differs significantly from the smoothed histogram (purple). The smoothed histogram is more skewed and the mode is well below the mean. The median 416.7044 and mean 505.8606. Table \ref{tab:laketable} confirms this with a skewness of 1.0799. The kurtosis is 3.5463, indicating the distribution of Total Nitrogen has reasonable tails. A significant proportion of the observations exceed the higher of the two national bottomlines, of 800mg per cubic metre. 
 
 ```{r TNhist, fig.cap="Histogram of Total Nitrogen", fig.pos="center", echo=FALSE}
 ggplot(df, aes(x=TN)) +
@@ -277,8 +277,93 @@ ggplot(df, aes(x=SECCHI)) +
 
 ```  
 
+We have made Cullen and Frey plots for Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity, each with 1000 bootstrapped observations, shown in orange. 
+
+In figure \ref{fig:cfNH4N}, the Cullen and Frey graph of Ammoniacal Nitrogen, we can see the observed kurtosis and square of skewness was much larger than a normal distribution. The observation and all bootstrapped values were within the Beta distribution region, indicating the distribution of Ammoniacal Nitrogen in New Zealand lakes may follow a Beta distribution. 
+
+Figure \ref{fig:cfCHLA} shows the Cullen and Frey graph of Chlorophyll-A. The observed kurtosis and square of skewness were both much larger than we would expect for a normal distribution. The observed value and the bootstrapped observations lie on or just below the line all lognormal distributions lie on. This could tell us the distribution of Chlorophyll-A in New Zealand lakes could follow a lognormal distribution.
+
+The Cullen and Frey graph of Total Phosphorus is shown in figure \ref{fig:cfTP}. The observed kurtosis and square of skewness were larger than both Ammoniacal Nitrogen and Chlorophyll-A. Similar to the Cullen and Frey graph of Chlorophyll-A, the observed value and bootstrapped observations seem to lie close to the line that contains all lognormal distributions. However, very few of the bootstrapped observations lie on this line, indicating Total Phosphorus in New Zealand lakes likely does not follow a lognormal, or any other distribution illustrated on this graph. 
+
+The Cullen and Frey graph of Total Nitrogen is shown in figure \ref{fig:cfTN}. The observed value and the boostrapped observations all lie within the grey area suggesting that Total Nitrogen follows a Beta distribution. 
+
+The Cullen and Frey graph of Clarity is shown in figure \ref{fig:cfSECCHI}. The observed value and bootstrapped values of the skewness and kurtosis of Clarity lies within the area all beta distributions exist within, and very close to the Uniform distributions, indicating the distribution of Clarity could be Uniform or Beta.  
 
 
+```{r cfNH4N, fig.cap = "Cullen and Frey Graph of Ammoniacal Nitrogen", echo = FALSE}
+descdist(NH4N, boot = 1000)
+```
+
+```{r cfCHLA, fig.cap = "Cullen and Frey Graph of Chlorophyll-A", echo = FALSE}
+descdist(CHLA, boot = 1000)
+```
+
+```{r cfTP, fig.cap = "Cullen and Frey Graph of Total Phosphorus", echo = FALSE}
+descdist(TP, boot = 1000)
+```
+  
+    
+```{r cfTN, fig.cap = "Cullen and Frey Graph of Total Nitrogen", echo = FALSE}
+descdist(TN, boot = 1000)
+```
+  
+```{r cfSECCHI, fig.cap = "Cullen and Frey Graph of Clarity", echo = FALSE}
+descdist(SECCHI, boot = 1000)
+```
+
+We believe, based on the Cullen and Frey graphs, none of these distributions are normal. We confirmed this with Anderson Darlings tests of normality. 
+
+Table \ref{tab:adexnh4n} shows the test statistic and p-value from the Anderson-Darling test on Ammoniacal Nitrogen levels in lakes with predominantly Exotic Forest landcover. The null hypothesis for this test is that the distribution of Ammoniacal Nitrogen in lakes with exotic forest landcover is Gaussian, and the alternative hypothesis is that the distribution is not normal. The test statistic for this test is 12.2369, and the p-value is 3.7e-24. As the p-value is very small, we can reject the null hypothesis and conclude the distribution of Ammoniacal Nitrogen in lakes with predominantly exotic forest landcover is not normal. Therefore, we cannot use a one-way ANOVA test. We have also done this test on the other landcover types with similar results. For Native landcover, the test statistic was 208.5689 and the p-value was 3.7e-24. For "other" landcover, the test statistic was 1.1297 and the p-value was 3.5818e-3. For Pastoral landcover the test statistic is 50.8314 and the p-value was 3.7e-24. Finally, for Urban landcover, the test statistic was 3.7878 and the p-value was 1.5945. This information is shown in tables \ref{tab:adnatnh4n}, \ref{tab:adothnh4n}, \ref{tab:adpastnh4n} and \ref{tab:adurbnh4n}. 
+
+```{r adexnh4n, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
+land <- as.factor(lake$dominant_landcover)
+df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+A <- filter(df2, land == "Exotic forest")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr1 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr1 <- format(pvalr, scientific = TRUE)
+A <- filter(df2, land == "Native")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr2 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr2 <- format(pvalr, scientific = TRUE)
+A <- filter(df2, land == "Other")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr3 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr3 <- format(pvalr, scientific = TRUE)
+A <- filter(df2, land == "Pastoral")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr4 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr4 <- format(pvalr, scientific = TRUE)
+A <- filter(df2, land == "Urban area")
+A = A[,-1]
+A <- data.frame(A)
+tab <- ad.test(A$NH4N)
+tstatr <- tab$statistic
+tstatr5 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr5 <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr1, pvalr1, tstatr2, pvalr2, tstatr3, pvalr3, tstatr4, pvalr4, tstatr5, pvalr5), nrow = 2, byrow = FALSE)
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- c("Exotic Forest", "Native", "Other", "Pastoral", "Urban Area")
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for Ammoniacal Nitrogen by Dominant Landcover")
+```
 
 ## Results
 
@@ -286,11 +371,11 @@ ggplot(df, aes(x=SECCHI)) +
 - PCA
 - FA
 
-## Linear Discriminant Analysis and Factor Analysis
+### Linear Discriminant Analysis and Factor Analysis
 
 After finishing our Preliminary Report we also looked at ways we could implement Factor Analysis (FA) and Linear Discriminant Analysis (LDA) with our data.
   
-### Linear Discriminant Analysis  
+#### Linear Discriminant Analysis  
 For LDA, we wanted to see if there was potential to implement LDA if there was information loss. As such, we attempted to predict which Dominant Landcover a lake was, based on the Lake Health Variables.
 
 Reminder -  the categories that dominant landcover can take on are: Pastoral, Native, Urban area, Exotic forest, and Other
