@@ -98,7 +98,7 @@ To investigate this we came up with the following questions;
 
 To answer these questions, we will conduct the following investigations:  
 
-- An exploratory data analysis on the Lake Health, Lake Dimension, Region and Dominant Landcover variables, which will consist of:  
+- An Exploratory Data Analysis on the Lake Health, Lake Dimension, Region and Dominant Landcover variables, which will consist of:  
 
   - Univariate analysis of the Lake Health and Lake Dimension variables  
   
@@ -116,10 +116,166 @@ To answer these questions, we will conduct the following investigations:
 
 - Linear Discriminant Analysis on the Lake Health variables by Dominant Landcover  
 
+The latter four analyses will be in our Results section.  
 
 ### Exploratory Data Analysis
 
+```{r functab, echo = FALSE}
+MySummary2 <- function(x){
+  return(c(
+    length(x),
+    min(x),
+    quantile(x, .25),
+    median(x),
+    quantile(x, .75),
+    max(x),
+    sd(x),
+    mean(x),
+    kurtosis(x), 
+    skewness(x))
+  )
+}
+```
 
+## Sample Statistics of Lake Health variables
+
+Table \ref{tab:laketable} shows the summary statistics for each of these three measures. 
+
+```{r laketable, echo = FALSE}
+lake <- read.csv("../../Data/modelled_lake_water_quality_altered.csv")
+laketype <- as.factor(lake$nof_lake_type)
+
+region <- as.factor(lake$region)
+land <- as.factor(lake$dominant_landcover)
+df <- data.frame(lake)
+NH4N <- lake$median_NH4N_mg.L..1
+CHLA <- lake$median_CHLA_mg.m.3
+TP <- lake$median_TP_mg.m.3
+TN <- lake$median_TN_mg.m.3
+SECCHI <- lake$median_SECCHI_metre
+
+df1 <- data.frame(NH4N, CHLA, TP, TN, SECCHI)
+df2 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI)
+tab <- apply(df1, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Standard Deviation', 'Mean', 'Kurtosis', 'Skewness')
+colnames(tab) <- c('Ammoniacal Nitrogen', 'Chloropyll-A', 'Phosphorus', "Nitrogen", "Clarity")
+knitr::kable(tab, caption = "Table of Sample Statistics", "simple")
+```
+
+
+Figure \ref{fig:nh4nhist} shows the distribution of Ammoniacal Nitrogen. The fitted normal distribution (in red) differs significantly from the smoothed histogram (purple). The smoothed histogram is more skewed and the mode is well below the mean. The median 0.0096 and mean 0.0120. Table \ref{tab:laketable} confirms this with a skewness of 2.0339. The kurtosis is 8.1158, indicating the distribution of Ammoniacal Nitrogen has heavy tails. There are two extreme values, at around 0.06 mg per litre. There is a large amount of observations around the first quantile, 0.0073 mg per litre. 
+
+```{r nh4nhist, fig.cap="Histogram of Ammoniacal Nitrogen", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=NH4N)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(NH4N)),
+                 col="black", fill="white") +
+  xlab("Observations of Ammonical Nitrogen") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(NH4N), sd=sd(NH4N)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(NH4N), col="red") +
+  geom_segment(aes(x=mean(NH4N)-sd(NH4N),
+                   y=15,
+                   xend=mean(NH4N)+sd(NH4N),
+                   yend=15), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-10), width=7, notch = TRUE)+
+  theme_tufte()
+```
+  
+
+Figure \ref{fig:chlahist} shows the distribution of Chlorophyll-A. We can see the fitted normal distribution differs slightly from the smoothed histogram. Table \ref{tab:laketable} shows the median is 3.9482 and the mean is 4.6093. The kurtosis is 18.3408, indicating the distribution of Chlorophyll-A is very heavy tailed, and the skewness is 2.5484, indicating the distribution is right skewed. A small proportion of the lakes exceeded the national bottomline of 12mg per cubic metre. 
+
+```{r chlahist, fig.cap="Histogram of Chlorophyll-A", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=CHLA)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(CHLA)),
+                 col="black", fill="white") +
+  xlab("Observations of Chlorophyll-A") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(CHLA), sd=sd(CHLA)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(CHLA), col="red") +
+  geom_vline(xintercept = 12, col="blue") +
+  geom_segment(aes(x=mean(CHLA)-sd(CHLA),
+                   y=0.02,
+                   xend=mean(CHLA)+sd(CHLA),
+                   yend=0.02), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-0.01), width=0.01, notch = TRUE)+
+  theme_tufte()
+```
+
+Figure \ref{fig:tphist} shows the distribution of Total Phosphorus. The fitted normal distribution (red) fits quite well to the smoothed histogram (purple), although the kurtosis is very high, 26.2763. We would expect the kurtosis of a normally distributed variable to be close to 3 and with a skewness of 0, however the sample statistics of Total Phosphorus show the kurtosis much larger than 3 and the skewness 2.8722. This indicates the tails of this distribution are much heavier than a normal distribution, and it is right skewed. Table \ref{tab:laketable} shows the median of Total Phosphorus is 17.8966 mg per cubic meter, and the mean is 18.7206 mg per cubic meter. Few of the lakes exceeded the natioal bottomline of 50mg per cubic metre. 
+
+
+```{r tphist, fig.cap="Histogram of Total Phosphorus", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=TP)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(TP)),
+                 col="black", fill="white") +
+  xlab("Observations of Total Phosphorus") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(TP), sd=sd(TP)),
+                col="red", size=2, alpha=.5) +
+  geom_vline(xintercept = mean(TP), col="red") +
+  geom_vline(xintercept = 50, col="blue") +
+  geom_segment(aes(x=mean(TP)-sd(TP),
+                   y=0.007,
+                   xend=mean(TP)+sd(TP),
+                   yend=0.007), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-.005), width=.003, notch = TRUE)+
+  theme_tufte()
+```
+  
+  
+  Figure \ref{fig:TNhist} shows the distribution of Total Nitrogen. The fitted normal distribution (in red) differs significantly from the smoothed histogram (purple). The smoothed histogram is more skewed and the mode is well below the mean. The median 416.7044 and mean 505.8606. Table \ref{tab:laketable} confirms this with a skewness of 1.0799. The kurtosis is 3.5463, indicating the distribution of Total Nitrogen has reasonable tails. A significant proportion of the observations exceed the higher of the two national bottomlines, of 800mg per cubic metre. 
+
+```{r TNhist, fig.cap="Histogram of Total Nitrogen", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=TN)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(TN)),
+                 col="black", fill="white") +
+  xlab("Observations of Total Nitrogen") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(TN), sd=sd(TN)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(TN), col="red") +
+  geom_vline(xintercept = 800, col="blue") +
+  geom_segment(aes(x=mean(TN)-sd(TN),
+                   y=0.00035,
+                   xend=mean(TN)+sd(TN),
+                   yend=0.00035), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-.0005), width=.0003, notch = TRUE)+
+  theme_tufte()
+```
+  
+Figure \ref{fig:SECCHIhist} shows the distribution of Clarity. The fitted normal distribution (in red) differs from the smoothed histogram (purple). The smoothed histogram is slightly asymmetrical but not skewed, with a median of 4.4677 and a mean of 4.4510. Table \ref{tab:laketable} confirms this with a skewness of 0.2342. The kurtosis is 1.9983, indicating the distribution of Clarity has slightly lighter tails than a normal distribution. These statistics indicate the distribution of Clarity is close to normal. 
+  
+```{r SECCHIhist, fig.cap="Histogram of Clarity (in metres)", fig.pos="center", echo=FALSE}
+ggplot(df, aes(x=SECCHI)) +
+  geom_histogram(aes(y=..density..),
+                 bins = nclass.FD(unlist(SECCHI)),
+                 col="black", fill="white") +
+  xlab("Observations of Clarity in metres") +
+  ylab("Histogram, smoothed histogram, and estimated normal density") +
+  geom_density(kernel="epanechnikov", size=2, col="purple", alpha=.1, adjust = 2) +
+  stat_function(fun = "dnorm", args=list(mean=mean(SECCHI), sd=sd(SECCHI)),
+                col="red", size=2, alpha=.5) +
+   geom_vline(xintercept = mean(SECCHI), col="red") +
+  geom_segment(aes(x=mean(SECCHI)-sd(SECCHI),
+                   y=0.05,
+                   xend=mean(SECCHI)+sd(SECCHI),
+                   yend=0.05), col="red", alpha=.3) +
+  geom_boxplot(aes(y=-.05), width=.03, notch = TRUE)+
+  theme_tufte()
+
+```  
 
 
 
