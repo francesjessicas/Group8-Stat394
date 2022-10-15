@@ -311,8 +311,55 @@ descdist(TN, boot = 1000)
 descdist(SECCHI, boot = 1000)
 ```
 
-We believe, based on the Cullen and Frey graphs, none of these distributions are normal. We confirmed this with Anderson Darlings tests of normality. 
+We believe, based on the Cullen and Frey graphs, none of these distributions are normal. We confirmed this with Anderson Darlings tests of normality. Table \ref{fig:adhealth} shows the test statistic and p-value for the Anderson Darling test on each Lake Health variable. The test statistics for Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity are 226, 111, 68, 134 and 40, respectively (to the nearest whole number). For each variable, the p-value is 3e-24, confirming our suspicions that these variables are not normally distributed. 
 
+```{r adhealth, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
+tab <- ad.test(df1$NH4N)
+tstatr <- tab$statistic
+tstatr1 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr1 <- format(pvalr, scientific = TRUE)
+
+tab <- ad.test(df1$CHLA)
+tstatr <- tab$statistic
+tstatr2 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr2 <- format(pvalr, scientific = TRUE)
+
+tab <- ad.test(df1$TP)
+tstatr <- tab$statistic
+tstatr3 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr3 <- format(pvalr, scientific = TRUE)
+
+tab <- ad.test(df1$TN)
+tstatr <- tab$statistic
+tstatr4 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr4 <- format(pvalr, scientific = TRUE)
+
+tab <- ad.test(df1$SECCHI)
+tstatr <- tab$statistic
+tstatr5 <- round(tstatr, 4)
+pvalr <- tab$p.value
+pvalr5 <- format(pvalr, scientific = TRUE)
+tab <- matrix(c(tstatr1, pvalr1, tstatr2, pvalr2, tstatr3, pvalr3, tstatr4, pvalr4, tstatr5, pvalr5), nrow = 2, byrow = FALSE)
+tabr <- as.table(tab)
+rownames(tabr) <- c("Test Statistic", "P-Value")
+colnames(tabr) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
+knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for the Lake Health Variables")
+```
+
+
+#### Univariate Analysis of the Lake Dimension Variables
+
+
+
+
+
+
+
+#### BIVARIATE
 Table \ref{tab:adexnh4n} shows the test statistic and p-value from the Anderson-Darling test on Ammoniacal Nitrogen levels in lakes with predominantly Exotic Forest landcover. The null hypothesis for this test is that the distribution of Ammoniacal Nitrogen in lakes with exotic forest landcover is Gaussian, and the alternative hypothesis is that the distribution is not normal. The test statistic for this test is 12.2369, and the p-value is 3.7e-24. As the p-value is very small, we can reject the null hypothesis and conclude the distribution of Ammoniacal Nitrogen in lakes with predominantly exotic forest landcover is not normal. Therefore, we cannot use a one-way ANOVA test. We have also done this test on the other landcover types with similar results. For Native landcover, the test statistic was 208.5689 and the p-value was 3.7e-24. For "other" landcover, the test statistic was 1.1297 and the p-value was 3.5818e-3. For Pastoral landcover the test statistic is 50.8314 and the p-value was 3.7e-24. Finally, for Urban landcover, the test statistic was 3.7878 and the p-value was 1.5945. This information is shown in tables \ref{tab:adnatnh4n}, \ref{tab:adothnh4n}, \ref{tab:adpastnh4n} and \ref{tab:adurbnh4n}. 
 
 ```{r adexnh4n, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
