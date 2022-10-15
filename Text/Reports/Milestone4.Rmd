@@ -1114,7 +1114,7 @@ pairwise.wilcox.test(TN, land,
 
 
 
-For Clarity, we have conducted an Anderson-Darling test for normality on the Exotic forest group. The test statistic was 4.3504 and the p-value was 7.522e-11 (shown in table \ref{tab:adexsecchi}), rejecting the null hypothesis that the distribution of Clarity in lakes with Exotic landcover is normal, and concluding the distribution of Clarity in lakes with Exotic forest landcover is not normal, and therefore we cannot use a one-way ANOVA test.
+For Clarity, we have conducted an Anderson-Darling test for normality on the Exotic forest group. The test statistic was 4.3504 and the p-value was 7.522e-11 (shown in table \ref{tab:adexsecchi}), rejecting the null hypothesis that the distribution of Clarity in lakes with Exotic landcover is normal, and concluding the distribution of Clarity in lakes with Exotic forest landcover is not normal, and therefore we cannot use a one-way ANOVA test. 
 
 
 ```{r adexsecchi, fig.cap = "Anderson-Darling Test for Normality of Clarity in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}

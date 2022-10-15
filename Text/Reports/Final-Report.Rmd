@@ -593,7 +593,7 @@ knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for th
 ```
 
 
-We analysed the relationship between the Lake Health variables and Region. EXPLAIN
+We analysed the relationship between the Lake Health variables and Region. 
 
 ```{r an, echo = FALSE}
 Region <- lake$region
@@ -736,117 +736,11 @@ ggcorrplot(cor(LakeNum), method = "circle",
 
 
 
-
-Figure \ref{fig:pairhd} shows the pairs plot of the Lake Health variables by the Lake Dimension variables. We can see very little relationship between the Lake Health and Lake Dimension variables. The majority of the scatter we can see if due to outliers and large amounts of lakes with low values for depth, perimeter and area. We decided not to investigate these relationships any further. 
-
-```{r pairhd, fig.cap = "Pairs Plot of Lake Health Variables by Lake Dimension Variables", echo = FALSE}
-depth <- lake$lake_depth
-area <- lake$lake_area
-peri <- lake$lake_perimeter
-
-df3 <- data.frame(land, NH4N, CHLA, TP, TN, SECCHI, depth, area, peri)
-p <- df3 %>% ggpairs(.,
-               title = "A Nice Plot Using ggpairs", 
-               mapping = ggplot2::aes(colour=land), 
-               diag = list(discrete="barDiag", 
-                           continuous = wrap("densityDiag", alpha=0.5 )), 
-               upper = list(combo = wrap("box_no_facet", alpha=0.5),
-                            continuous = wrap("cor", size=4, alignPercent=0.8))) + 
-               theme(panel.grid.major = element_blank()) 
-              
-
-plots <- apply(expand.grid(i=7:9, j=2:6), 1, function(ij) getPlot(p, i=ij[1], j=ij[2]))
-ggmatrix(plots,
-         byrow=FALSE,
-         nrow = 3,
-         ncol=5,
-         xAxisLabels = c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity"),
-         yAxisLabels = c("Depth", "Area", "Perimeter"),
-         title="Lake Health Variables by Lake Dimension Variables")
-```
-
-
 ## Results
 
 - test for difference in means health/land + pairwise tests
-
-As demonsta=rated in our Exploratory data Analysis, the distributios of the Lake Health variables for each landcover type was not normal. We performed Kruskal-Wallis tests for multivariate difference in means between landcover for each Lake Health variable and all of these tests concluded that there was a difference. We then conducted pairwise Wilcox tests to discover which landcovers had different means to others. 
-
-
-Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Ammoniacal Nitrogen levels in lakes with Exotic forest landcover and lakes with 'Other' landcover, as the p-value is 0.0004. There is also a difference in mean Ammoniacal Nitrogen levels in lakes with 'Other' landcover and lakes with Native landcover, with a p-value of 0.0001. Lakes with Pastoral landcover have a different mean Ammoniacal Nitrogen level than lakes with Exotic forest landcover, and lakes with Native landcover, both have a p-value of less than 2e-16. Lakes with Urban landcover have a different mean Ammoniacal Nitrogen level than lakes with Exotic forest landcover, and lakes with Native landcover, both have a p-value of less than 2e-16. And lakes with Urban landcover have a different mean Ammoniacal Nitrogen level than lakes with Pastoral landcover, as the p-value is 9e-7. The pairs that failed to reject the null hypothesis were Exotic forest and Native landcovers, Pastoral and 'other' landcovers and Urban and 'other' landcovers so there could be no difference between the mean Ammoniacal Nitrogen level in lakes in these landcover pairs. 
-```{r krnh4npair, echo = FALSE}
-pairwise.wilcox.test(NH4N, land,
-                 p.adjust.method = "BH")
-
-```
-
-
-Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Chlorophyll-A levels in lakes with Native landcover and every other type of landcover. The p-value for the Native and Exotic forest pair was less than 2e-16, Native and 'Other' pair was 6.4e-5, Native and Pastoral pair was less than 2e-16 and Native and Urban was less than 2e-16. No other pair had a p-value small enough to reject the null hypothesis that there is not a difference in mean Chlorophyll-A level between those two landcovers. We can conclude that lakes with Native landcover had a different mean Chlorophyll-A level than any other landcover type. 
-```{r krchlapair, echo = FALSE}
-pairwise.wilcox.test(CHLA, land,
-                 p.adjust.method = "BH")
-
-```
-
-
-
-Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Total Phosphorus levels in lakes with Native landcover and every other type of landcover. The p-value for the Native and Exotic forest pair was less than 2e-16, Native and 'Other' pair was 4.0e-6, Native and Pastoral pair was less than 2e-16 and Native and Urban was less than 2e-16. We can conclude that lakes with Native landcover had a different mean Total Phosphorus level than any other landcover type. The p-value for Pastoral and Exotic forest is 1.4e-7 and the p-value for Urban and Exotic forest was 0.001. So we can conclude lakes with Exotic forest landcover had a different mean Total Phosphorus level than lakes with Pastoral landcover or lakes with Urban landcover. No other pair had p-values small enough to conclude a difference in means.  
-```{r krtppair, echo = FALSE}
-pairwise.wilcox.test(TP, land,
-                 p.adjust.method = "BH")
-
-```
-
-
-
-
-Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Total Nitrogen levels in lakes with Native landcover and every other type of landcover. The p-value for the Native and Exotic forest pair was less than 2e-16, Native and 'Other' pair was 8.9e-7, Native and Pastoral pair was less than 2e-16 and Native and Urban was less than 2e-16. We can conclude that lakes with Native landcover had a different mean Total Nitrogen level than any other landcover type. The p-value for 'other' and Exotic forest is 0.0017 and the p-value for Urban and Exotic forest was 4.4e-8. So we can conclude lakes with Exotic forest landcover had a different mean Total Nitrogen level than lakes with 'Other' landcover or lakes with Urban landcover. The p-value for Pastoral and Urban lancovers was 8.9e-7. indicating there is a difference in mean Total Nitrogen levels in lakes with Pastoral landcover and lakes with Urban. No other pair had p-values small enough to conclude a difference in means.  
-```{r krtnpair, echo = FALSE}
-pairwise.wilcox.test(TN, land,
-                 p.adjust.method = "BH")
-
-```
-
-
-
-Next we conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Clarity in lakes with Native landcover and every other type of landcover. The p-value for the Native and Exotic forest pair was less than 2e-16, Native and 'Other' pair was 6.1e-6, Native and Pastoral pair was less than 2e-16 and Native and Urban was less than 2e-16. We can conclude that lakes with Native landcover had a different mean Clarity level than any other landcover type. The p-value for Pastoral and urban area is 1.9e-10 and the p-value for Urban and Exotic forest was 2.6e-7. So we can conclude lakes with Urban area landcover had a different mean level of Clarity than lakes with Pastoral landcover or lakes with Exotic forest landcover. No other pair had p-values small enough to conclude a difference in means.  
-```{r ksecchippair, echo = FALSE}
-pairwise.wilcox.test(SECCHI, land,
-                 p.adjust.method = "BH")
-
-```
 - PCA
-
-```{r}
-health.PCA <- prcomp(df1, center=TRUE, scale=TRUE)
-health.PCA
-plot(health.PCA, type="l")
-``` 
-summary(health.PCA)
-```
-
-1st PC captures 65.6% of variance so we continue with just PC1
-
-eigenvectors
-
-```{r}
-health.PCA$rotation
-
-```
-
-
-```{r}
-Rotation.df <- data.frame(t(health.PCA$rotation))
-Rotation.df$PC <- c("PC1", "PC2", "PC3", "PC4", "PC5")
-Rotation.melt <- melt(Rotation.df, id.vars = "PC")
-ggplot(Rotation.melt) +
-geom_line(aes(x=variable, y=value, group=PC, col=PC), size=1.5, alpha=.7)
-```
 - FA
-```{r}
-factanal(df1, factors = 2)
-```
-
 
 ### Linear Discriminant Analysis and Factor Analysis
 
