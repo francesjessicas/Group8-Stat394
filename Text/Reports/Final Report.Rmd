@@ -285,7 +285,109 @@ ggplot(df, aes(x=SECCHI)) +
 - test for difference in means health/land + pairwise tests
 - PCA
 - FA
-- LDA
+
+## Linear Discriminant Analysis and Factor Analysis
+
+After finishing our Preliminary Report we also looked at ways we could implement Factor Analysis (FA) and Linear Discriminant Analysis (LDA) with our data.
+  
+### Linear Discriminant Analysis  
+For LDA, we wanted to see if there was potential to implement LDA if there was information loss. As such, we attempted to predict which Dominant Landcover a lake was, based on the Lake Health Variables.
+
+Reminder -  the categories that dominant landcover can take on are: Pastoral, Native, Urban area, Exotic forest, and Other
+  
+We first scaled the Lake Health Variables. We then randomly created training and test sets with 70% of the data in the training set and 30% in the test set. We then fit the LDA model using the train data. The output was shown below.
+
+
+
+```{r, echo = FALSE}
+lake3 <- select(lake, dominant_landcover, median_TN_mg.m.3, median_CHLA_mg.m.3, median_SECCHI_metre, median_TP_mg.m.3, median_NH4N_mg.L..1)
+lake4 <- filter(lake3, dominant_landcover == "Pastoral" | dominant_landcover == "Native")
+
+lake3[2:6] <- scale(lake3[2:6])
+
+set.seed(123)
+sample <- sample(c(TRUE, FALSE), nrow(lake3), replace=TRUE, prob=c(0.7,0.3))
+
+train <- lake3[sample, ]
+test <- lake3[!sample, ]
+
+model1 <- lda(dominant_landcover~., data=train)
+model1
+
+```
+From the Prior Probabilities we see that Pastoral Landcover and Native Landcover each explain about 46% of the prior probabilities in the training set.  
+  
+  From examining the coefficients of the linear discriminants, it seems that Total nitrogen (TN) impacts the first linear discriminant the most (-0.8323.). 
+
+Examining the proportion of traces we see that the LD1 accounts for approximately 91 percent of the separation. LD2 and LD3 account for approximately 4.8 and 3.5 percent of the separation respectively. The remainder is explained by LD4.
+
+We produced a partition plot to examine the separation.  
+  
+  
+```{r, echo = FALSE}
+lake3$dominant_landcover<- as.factor(lake3$dominant_landcover)
+partimat(dominant_landcover ~ ., data=lake3, method="lda")
+
+```
+
+It is difficult to get much useful information from the the Partition Plot. What we can see is that there is a reasonable number of errors. We can also see is that most of the data seems to be in two of the partitions and some of the partitions have no observations in them.  
+  
+  
+```{r echo=FALSE, include=FALSE}
+predicted <- predict(model1, test)
+mean(predicted$class==test$dominant_landcover)
+
+```
+  
+  
+  We then looked at the accuracy of the model and found that the model had approximately 73% accuracy (with seed = 123). We were reasonably happy with this. However, one thing that bothered us was the partition plot and how difficult it was to decipher and the fact the prior probabilities for two of our classes (Pastoral Landcover and Native Landcover) were so much higher than the others. We decided to investigate just these two classes as they accounted for about 93% of the observations in our sample.
+  
+  
+  
+
+```{r, echo = FALSE}
+
+lake4[2:6] <- scale(lake4[2:6])
+
+set.seed(123)
+sample <- sample(c(TRUE, FALSE), nrow(lake4), replace=TRUE, prob=c(0.7,0.3))
+
+train <- lake4[sample, ]
+test <- lake4[!sample, ]
+
+
+lake4$dominant_landcover<- as.factor(lake4$dominant_landcover)
+
+model <- lda(dominant_landcover~., data=train)
+model
+
+predicted <- predict(model, test)
+
+
+lake5 <- sample(lake4, size = 100, replace = TRUE )
+
+```
+  
+  In the second LDA both groups had prior probabilities of 0.5 (this is because the train happened to split them with an equal number of observations of 1242 each (seed = 123)).    
+<br />
+
+```{r, echo = FALSE}
+lake4$dominant_landcover<- as.factor(lake4$dominant_landcover)
+partimat(dominant_landcover ~ ., data=lake4, method="lda")
+
+```
+  
+The Partition plot while not any easier to interpret, sorted groups more appropriately and did not have unused partitions. We still see plenty of errors. The individual graphs give error rates between 0.218 and 0.29.
+
+  
+```{r, include =FALSE}
+mean(predicted$class==test$dominant_landcover)
+```
+
+The accuracy was only slightly better at 76.7%.  
+  
+  The implications of this LDA investigation suggest are that Dominant Landcover may be an indicator of the levels of lake health variables in a given lake. Therefore, if we know whether a lake has native or pastoral landcover, this could give us an indication on the health of a lake. It also means that in the case that the Dominant Landcover observation is lost for a lake, the value may be able to be imputed (with a note mentioning the imputation) with some level of accuracy by using the values from the Lake Health variables. 
+
 
 
 ## Discussion
