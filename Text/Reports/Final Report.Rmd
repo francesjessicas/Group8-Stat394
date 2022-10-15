@@ -352,10 +352,54 @@ knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for th
 
 
 #### Univariate Analysis of the Lake Dimension Variables
+  
+We produced histograms of each of the Lake Dimension Variables to examine their distributions. 
+  
+```{r HistDepth,  fig.cap = "Log 10 transformed Histogram of Lake Depth in meters squared. Rectangles indicate skewed distribution, red vertical line indicates thge placement of the median value, red horizontal line indicates the placement of the median with one standard deviation.", echo = FALSE, message = FALSE, warning=FALSE}
 
+ggplot(lake, aes(x=lake_depth)) + 
+  geom_histogram(color = "black", fill = "white", alpha = 2, bins = 50)+
+  labs(x = "Lake Depth in meters^2", y = "Count", title = "log 10 transformed Histogram of count of Lake Depth in Meters^2")+
+   geom_vline(aes(xintercept=median(lake_depth)),
+            color="red",  size=1)+
+  geom_segment(aes(x=median(lake_depth)-sd(lake_depth),
+                   y=5,
+                   xend=median(lake_depth)+sd(lake_depth),
+                   yend=5), col="red", alpha=.3)+
+  geom_boxplot(width = 1)+
+  scale_y_log10()+
+  theme_tufte()
+```
+  
+The above graph shows the log 10 transformed histogram of the Lake Dimension Variable Lake Depth. We transformed it by log 10 to make the graph easier to interpret. The distribution of the graph is strongly skewed to the right, this is indicated by the boxplot at the bottom of the graph. Additionally from the boxplot we see that our data contains many outliers. The boxplot also suggests that with the removal of these outliers we may have a distribution that better approximates normal. We decided not to remove the outliers as these are still valid data points.
 
+This distribution and interpretation of the above graph is very similar for all of the Lake Dimension variables; they all require log 10 transformation, they are all highly skewed, and appear to not approximate a normal distribution. As such we have not reproduced the histograms of the Lake Dimension variables Area and Perimeter here.
 
+### Multivariate analysis of the Lake Dimension variables  
+#### Examining the Correlation between Area, Depth and Perimeter    
+*Correlation matrix rounded to three decimal place   
+  
+```{r, echo=FALSE}
+##correlation matrix, rounded to three decimal places
+round(cor(LakeNum), 3)
 
+```
+  
+  
+Visualisation of the Correlation Matrix:  
+  
+```{r VisCorr1, fig.cap= "Visual of the correlation between, depth, perimeter and area where Strength and direction of relationship are indicated by circle size and colour", echo=FALSE, warning = FALSE}
+
+###A visualisation of the correlation matrix:
+ggcorrplot(cor(LakeNum), method = "circle",
+           hc.order = TRUE,
+           type = "lower") +
+  ggtitle("Visual correlation matrix of Area, Perimeter and Depth")+
+  theme_bw()
+
+```
+  
+  As to be expected, the three Lake Dimension have positive correlations with one another. The correlation between lake area and lake depth isn't small but it is smaller than one may expect. Lake Perimeter has a rather strong relationship with both area and depth. 
 
 
 
