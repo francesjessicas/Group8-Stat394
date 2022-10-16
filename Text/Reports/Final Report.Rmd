@@ -849,7 +849,8 @@ Rotation.df <- data.frame(t(health.PCA$rotation))
 Rotation.df$PC <- c("PC1", "PC2", "PC3", "PC4", "PC5")
 Rotation.melt <- melt(Rotation.df, id.vars = "PC")
 ggplot(Rotation.melt) +
-geom_line(aes(x=variable, y=value, group=PC, col=PC), size=1.5, alpha=.7)
+geom_line(aes(x=variable, y=value, group=PC, col=PC), size=1.5, alpha=.7)+
+  theme_tufte()
 ```
 
 ## Factor Analysis
