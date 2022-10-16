@@ -904,16 +904,18 @@ geom_line(aes(x=variable, y=value, group=PC, col=PC), size=1.5, alpha=.7)
 
 ### Factor Analysis
 
-- FA
-```{r}
+We decided to perform a Factor analysis on the Lake Health variables to determine whether they could be explained using two factors. The null hypothesis for this test was that two factors are sufficient to capture the full dimensionality of the Lake Health variables. The output of this test showed a chi-square test statistic of 65.57 on one degree of freedom and a p-value of 5.59e-16. We concluded, at the 0.01 significance level, that two factors are not sufficient to capture the full dimensionality of these variables. The output of this test is shown below. 
+
+```{r fact, echo = FALSE}
 factanal(df1, factors = 2)
 ```
 
   
 ### Linear Discriminant Analysis  
+
 For LDA, we wanted to see if there was potential to implement LDA if there was information loss. As such, we attempted to predict which Dominant Landcover a lake was, based on the Lake Health Variables.
 
-Reminder -  the categories that dominant landcover can take on are: Pastoral, Native, Urban area, Exotic forest, and Other
+Reminder -  the categories that Dominant Landcover can take on are: Exotic Forest, Native, Other, Pastoral and Urban area.  
   
 We first scaled the Lake Health Variables. We then randomly created training and test sets with 70% of the data in the training set and 30% in the test set. We then fit the LDA model using the train data. The output was shown below.
 
@@ -1015,8 +1017,18 @@ The accuracy was only slightly better at 76.7%.
 - WHAT DOES IT MEEEAAAAAANNNNNNN
 - problems
   - clarity  (not always possible as you may just have a shallow lake).  
+  - blank region
+  - non-normality
+  - landcover other
+  
 
 Native dff to every other landcover in terms of lake health
+pca first 2 83.4%
+factor 2 not suff
+
+
+focus resources to north island, specifically wikato
+
 
 ## Bibliography
 
