@@ -3,6 +3,7 @@ title: "Final Report - Health of New Zealand Lakes"
 author: "Russell and Frances"
 date: "5th October 2022"
 output: bookdown::pdf_document2
+bibliography: FinalReport.bib
 ---
 
 # Introduction
@@ -979,7 +980,7 @@ Our Linear Discriminant Analysis was only 76.7% accurate. If we were to continue
   
 We discovered that, for all Lake Health variables, the lakes with predominantly Native landcover had different means to the other types of landcover. Our graphs suggested these lakes were healthier and clearer than lakes in other landcovers. This could be useful to the Department of Conservation, and could aid in efforts to improve the health of our lakes, possibly with the planting of native plants around lakes. Of course, our study cannot determine whether the native landcover had a causal relationship with the health of the lakes, and cannot determine whether the health of a lake could be improved by increasing the amount of native landcover around our lakes, but this is a start. In future, we would like to investigate this further. 
 
-One of our big leaps forward with processing our data was our crude method for identifying which regions tended to have poor lake health. As mentioned, we believe that our results showed that lakes in Waikato tended to have particularly poor health. What is curious is that to apply this to the real world we googled...................
+One of our big leaps forward with processing our data was our crude method for identifying which regions tended to have poor lake health. As mentioned, we believe that our results showed that lakes in Waikato tended to have particularly poor health. What is curious is that to apply this to the real world we googled "Region with the worst Lake Health in New Zealand" and found the article "The Last Lake: Waikato lakes among most polluted in the world - scientist" @Waikato.
 
 If we were to continue researching this data we would like to examine some of the other variables from the original dataset accessed from StatsNZ. We would also like to meet up with the group who examined rivers in New Zealand and discuss the similarities between our findings and datasets.
 
@@ -987,12 +988,7 @@ Our final recommendation is that, to combat the poor health of New Zealand lakes
 
 
 # Bibliography
-
-- I have some references from research into health variables and where data from 
-- APA referencing
-
-
-data: https://www.stats.govt.nz/indicators/modelled-lake-water-quality/ 
+ 
 
 
 
