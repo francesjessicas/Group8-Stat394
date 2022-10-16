@@ -1,0 +1,401 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Final Report},
+  pdfauthor={Russell and Frances},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Final Report}
+\author{Russell and Frances}
+\date{5th October 2022}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{health-of-new-zealand-lakes}{%
+\section{Health of New Zealand Lakes}\label{health-of-new-zealand-lakes}}
+
+\hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+
+We are Russell and Frances and we form Group 8. Below are our pictures as well as our contact details and ORCID ID numbers.
+
+\textbf{Frances Smith}\\
+email: \href{mailto:frances.j.smith.nz@gmail.com}{\nolinkurl{frances.j.smith.nz@gmail.com}}\\
+ORCHID ID: 0000-0002-5168-3134
+
+\textbf{Russell Syder}\\
+email: \href{mailto:russellsyder@gmail.com}{\nolinkurl{russellsyder@gmail.com}}\\
+ORCHID ID: 0000-0002-4582-5909
+
+\hypertarget{introduction-to-our-data}{%
+\subsubsection{Introduction to our data}\label{introduction-to-our-data}}
+
+Our original dataset was extracted from Stats NZ.
+\url{https://www.stats.govt.nz/indicators/modelled-lake-water-quality/}
+
+We made some manipulations to the original dataset such as removing extraneous variables (like Date which was the same for every lake) or variables that we were not interested in. We also reshaped some aspects of the dataset so that the data would be easier to analyse. We checked for missing values; there were some for the categorical variables, which we dealt with as described below, but there were no missing values for the numerical variables so imputation was not necessary.
+
+Our final dataset contains information from 3802 lakes (exceeding one hectare) in New Zealand measured across 22 variables. Of these 22 variables we selected 10 that we would use for further analysis. They are as follows:
+
+\emph{Ammoniacal Nitrogen} is a form of nitrogen that supports algae and plant growth, but in large concentrations can be toxic to aquatic life. This is measured in milligrams per litre. The national bottom line for this measure is 1.3mg/L, which none of the observations exceed. It acts as as measure of toxicity.
+
+\emph{Chlorophyll-A} is an organic molecule found in plant cells that allows plants to photosynthesize. The variable Chlorophyll-A is a measure of the concentration of phytoplankton biomass in milligrams per cubic metre. High concentrations of chlorophyll is a symptom of degraded water quality. The national bottom line for this measure is 12.
+
+\emph{Total Phosphorus} is the sum of all phosphorus forms in the water, including phosphorus bound to sediment. Large amounts of phosphorus in lakes can reduce dissolved oxygen in the water. This can cause low oxygen areas in the lake, where some aquatic life cannot survive. Total Phosphorus is measured in milligrams per cubic metre and has a national bottom line of 50mg/m3.
+
+\emph{Total Nitrogen} is the sum of all nitrogens found in the water, including organic nitrogen from plant tissue. An excess of nitrogen in lakes can cause an increase in algae and plant growth, possibly depriving the lake of oxygen. Total Nitrogen is measured in milligrams per cubic metre and the national bottom line for stratified lakes is 750mg/m3, and for polymictic lakes is 800mg/m3.
+
+\emph{Clarity} is measured in Secchi depth. This is the maximum depth (in metres) a black and white Secchi disk is visible from the surface of the lake.
+
+\emph{Area} is the surface area of the lake measured in metres squared.
+
+\emph{Perimeter} is the overall perimeter of the lake, in metres.
+
+\emph{Lake Depth} is the maximum depth of the lake measured in metres.
+
+\emph{Dominant Landcover} is split into four types; Exotic Forest, Native, Pastoral and Urban area. There are 12 lakes with no entry for Dominant Landcover, however in the description of the dataset by Stats NZ, it states all lakes have been categorised, and indicated these empty entries should be another category called `Other' that includes `Gorse and/or Broom', `Surface mines and dumps', `Mixed exotic shrubland', and `Transport infrastructure' so we have assigned these to the Other category. The category Urban area is applied if urban cover exceeds 15 percent of catchment area. Pastoral is applied if pastoral landcover exceeds 25 percent of catchment area, if the lake has not already been assigned urban. The other three categories; Exotic forest, Native, or Other were assigned according to the largest land cover type by area, if not already assigned urban or pastoral.
+
+\emph{Regions} in this dataset are; Auckland, Bay of Plenty, Canterbury, Gisborne, Hawke's Bay, Whanganui, Marlborough, Northland, Otago, Southland, Taranaki, Tasman, Waikato, Wellington and West Coast. Each lake corresponds to the region it is located in.
+
+Upon first examining our data we thought that it would be prudent to group certain similar variables together for analysis. Specifically, the 4 variables that gave a measure of the levels of a given substance in a lake, and additionally clarity, we grouped as the ``Lake Health variables'' as for all of them, high levels of any of these variables can indicate poor lake health, with the exception of clarity, where, in general, higher values indicate better lake health.
+
+We also grouped together lake Area, Perimeter, and Depth and classified this group as the Lake Dimension variables.
+
+\hypertarget{leading-question}{%
+\subsubsection{Leading Question}\label{leading-question}}
+
+Our leading question was; What are some statistics that we can produce that may be beneficial for informing restorative actions that improve the health of lakes in New Zealand?
+
+To investigate this we came up with the following questions;
+
+\begin{itemize}
+\item
+  Are there any particular regions that have poor lake health?
+\item
+  Do the Lake Health variables predict one another?
+\item
+  How can we model the Lake Dimension variables?
+\item
+  Do any types of Dominant Landcover have poorer lake health than others?
+\end{itemize}
+
+\hypertarget{methodology}{%
+\subsection{Methodology}\label{methodology}}
+
+To answer these questions, we will conduct the following investigations:
+
+\begin{itemize}
+\item
+  An Exploratory Data Analysis on the Lake Health, Lake Dimension, Region and Dominant Landcover variables, which will consist of:
+
+  \begin{itemize}
+  \item
+    Univariate analysis of the Lake Health and Lake Dimension variables
+  \item
+    Bivariate analysis with each of these four types of variables, specifically:
+
+    \begin{itemize}
+    \item
+      Relationship between the Lake Health and Lake Dimension variables, and
+    \item
+      Comparisons of the Lake Health and Lake Dimension variables by Region and Dominant Landcover
+    \end{itemize}
+  \end{itemize}
+\item
+  Tests for difference in means of the Lake Health variables by Dominant Landcover
+\item
+  Principal Component Analysis on the Lake Health variables
+\item
+  Factor Analysis on the Lake Health Variables
+\item
+  Linear Discriminant Analysis on the Lake Health variables by Dominant Landcover
+\end{itemize}
+
+The latter four analyses will be in our Results section.
+
+\hypertarget{exploratory-data-analysis}{%
+\subsubsection{Exploratory Data Analysis}\label{exploratory-data-analysis}}
+
+\hypertarget{sample-statistics-of-lake-health-variables}{%
+\subsection{Sample Statistics of Lake Health variables}\label{sample-statistics-of-lake-health-variables}}
+
+Table \ref{tab:laketable} shows the summary statistics for each of these three measures.
+
+\begin{longtable}[]{@{}lrrrrr@{}}
+\caption{\label{tab:laketable}Table of Sample Statistics}\tabularnewline
+\toprule()
+& Ammoniacal Nitrogen & Chloropyll-A & Phosphorus & Nitrogen & Clarity \\
+\midrule()
+\endfirsthead
+\toprule()
+& Ammoniacal Nitrogen & Chloropyll-A & Phosphorus & Nitrogen & Clarity \\
+\midrule()
+\endhead
+Sample Size & 3802.0000000 & 3802.000000 & 3802.000000 & 3802.000000 & 3802.0000000 \\
+Minimum & 0.0016940 & 0.473853 & 4.017657 & 35.444730 & 0.3553600 \\
+1st Quantile & 0.0073492 & 2.750785 & 12.158160 & 286.827100 & 2.5136188 \\
+Median & 0.0096110 & 3.948234 & 17.896640 & 416.704400 & 4.4677300 \\
+3rd Quantile & 0.0140320 & 5.758621 & 22.802612 & 648.096175 & 6.2323935 \\
+Maximum & 0.0614130 & 40.448870 & 150.416800 & 1883.172000 & 11.2488500 \\
+Standard Deviation & 0.0068358 & 2.807067 & 9.143676 & 277.994471 & 2.2553455 \\
+Mean & 0.0119528 & 4.609290 & 18.720584 & 505.860630 & 4.4509687 \\
+Kurtosis & 8.1157555 & 18.340809 & 26.244106 & 3.546338 & 1.9982754 \\
+Skewness & 2.0338977 & 2.548402 & 2.872190 & 1.079944 & 0.2342007 \\
+\bottomrule()
+\end{longtable}
+
+Figure \ref{fig:nh4nhist} shows the distribution of Ammoniacal Nitrogen. The fitted normal distribution (in red) differs significantly from the smoothed histogram (purple). The smoothed histogram is more skewed and the mode is well below the mean. The median 0.0096 and mean 0.0120. Table \ref{tab:laketable} confirms this with a skewness of 2.0339. The kurtosis is 8.1158, indicating the distribution of Ammoniacal Nitrogen has heavy tails. There are two extreme values, at around 0.06 mg per litre. There is a large amount of observations around the first quantile, 0.0073 mg per litre.
+
+\begin{figure}
+\centering
+\includegraphics{reportFinalMess_files/figure-latex/nh4nhist-1.pdf}
+\caption{\label{fig:nh4nhist}Histogram of Ammoniacal Nitrogen}
+\end{figure}
+
+Figure \ref{fig:chlahist} shows the distribution of Chlorophyll-A. We can see the fitted normal distribution differs slightly from the smoothed histogram. Table \ref{tab:laketable} shows the median is 3.9482 and the mean is 4.6093. The kurtosis is 18.3408, indicating the distribution of Chlorophyll-A is very heavy tailed, and the skewness is 2.5484, indicating the distribution is right skewed. A small proportion of the lakes exceeded the national bottomline of 12mg per cubic metre.
+
+\begin{figure}
+\centering
+\includegraphics{reportFinalMess_files/figure-latex/chlahist-1.pdf}
+\caption{\label{fig:chlahist}Histogram of Chlorophyll-A}
+\end{figure}
+
+Figure \ref{fig:tphist} shows the distribution of Total Phosphorus. The fitted normal distribution (red) fits quite well to the smoothed histogram (purple), although the kurtosis is very high, 26.2763. We would expect the kurtosis of a normally distributed variable to be close to 3 and with a skewness of 0, however the sample statistics of Total Phosphorus show the kurtosis much larger than 3 and the skewness 2.8722. This indicates the tails of this distribution are much heavier than a normal distribution, and it is right skewed. Table \ref{tab:laketable} shows the median of Total Phosphorus is 17.8966 mg per cubic meter, and the mean is 18.7206 mg per cubic meter. Few of the lakes exceeded the natioal bottomline of 50mg per cubic metre.
+
+\begin{figure}
+\centering
+\includegraphics{reportFinalMess_files/figure-latex/tphist-1.pdf}
+\caption{\label{fig:tphist}Histogram of Total Phosphorus}
+\end{figure}
+
+Figure \ref{fig:TNhist} shows the distribution of Total Nitrogen. The fitted normal distribution (in red) differs significantly from the smoothed histogram (purple). The smoothed histogram is more skewed and the mode is well below the mean. The median 416.7044 and mean 505.8606. Table \ref{tab:laketable} confirms this with a skewness of 1.0799. The kurtosis is 3.5463, indicating the distribution of Total Nitrogen has reasonable tails. A significant proportion of the observations exceed the higher of the two national bottomlines, of 800mg per cubic metre.
+
+\begin{figure}
+\centering
+\includegraphics{reportFinalMess_files/figure-latex/TNhist-1.pdf}
+\caption{\label{fig:TNhist}Histogram of Total Nitrogen}
+\end{figure}
+
+Figure \ref{fig:SECCHIhist} shows the distribution of Clarity. The fitted normal distribution (in red) differs from the smoothed histogram (purple). The smoothed histogram is slightly asymmetrical but not skewed, with a median of 4.4677 and a mean of 4.4510. Table \ref{tab:laketable} confirms this with a skewness of 0.2342. The kurtosis is 1.9983, indicating the distribution of Clarity has slightly lighter tails than a normal distribution. These statistics indicate the distribution of Clarity is close to normal.
+
+\begin{figure}
+\centering
+\includegraphics{reportFinalMess_files/figure-latex/SECCHIhist-1.pdf}
+\caption{\label{fig:SECCHIhist}Histogram of Clarity (in metres)}
+\end{figure}
+
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
+
+\begin{itemize}
+\tightlist
+\item
+  test for difference in means health/land + pairwise tests
+\item
+  PCA
+\item
+  FA
+\end{itemize}
+
+\hypertarget{linear-discriminant-analysis-and-factor-analysis}{%
+\subsection{Linear Discriminant Analysis and Factor Analysis}\label{linear-discriminant-analysis-and-factor-analysis}}
+
+After finishing our Preliminary Report we also looked at ways we could implement Factor Analysis (FA) and Linear Discriminant Analysis (LDA) with our data.
+
+\hypertarget{linear-discriminant-analysis}{%
+\subsubsection{Linear Discriminant Analysis}\label{linear-discriminant-analysis}}
+
+For LDA, we wanted to see if there was potential to implement LDA if there was information loss. As such, we attempted to predict which Dominant Landcover a lake was, based on the Lake Health Variables.
+
+Reminder - the categories that dominant landcover can take on are: Pastoral, Native, Urban area, Exotic forest, and Other
+
+We first scaled the Lake Health Variables. We then randomly created training and test sets with 70\% of the data in the training set and 30\% in the test set. We then fit the LDA model using the train data. The output was shown below.
+
+\begin{verbatim}
+## Call:
+## lda(dominant_landcover ~ ., data = train)
+## 
+## Prior probabilities of groups:
+## Exotic forest        Native         Other      Pastoral    Urban area 
+##   0.045505829   0.461827755   0.003384731   0.464836405   0.024445280 
+## 
+## Group means:
+##               median_TN_mg.m.3 median_CHLA_mg.m.3 median_SECCHI_metre
+## Exotic forest        0.2730316          0.4435337          -0.4154415
+## Native              -0.5062055         -0.4594529           0.3971934
+## Other                1.0258008          0.6837159          -0.9124731
+## Pastoral             0.4459826          0.4091680          -0.3274973
+## Urban area           1.0525270          0.6213234          -0.9667699
+##               median_TP_mg.m.3 median_NH4N_mg.L..1
+## Exotic forest        0.2275124          -0.2646927
+## Native              -0.5223730          -0.2933420
+## Other                0.3777788           0.7550298
+## Pastoral             0.4988880           0.2623736
+## Urban area           0.5386756           0.8953922
+## 
+## Coefficients of linear discriminants:
+##                            LD1        LD2        LD3         LD4
+## median_TN_mg.m.3    -0.8323879 -0.7181879  0.1465040  1.21592998
+## median_CHLA_mg.m.3  -0.3431264 -0.1201895  0.1163328  1.01510707
+## median_SECCHI_metre -0.2016573  0.5174212 -0.6676406  1.41899817
+## median_TP_mg.m.3    -0.4412428  0.4565318 -1.0312835 -0.95252709
+## median_NH4N_mg.L..1  0.1122687  1.3228239  0.4631494 -0.06801566
+## 
+## Proportion of trace:
+##    LD1    LD2    LD3    LD4 
+## 0.9166 0.0483 0.0347 0.0004
+\end{verbatim}
+
+From the Prior Probabilities we see that Pastoral Landcover and Native Landcover each explain about 46\% of the prior probabilities in the training set.
+
+From examining the coefficients of the linear discriminants, it seems that Total nitrogen (TN) impacts the first linear discriminant the most (-0.8323.).
+
+Examining the proportion of traces we see that the LD1 accounts for approximately 91 percent of the separation. LD2 and LD3 account for approximately 4.8 and 3.5 percent of the separation respectively. The remainder is explained by LD4.
+
+We produced a partition plot to examine the separation.
+
+\includegraphics{reportFinalMess_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+It is difficult to get much useful information from the the Partition Plot. What we can see is that there is a reasonable number of errors. We can also see is that most of the data seems to be in two of the partitions and some of the partitions have no observations in them.
+
+We then looked at the accuracy of the model and found that the model had approximately 73\% accuracy (with seed = 123). We were reasonably happy with this. However, one thing that bothered us was the partition plot and how difficult it was to decipher and the fact the prior probabilities for two of our classes (Pastoral Landcover and Native Landcover) were so much higher than the others. We decided to investigate just these two classes as they accounted for about 93\% of the observations in our sample.
+
+\begin{verbatim}
+## Call:
+## lda(dominant_landcover ~ ., data = train)
+## 
+## Prior probabilities of groups:
+##   Native Pastoral 
+##      0.5      0.5 
+## 
+## Group means:
+##          median_TN_mg.m.3 median_CHLA_mg.m.3 median_SECCHI_metre
+## Native         -0.5084977         -0.4510662           0.3811648
+## Pastoral        0.4825410          0.4131210          -0.3292880
+##          median_TP_mg.m.3 median_NH4N_mg.L..1
+## Native          -0.523458          -0.3217432
+## Pastoral         0.504890           0.2886076
+## 
+## Coefficients of linear discriminants:
+##                             LD1
+## median_TN_mg.m.3     0.89638023
+## median_CHLA_mg.m.3   0.22175903
+## median_SECCHI_metre  0.31530056
+## median_TP_mg.m.3     0.52855329
+## median_NH4N_mg.L..1 -0.08742443
+\end{verbatim}
+
+In the second LDA both groups had prior probabilities of 0.5 (this is because the train happened to split them with an equal number of observations of 1242 each (seed = 123)).\\
+
+\includegraphics{reportFinalMess_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+The Partition plot while not any easier to interpret, sorted groups more appropriately and did not have unused partitions. We still see plenty of errors. The individual graphs give error rates between 0.218 and 0.29.
+
+The accuracy was only slightly better at 76.7\%.
+
+The implications of this LDA investigation suggest are that Dominant Landcover may be an indicator of the levels of lake health variables in a given lake. Therefore, if we know whether a lake has native or pastoral landcover, this could give us an indication on the health of a lake. It also means that in the case that the Dominant Landcover observation is lost for a lake, the value may be able to be imputed (with a note mentioning the imputation) with some level of accuracy by using the values from the Lake Health variables.
+
+\hypertarget{discussion}{%
+\subsection{Discussion}\label{discussion}}
+
+\begin{itemize}
+\tightlist
+\item
+  WHAT DOES IT MEEEAAAAAANNNNNNN
+\item
+  problems
+
+  \begin{itemize}
+  \tightlist
+  \item
+    clarity (not always possible as you may just have a shallow lake).
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{bibliography}{%
+\subsection{Bibliography}\label{bibliography}}
+
+\begin{itemize}
+\tightlist
+\item
+  I have some references from research into health variables and where data from
+\item
+  APA referencing
+\end{itemize}
+
+data: \url{https://www.stats.govt.nz/indicators/modelled-lake-water-quality/}
+
+\end{document}
