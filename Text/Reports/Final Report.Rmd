@@ -617,7 +617,147 @@ knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for th
 
 
 
+<<<<<<< HEAD
 #### Multivariate Analysis of the Lake Dimension Variables  
+=======
+```{r an, echo = FALSE}
+Region <- lake$region
+df.Health_Region<-cbind(df1, Region)
+NH4N_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(NH4N), list(Mean_NH4N = mean))
+NH4N_mean<-NH4N_mean[-1,]
+
+
+NH4N_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(NH4N), list(Median_NH4N = median))
+NH4N_median <- NH4N_median[-1,]
+
+
+NH4N_region <- cbind(NH4N_mean, NH4N_median[,-1])
+
+taba <- NH4N_region %>% arrange(desc(Mean_NH4N))
+```
+  
+
+```{r c, echo = FALSE}
+
+CHLA_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(CHLA), list(Mean_CHLA = mean))
+CHLA_mean<-CHLA_mean[-1,]
+
+
+CHLA_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(CHLA), list(Median_CHLA = median))
+CHLA_median <- CHLA_median[-1,]
+
+
+CHLA_region <- cbind(CHLA_mean, CHLA_median[,-1])
+
+tabc <- CHLA_region %>% arrange(desc(Median_CHLA))
+
+```
+
+
+
+```{r tp, echo = FALSE}
+
+TP_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(TP), list(Mean_TP = mean))
+TP_mean<-TP_mean[-1,]
+
+
+TP_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(TP), list(Median_TP = median))
+TP_median <- TP_median[-1,]
+
+
+TP_region <- cbind(TP_mean, TP_median[,-1])
+
+tabp <- TP_region %>% arrange(desc(Median_TP))
+
+```
+ 
+
+```{r tn, echo = FALSE}
+
+
+TN_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(TN), list(Mean_TN = mean))
+TN_mean<-TN_mean[-1,]
+
+
+TN_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(TN), list(Median_TN = median))
+TN_median <- TN_median[-1,]
+
+
+TN_region <- cbind(TN_mean, TN_median[,-1])
+
+tabn <- TN_region %>% arrange(desc(Median_TN))
+
+
+```
+ 
+ 
+
+```{r sec, message = FALSE, warnings = FALSE, echo = FALSE}
+SECCHI_mean<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(SECCHI), list(Mean_SECCHI = mean))
+SECCHI_mean<-SECCHI_mean[-1,]
+
+
+SECCHI_median<-df.Health_Region %>%
+  group_by(Region) %>%
+  summarise_at(vars(SECCHI), list(Median_SECCHI = median))
+SECCHI_median <- SECCHI_median[-1,]
+
+
+SECCHI_region <- cbind(SECCHI_mean, SECCHI_median[,-1])
+
+tabs <- SECCHI_region %>% arrange(Median_SECCHI)
+tab1 <- cbind(taba, tabc, tabp)
+tab2 <- cbind(tabn, tabs)
+knitr::kable(tab1, caption = "Regional Mean and Median Lake Health", format="latex") %>% kable_styling(latex_options="scale_down")
+```
+
+```{r tab2, message = FALSE, warnings = FALSE, echo = FALSE}
+knitr::kable(tab2, caption = "Regional Mean and Median Lake Health", format="latex") %>% kable_styling(latex_options="scale_down")
+```
+
+We then looked at the summary statistics of region by the Lake Health variables, shown in table \ref{tab:lakehealthbyregion}.
+```{r lakehealthbyregion, fig.cap = "Table of Summary Statistics of Lake Health Variables by Region", fig.pos = "center", echo = FALSE}
+
+LakeTable <- filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(c(median_TLI3, median_SECCHI_metre, median_NH4N_mg.L..1, median_TN_mg.m.3, median_TP_mg.m.3, median_CHLA_mg.m.3)), list(median = median))
+
+ LakeTable <- rename(LakeTable, c(Median_Trophic_Level3 = median_TLI3_median,
+                                  Median_Clarity_metres =  median_SECCHI_metre_median,
+                                  Median_NH4N_mg = median_NH4N_mg.L..1_median,
+                                  Median_Total_Nitrogen = median_TN_mg.m.3_median, 
+                                  Median_Total_Phosphorus = median_TP_mg.m.3_median,
+                                  Median_ChlorophyllA = median_CHLA_mg.m.3_median))
+                                  
+                                  
+knitr::kable(LakeTable, caption = "Table of Median values of Lake Health Variables by Region", "simple")
+```
+  
+  *Examining the above table there are some interesting points:*  
+ - Southland lakes have a low value or the lowest value on every metric (with the exception clarity where it is about average).  
+ - We see that the opposite is true for Gisborne where it is high in all variables except clarity where it is low. This finding is in line with the assumption that poorer higher values in the other lake health variables may be a predictor of poorer clarity.
+ - There is quite a wide range of levels of clarity between regions suggesting that region may have a relationship with clarity.
+
+#### Multivariate analysis of the Lake Dimension variables  
+>>>>>>> b9aa98bd23d6ed227620f2cbdb8b74b281d95551
 #### Examining the Correlation between Area, Depth and Perimeter  NEED TO EDIT REFERENCING AND TITLES  
 *Correlation matrix rounded to three decimal place   
   
