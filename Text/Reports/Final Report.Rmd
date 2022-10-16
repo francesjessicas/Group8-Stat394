@@ -355,6 +355,30 @@ knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for th
 
 
 #### Univariate Analysis of the Lake Dimension Variables
+
+```{r, echo = FALSE}
+
+area<- data.frame(lake$lake_area)
+perim<- data.frame(lake$lake_perimeter)
+depth<- data.frame(lake$lake_depth)
+region1 <- data.frame(lake$region)
+
+df.ADP <- cbind(area,perim,depth, region1)
+colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
+
+```
+We gathered information on the Lake Dimension Variables: Depth, Area and Perimeter. In the univariate analysis we produced summary statistics as well as histograms of their distributions.  
+  
+We first produced summary statistics as seen in table \ref{tab:ADPtab}.
+```{r ADPtab, fig.cap = "Table of Sample Statistics for Area, Perimeter and Depth", fig.pos = "center", echo = FALSE}
+df.ADP1 <- cbind(area, perim, depth)
+
+tab <- apply(df.ADP1, MySummary2, MARGIN = 2)
+tab <- as.table(tab)
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+colnames(tab) <- c('Area', 'Perimeter', 'Depth')
+knitr::kable(tab, caption = "Table of Sample Statistics", "simple")
+
   
 We produced histograms of each of the Lake Dimension Variables to examine their distributions. 
   
