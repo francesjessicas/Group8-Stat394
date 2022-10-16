@@ -688,7 +688,7 @@ colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
 
 ```
  
-We then examined the means and medians of the Lake Dimension variables for the Regions. We produced means and medians for each of the variables into a table and also produced braplot. The table, mean barplot, and median barplot for depth are shown in figure \ref{fig:MeanDepth}. 
+We then examined the means and medians of the Lake Dimension variables for the Regions. Here we have produced barplots for the mean and median of depth.
 <br />
  View of the Mean and Median for Lake Depth
 
@@ -700,8 +700,6 @@ LakeTable <-filter(lake, !region == "") %>%
   group_by(region) %>%
   summarise_at(vars(lake_depth), list(mean = mean))
 
-
-
 LakeTable<- data.frame(LakeTable)
 
 ggplot(data=LakeTable, aes(x=region, y=mean)) +
@@ -710,12 +708,7 @@ ggplot(data=LakeTable, aes(x=region, y=mean)) +
          "Mean Lake Depth of Region in metres")+
   coord_flip()+
   theme_tufte()
-
-
 ```
-
-  
-**Values of NA have been removed.
 <br />
 <br />
   
@@ -724,8 +717,6 @@ ggplot(data=LakeTable, aes(x=region, y=mean)) +
 LakeTable <-filter(lake, !region == "") %>%
   group_by(region) %>%
   summarise_at(vars(lake_depth), c(list(mean = mean), list(median = median)))
-
-LakeTable
 
 #which.max(Lake$lake_perimeter)
 
@@ -737,16 +728,15 @@ ggplot(data=LakeDf, aes(x=region, y=median)) +
          "Median Lake Depth of Region in metres")+
   coord_flip()+
   theme_tufte()
-
-
 ```
-  
-**Values of NA have been removed.
 <br />
 <br />
 
-*Depth:*
-*What we can tell from the bargraphs that there is not much difference in distribution between the regions in Lake Depth, however, the mean for each region is approximately 5 meters deeper than the median. This suggests that across most regions there are some much deeper lakes. There are some exceptions to this such as Gibsborne.*
+Depth:
+What we can tell from the bargraphs that there is not much difference in distribution between the regions in Lake Depth, however, the mean for each region is approximately 5 meters deeper than the median. This suggests that across most regions there are some much deeper lakes. There are some exceptions to this such as Gibsborne.  
+  
+    
+We have not repeated the analysis for area and perimeter here as the results are very similar to those of depth where the means are noticeably larger than the medians.
 
 We then checked the relationship between the Lake Health variables and the Lake Dimension variables.  
   
