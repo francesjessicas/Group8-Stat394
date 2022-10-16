@@ -860,7 +860,7 @@ health.PCA$rotation
 ```
 
 
-```{r egaph, fig.cap = "Visualisation of the Eigenvctors", fig.pos = "center", echo = FALSE}
+```{r egraph, fig.cap = "Visualisation of the Eigenvctors", fig.pos = "center", echo = FALSE}
 Rotation.df <- data.frame(t(health.PCA$rotation))
 Rotation.df$PC <- c("PC1", "PC2", "PC3", "PC4", "PC5")
 Rotation.melt <- melt(Rotation.df, id.vars = "PC")
