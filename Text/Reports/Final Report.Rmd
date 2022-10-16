@@ -407,7 +407,7 @@ This distribution and interpretation of the above graph is very similar for all 
 
 Table \ref{tab:corramat} shows the correlation matrix and figure \ref{fig:correlationplot} shows the visualization of this matrix. The strength of relationship is interpreted the size of the circles with strong relationships having larger circles and weaker relationships having small circles. Strength is also communicated via colour with darker colours indicating stronger relationship. Colour also indicates the direction of the relationship via a colour spectrum with reddish indicating a positive relationship, blue indicating a negative relationship and white indicating no relationship.  
 
-Ammoniacal Nitrogen has a weak, positive relationship with Chlorophyll-A (0.2076) and a Moderate, positive relationship with Total Phosphorus (0.3746). It has quite a strong relationship with Total Nitrogen (0.7294, which is to be expected asTotal Nitrogen includes Ammoniacal Nitrogen). Chlorophyll-A has a reasonably strong relationship with both Total Phosphorus (0.6939), and  a moderate relationship with Total Nitrogen (0.5553). Total Phosphorus has a reasonable strong relationship with Total Nitrogen of (0.64533). These statistics suggest that there may be a positive relationship between the different molecules in water.  
+Ammoniacal Nitrogen has a weak, positive relationship with Chlorophyll-A (0.2076) and a Moderate, positive relationship with Total Phosphorus (0.3746). It has quite a strong relationship with Total Nitrogen (0.7294, which is to be expected as Total Nitrogen includes Ammoniacal Nitrogen). Chlorophyll-A has a reasonably strong relationship with both Total Phosphorus (0.6939), and  a moderate relationship with Total Nitrogen (0.5553). Total Phosphorus has a reasonable strong relationship with Total Nitrogen of (0.64533). These statistics suggest that there may be a positive relationship between the different molecules in water.  
 
 Clarity is the only variable to have any negative relationship with the other variables. Clarity has a negative correlation with all of the other variables of at least -0.5. It has an especially strong relationship with Total Nitrogen of -0.7823. These negative relationships are to be expected as it makes sense that an increase of other molecules in water would reduce the water's clarity. We can see this represented as dark blue circles in figure \ref{fig:correlationplot}.  
 
@@ -437,7 +437,7 @@ Figure \ref{fig:pairsplot} shows the pairs plot of the Lake Health variables, co
 ggpairs(df11, aes(col=land, alpha=.5))
 ```
 
-Next, we wanted to compare the distribution of the lake health variables by types of dominant landcover. Figure \ref{fig:boxNH4N} illustrates the box plots for each type of landcover. The observations have been log transformed to show the distributions better. We can see the highest 75% of Ammoniacal Nitrogen measures in Urban areas are above the lower 75% of measures in Exotic forest and Native landcovers. This could inidcate a relationship between landcover and Ammoniacal Nitrogen. Exotic forest and Native landcovers tend to have lower amounts of Ammoniacal Nitrogen in the lake water than in Pastoral, Urban and Other landcovers. The medians are shown in tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median Ammoniacal Nitrogen for lakes with Exotic forest, Native, Other, Pastoral and Urban dominant landcover to be 0.0084040, 0.0075540, 0.0123870, 0.0124780 and 0.0150880, respectively. There is a clear difference between the medians, with lower medians in Exotic forest and Native landcovers. 
+Next, we wanted to compare the distribution of the lake health variables by types of dominant landcover. Figure \ref{fig:boxNH4N} illustrates the box plots of Ammoniacal Nitrogen for each type of landcover. The observations have been log transformed to show the distributions better. We can see the highest 75% of Ammoniacal Nitrogen measures in Urban areas are above the lower 75% of measures in Exotic forest and Native landcovers. This could inidcate a relationship between landcover and Ammoniacal Nitrogen. Exotic forest and Native landcovers tend to have lower amounts of Ammoniacal Nitrogen in the lake water than in Pastoral, Urban and Other landcovers. The medians are shown in tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median Ammoniacal Nitrogen for lakes with Exotic forest, Native, Other, Pastoral and Urban dominant landcover to be 0.0084040, 0.0075540, 0.0123870, 0.0124780 and 0.0150880, respectively. There is a clear difference between the medians, with lower medians in Exotic forest and Native landcovers. 
 
 ```{r boxNH4N, fig.cap = "Box Plot of Landcover and Ammoniacal Nitrogen", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(df, aes(x=land, y=NH4N)) + 
@@ -626,7 +626,7 @@ knitr::kable(tab, caption = "Frequency table of number of lakes in each Region",
 
 ```
 
-We then looked at the summary statistics of region by the Lake Health variables, shown in table \ref{tab:lakehealthbyregion}. From this table we can see quite clearly there is a difference in median Lake Health between regions. Each region had similar median levels of Ammoniacal Nitrogen. We can see a slight difference in the median levels of Chlorophyll-A and Clarity between regions, specifically between regions in the North Island and regions in the South Island. Lakes in the South Island tended to have lower levels of Chlorophyll-A and be clearer than North Island lakes. This is even more apparent when looking at Total Phosphorus and Total Nitrogen. For Total Nitrogen, the 7 regions with the highest median levels of Total Nitrogen were all North Island regions, and the 5 regions with the lowest medians were South Island regions. A similar pattern is to be seen in Total Phosphorus. 
+We then looked at the summary statistics of region by the Lake Health variables, shown in table \ref{tab:lakehealthbyregion}. From this table we can see quite clearly there is a difference in median Lake Health between regions. Each region had similar median levels of Ammoniacal Nitrogen. We can see a slight difference in the median levels of Chlorophyll-A and Clarity between regions, specifically between regions in the North Island and regions in the South Island. Lakes in the South Island tended to have lower levels of Chlorophyll-A and be clearer than North Island lakes. This is even more apparent when looking at Total Phosphorus and Total Nitrogen. For Total Nitrogen, the 7 regions with the highest median levels of Total Nitrogen were all North Island regions, and the 5 regions with the lowest medians were South Island regions. A similar pattern is to be seen in Total Phosphorus. Overall, Waikato, Gisborne and Wellington tend to have higher median levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen and lower median Clarity than other regions, indicating lakes in these regions tend to be of poorer health than other regions. 
 
 
 
@@ -647,21 +647,22 @@ knitr::kable(LakeTable, caption = "Table of Median values of Lake Health Variabl
 ```
  
 
-### Multivariate analysis of the Lake Dimension variables  
+### Multivariate Analysis of the Lake Dimension Variables  
 
-Examining the Correlation between Area, Depth and Perimeter  NEED TO EDIT REFERENCING AND TITLES  
-*Correlation matrix rounded to three decimal place   
+We constructed a correlation matrix for the Lake Dimension variables, as shown in table \ref{tab:pdacorr}. A visualization of this matrix is shown in figure \ref{fig:VisCorr1}. As to be expected, the three Lake Dimension variables have positive correlations with one another. The correlation between lake area and lake depth is moderate, which was weaker than we expected. Lake perimeter has a strong positive correlation with both area and depth. 
   
-```{r, echo=FALSE}
+```{r pdacorr, echo=FALSE}
 ##correlation matrix, rounded to three decimal places
 LakeNum<-select(lake, c(lake_perimeter, lake_depth, lake_area))
 LakeCat<-select(lake, region)
-round(cor(LakeNum), 3)
-
+tab <- round(cor(LakeNum), 3)
+tab <- as.table(tab)
+rownames(tab) <- c("Perimeter", "Depth", "Area")
+colnames(tab) <- c("Perimeter", "Depth", "Area")
+knitr::kable(tab, caption = "Correlation Matrix")
 ```
   
-  
-Visualisation of the Correlation Matrix:  
+
   
 ```{r VisCorr1, fig.cap= "Visual of the correlation between, depth, perimeter and area where Strength and direction of relationship are indicated by circle size and colour", echo=FALSE, warning = FALSE}
 
@@ -674,9 +675,8 @@ ggcorrplot(cor(LakeNum), method = "circle",
 
 ```
   
-  As to be expected, the three Lake Dimension have positive correlations with one another. The correlation between lake area and lake depth isn't small but it is smaller than one may expect. Lake Perimeter has a rather strong relationship with both area and depth. 
 
-We then examined Regions and the lake dimension variables
+
 ```{r, echo = FALSE}
 
 area<- data.frame(lake$lake_area)
@@ -689,13 +689,14 @@ colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
 
 ```
  
-We then examined the means and medians of the Lake Dimension variables for the Regions. Here we have produced barplots for the mean and median of depth.
-<br />
- View of the Mean and Median for Lake Depth
+ 
 
-<br />
+We then examined the means and medians of the Lake Dimension variables for the Regions. Here we have produced barplots for the mean and median of depth, shown in figures \ref{fig:MeanDepth} and \ref{fig:MedianDepth}, respectively. What we can tell from the bargraphs that there is not much difference in distribution between the regions in Lake Depth, however, the mean for each region is approximately 5 meters deeper than the median. This suggests that across most regions there are some much deeper lakes. There are some exceptions to this such as Gisborne. Each region has similar mean and median lake depth, area and perimeter, with the exception of Bay of Plenty, which tended to have deeper lakes than other regions.  
+  
+    
+We have not repeated the analysis for area and perimeter here as the results are very similar to those of depth where the means are noticeably larger than the medians.
 
-```{r MeanDepth, fig.cap= "Barplot of regional mean lake Depth", echo = FALSE}
+```{r MeanDepth, fig.cap= "Barplot of Regional Mean Lake Depth", echo = FALSE}
 
 LakeTable <-filter(lake, !region == "") %>%
   group_by(region) %>%
@@ -710,10 +711,9 @@ ggplot(data=LakeTable, aes(x=region, y=mean)) +
   coord_flip()+
   theme_tufte()
 ```
-<br />
-<br />
+
   
-```{r MedianDepth, fig.cap= "Barplot of regional median lake depths", echo = FALSE}
+```{r MedianDepth, fig.cap= "Barplot of Regional Median Lake Depths", echo = FALSE}
 
 LakeTable <-filter(lake, !region == "") %>%
   group_by(region) %>%
@@ -730,14 +730,7 @@ ggplot(data=LakeDf, aes(x=region, y=median)) +
   coord_flip()+
   theme_tufte()
 ```
-<br />
-<br />
 
-Depth:
-What we can tell from the bargraphs that there is not much difference in distribution between the regions in Lake Depth, however, the mean for each region is approximately 5 meters deeper than the median. This suggests that across most regions there are some much deeper lakes. There are some exceptions to this such as Gibsborne.  
-  
-    
-We have not repeated the analysis for area and perimeter here as the results are very similar to those of depth where the means are noticeably larger than the medians.
 
 We then checked the relationship between the Lake Health variables and the Lake Dimension variables.  
   
@@ -777,7 +770,7 @@ ggmatrix(plots,
 As demonstrated in our Exploratory data Analysis, the distributions of the Lake Health variables for each landcover type are not normal. We performed Kruskal-Wallis tests for equality in means between landcover types for each Lake Health variable and all of these tests concluded that there was a difference. We then conducted pairwise Wilcox tests to discover which landcovers had different means to others. These were done at the 0.01 significance level.  
 
 
-We conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Ammoniacal Nitrogen levels in lakes with Exotic forest landcover and lakes with 'Other' landcover, as the p-value is 0.0004. There is also a difference in mean Ammoniacal Nitrogen levels in lakes with 'Other' landcover and lakes with Native landcover, with a p-value of 0.0001. Lakes with Pastoral landcover have a different mean Ammoniacal Nitrogen level than lakes with Exotic forest landcover, and lakes with Native landcover, both have a p-value of less than 2e-16. Lakes with Urban landcover have a different mean Ammoniacal Nitrogen level than lakes with Exotic forest landcover, and lakes with Native landcover, both have a p-value of less than 2e-16. And lakes with Urban landcover have a different mean Ammoniacal Nitrogen level than lakes with Pastoral landcover, as the p-value is 9e-7. The pairs that failed to reject the null hypothesis were Exotic forest and Native landcovers, Pastoral and 'other' landcovers and Urban and 'other' landcovers so there could be no difference between the mean Ammoniacal Nitrogen level in lakes in these landcover pairs. 
+We conducted a pairwise Wilcox test for difference in means between pairs. This concluded that there is a difference between mean Ammoniacal Nitrogen levels in lakes with Exotic Forest landcover and lakes with 'Other' landcover, as the p-value is 0.0004. There is also a difference in mean Ammoniacal Nitrogen levels in lakes with 'Other' landcover and lakes with Native landcover, with a p-value of 0.0001. Lakes with Pastoral landcover have a different mean Ammoniacal Nitrogen level than lakes with Exotic forest landcover, and lakes with Native landcover, both have a p-value of less than 2e-16. Lakes with Urban landcover have a different mean Ammoniacal Nitrogen level than lakes with Exotic forest landcover, and lakes with Native landcover, both have a p-value of less than 2e-16. And lakes with Urban landcover have a different mean Ammoniacal Nitrogen level than lakes with Pastoral landcover, as the p-value is 9e-7. The pairs that failed to reject the null hypothesis were Exotic forest and Native landcovers, Pastoral and 'other' landcovers and Urban and 'other' landcovers so there could be no difference between the mean Ammoniacal Nitrogen level in lakes in these landcover pairs. 
 
 ```{r krnh4npair, echo = FALSE}
 pairwise.wilcox.test(NH4N, land,
@@ -843,7 +836,7 @@ summary(health.PCA)
 ```
 
 
-The eigenvectors are below, and shown visually in figure \ref{fig:egraph}. We can see the first principal component is approximately the average of the Lake Health variables. If we were to move forward with the principal components we would just retain principal components 1 and 2 as they capture 83.4% of the variance.  
+The eigenvectors are below, and shown visually in figure \ref{fig:egraph}. We can see the first principal component is approximately the average of the Lake Health variables subtract the average of Clarity. Clarity is best represented in the third principal component. If we were to move forward with the principal components we would just retain principal components 1, 2 and 3 as they capture 92.4% of the variance.  
 
 ```{r eigvect, echo = FALSE}
 health.PCA$rotation
