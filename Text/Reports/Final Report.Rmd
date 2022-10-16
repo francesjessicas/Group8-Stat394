@@ -731,7 +731,28 @@ knitr::kable(tab1, caption = "Regional Mean and Median Lake Health", format="lat
 knitr::kable(tab2, caption = "Regional Mean and Median Lake Health", format="latex") %>% kable_styling(latex_options="scale_down")
 ```
 
+We then looked at the summary statistics of region by the Lake Health variables, shown in table \ref{tab:lakehealthbyregion}.
+```{r lakehealthbyregion, fig.cap = "Table of Summary Statistics of Lake Health Variables by Region", fig.pos = "center", echo = FALSE}
 
+LakeTable <- filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(c(median_TLI3, median_SECCHI_metre, median_NH4N_mg.L..1, median_TN_mg.m.3, median_TP_mg.m.3, median_CHLA_mg.m.3)), list(median = median))
+
+ LakeTable <- rename(LakeTable, c(Median_Trophic_Level3 = median_TLI3_median,
+                                  Median_Clarity_metres =  median_SECCHI_metre_median,
+                                  Median_NH4N_mg = median_NH4N_mg.L..1_median,
+                                  Median_Total_Nitrogen = median_TN_mg.m.3_median, 
+                                  Median_Total_Phosphorus = median_TP_mg.m.3_median,
+                                  Median_ChlorophyllA = median_CHLA_mg.m.3_median))
+                                  
+                                  
+knitr::kable(LakeTable, caption = "Table of Median values of Lake Health Variables by Region", "simple")
+```
+  
+  *Examining the above table there are some interesting points:*  
+ - Southland lakes have a low value or the lowest value on every metric (with the exception clarity where it is about average).  
+ - We see that the opposite is true for Gisborne where it is high in all variables except clarity where it is low. This finding is in line with the assumption that poorer higher values in the other lake health variables may be a predictor of poorer clarity.
+ - There is quite a wide range of levels of clarity between regions suggesting that region may have a relationship with clarity.
 
 #### Multivariate analysis of the Lake Dimension variables  
 #### Examining the Correlation between Area, Depth and Perimeter  NEED TO EDIT REFERENCING AND TITLES  
