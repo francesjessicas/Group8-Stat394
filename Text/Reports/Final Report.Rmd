@@ -438,7 +438,7 @@ ggpairs(df11, aes(col=land, alpha=.5))
 
 Next, we wanted to compare the distribution of the lake health variables by types of dominant landcover. Figure \ref{fig:boxNH4N} illustrates the box plots for each type of landcover. The observations have been log transformed to show the distributions better. We can see the highest 75% of Ammoniacal Nitrogen measures in Urban areas are above the lower 75% of measures in Exotic forest and Native landcovers. This could inidcate a relationship between landcover and Ammoniacal Nitrogen. Exotic forest and Native landcovers tend to have lower amounts of Ammoniacal Nitrogen in the lake water than in Pastoral, Urban and Other landcovers. The medians are shown in tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median Ammoniacal Nitrogen for lakes with Exotic forest, Native, Other, Pastoral and Urban dominant landcover to be 0.0084040, 0.0075540, 0.0123870, 0.0124780 and 0.0150880, respectively. There is a clear difference between the medians, with lower medians in Exotic forest and Native landcovers. 
 
-```{r boxNH4N, fig.cap = "Box Plot of Landcover and Ammoniacal Nitrogen", echo = FALSE, warnings = FALSE}
+```{r boxNH4N, fig.cap = "Box Plot of Landcover and Ammoniacal Nitrogen", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(df, aes(x=land, y=NH4N)) + 
     geom_boxplot(notch = TRUE, fill = "pink")+
   theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
@@ -467,7 +467,7 @@ Figure \ref{fig:boxTP} shows the distribution of Total Phosphorus for each type 
 Tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median levels of Phosphorus are 22.610470, 12.176880, 21.836995, 21.650210 and 21.416020 for Exotic forest, Native, Other, Pastoral and Urban landcovers, respectively. We can clearly see the level of Phosphorus in lakes with Native landcover tended to be much lower than other landcover types. 
 
 
-```{r boxTP, fig.cap = "Box Plot of Landcover and Total Phosphorus", echo = FALSE, warnings=FALSE}
+```{r boxTP, fig.cap = "Box Plot of Landcover and Total Phosphorus", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(df, aes(x=land, y=TP)) + 
     geom_boxplot(notch = TRUE, fill = "lightgreen")+
   theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
@@ -480,7 +480,7 @@ legend.position = "none")+
 
 Figure \ref{fig:boxTN} shows the distributions of Total Nitrogen for each type of dominant landcover. Similarly to Ammoniacal Nitrogen, Chlorophyll-A and Total Phosphorus, the lakes with native landcover appeared to have lower levels of Total Nitrogen. The other types of dominant landcover appear to have very similar distributions, with the distribution of Total Nitrogen in lakes with Urban landcover being slightly higher. Tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median levels of Nitrogen are 556.8908, 286.4589, 724.3681, 558.8725 and 725.8646 for Exotic forest, Native, Other, Pastoral and Urban landcovers, respectively. These statistics support the claim that lakes with Native landcover tend to have lower levels of Nitrogen than other types of dominant landcover.
 
-```{r boxTN, fig.cap = "Box Plot of Landcover and Total Nitrogen", echo = FALSE, warnings=FALSE}
+```{r boxTN, fig.cap = "Box Plot of Landcover and Total Nitrogen", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(df, aes(x=land, y=TN)) + 
     geom_boxplot(notch = TRUE, fill = "violet")+
   theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
@@ -494,7 +494,7 @@ legend.position = "none")+
 The distribution of Clarity by dominant landcover is shown in figure \ref{fig:boxSECCHI}. The lakes with Native landcover appear to have a higher clarity, or appear clearer than lakes with other types of dominant landcover. Lakes with Urban or 'Other' landcover are less clear. This is to be expected as we have found that higher levels of Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen are associated with lower levels of Clarity. Tables \ref{tab:eftabby}, \ref{tab:nattabby}, \ref{tab:ottabby}, \ref{tab:pasttabby} and \ref{tab:urbtabby} show the median levels of Clarity are 2.9450, 5.4663, 2.3282, 3.3240 and 2.1811 for Exotic forest, Native, Other, Pastoral and Urban landcovers, respectively. We can say that lakes with Native landcover tend to be clearer than lakes with other types of dominant landcover. 
 
 
-```{r boxSECCHI, fig.cap = "Box Plot of Landcover and Clarity", echo = FALSE, warnings=FALSE}
+```{r boxSECCHI, fig.cap = "Box Plot of Landcover and Clarity", notch=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
 ggplot(df, aes(x=land, y=SECCHI)) + 
     geom_boxplot(notch = TRUE, fill = "yellow")+
   theme(axis.text.x = element_text(size=7, angle=90, hjust=1),
@@ -616,7 +616,7 @@ knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for th
 ```
 
 
-We analysed the relationship between the Lake Health variables and Region. Table \ref{tab:sec} shows the mean and median of the Ammoniacal Nitrogen, Chlorophyll-A and Total Phosphorus for each region, and table \ref{tab:tab2} shows Total Nitrogen and Clarity. 
+We analysed the relationship between the Lake Health variables and Region. Table \ref{tab:sec} shows the mean and median of the Ammoniacal Nitrogen, Chlorophyll-A and Total Phosphorus for each region, and table \ref{tab:tab2} shows Total Nitrogen and Clarity. All of these variables are sorted in descending order, except Clarit, which is sorted in ascending order. 
 
 ```{r an, echo = FALSE}
 Region <- lake$region
