@@ -314,7 +314,7 @@ descdist(TN, boot = 1000)
 descdist(SECCHI, boot = 1000)
 ```
 
-We believe, based on the Cullen and Frey graphs, none of these distributions are normal. We confirmed this with Anderson Darlings tests of normality. Table \ref{fig:adhealth} shows the test statistic and p-value for the Anderson Darling test on each Lake Health variable. The test statistics for Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity are 226, 111, 68, 134 and 40, respectively (to the nearest whole number). For each variable, the p-value is 3e-24, confirming our suspicions that these variables are not normally distributed. 
+We believe, based on the Cullen and Frey graphs, none of these distributions are normal. We confirmed this with Anderson Darlings tests of normality. Table \ref{tab:adhealth} shows the test statistic and p-value for the Anderson Darling test on each Lake Health variable. The test statistics for Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity are 226, 111, 68, 134 and 40, respectively (to the nearest whole number). For each variable, the p-value is 3e-24, confirming our suspicions that these variables are not normally distributed. 
 
 ```{r adhealth, fig.cap = "Anderson-Darling Test for Normality of Ammoniacal Nitrogen in Lakes with Predominantly Exotic Forest Landcover", fig.pos = "center", echo = FALSE}
 tab <- ad.test(df1$NH4N)
@@ -370,15 +370,17 @@ colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
 We gathered information on the Lake Dimension Variables: Depth, Area and Perimeter. In the univariate analysis we produced summary statistics as well as histograms of their distributions.  
   
 We first produced summary statistics as seen in table \ref{tab:ADPtab}.
+
 ```{r ADPtab, fig.cap = "Table of Sample Statistics for Area, Perimeter and Depth", fig.pos = "center", echo = FALSE}
+
 df.ADP1 <- cbind(area, perim, depth)
 
 tab <- apply(df.ADP1, MySummary2, MARGIN = 2)
 tab <- as.table(tab)
-rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Inter-quartile Range', 'Standard Deviation', 'Mean', 'Median Absolute Deviation', 'Kurtosis', 'Skewness')
+rownames(tab) <- c('Sample Size','Minimum','1st Quantile', 'Median', '3rd Quantile', 'Maximum', 'Standard Deviation', 'Mean', 'Kurtosis', 'Skewness')
 colnames(tab) <- c('Area', 'Perimeter', 'Depth')
 knitr::kable(tab, caption = "Table of Sample Statistics", "simple")
-
+```
   
 We produced histograms of each of the Lake Dimension Variables to examine their distributions. 
   
@@ -564,7 +566,7 @@ knitr::kable(tab, caption = "Table of Sample Statistics for Urban Landcover", "s
 
 We wanted to run tests for a difference in mean of each Lake Health variable for each type of landcover, but we first needed to check the normality assumptions to ascertain which tests we could conduct. If any one of these groups does not meet the normality assumption, normality cannot be assumed for these tests. To test this we conducted Anderson-Darling tests on just the Native landcover group. 
 
-Table \ref{fig:adhelth} shows the test statistic and p-value for the Anderson Darling test on each Lake Health variable for the Native landcover. The test statistics for Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity are 209, 92, 58, 168 and 21, respectively (to the nearest whole number). For each variable, the p-value is 3e-24, confirming our suspicions that the distribution of the Lake Health variables for Native lakes are not normally distributed, violating the normality assumption. We conducted this test on every type of landcover with similar results.  
+Table \ref{tab:adhelth} shows the test statistic and p-value for the Anderson Darling test on each Lake Health variable for the Native landcover. The test statistics for Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus, Total Nitrogen and Clarity are 209, 92, 58, 168 and 21, respectively (to the nearest whole number). For each variable, the p-value is 3e-24, confirming our suspicions that the distribution of the Lake Health variables for Native lakes are not normally distributed, violating the normality assumption. We conducted this test on every type of landcover with similar results.  
 
 ```{r adhelth, fig.cap = "Anderson-Darling Test for Normality of the Lake Health Variables in Lakes with Native Dominant Landcover", fig.pos = "center", echo = FALSE}
 land <- as.factor(lake$dominant_landcover)
@@ -853,47 +855,43 @@ pairwise.wilcox.test(SECCHI, land,
 
 ### Principal Component Analysis
 
-We decided to conduct a Principal Component Analysis on the Lake Health variables to determine whether we can reduce the number of variables while still retaining most of the information. Figure \ref{fig:pca} shows the scree graph of the five principal components. We can see from the summary below that the first principal component explains 65.6% of the variance, with the second principal component this becomes 83.4% and with the third they capture 92.4% of the variance. 
+We decided to conduct a Principal Component Analysis on the Lake Health variables to determine whether we can reduce the number of variables while still retaining most of the information. Figure \ref{fig:pca} shows the scree graph of the five principal components. We can see from the summary below that the first principal component explains 65.6% of the variance, with the second principal component this becomes 83.4% and with the third they capture 92.4% of the variance.   
 
 ```{r pca, fig.cap = "Scree Graph", fig.pos = "center", echo = FALSE}
 health.PCA <- prcomp(df1, center=TRUE, scale=TRUE)
 plot(health.PCA, type="l")
 ```
 
-
-
 ```{r pcasum, echo = FALSE}
 summary(health.PCA)
 ```
 
-1st PC captures 65.6% of variance so we continue with just PC1
 
-eigenvectors
+The eigenvectors are below, and shown visually in figure \ref{fig:egraph}. We can see the first principal component is approximately the average of the Lake Health variables. If we were to move forward with the principal components we would just retain principal components 1 and 2 as they capture 83.4% of the variance.  
 
-```{r}
+```{r eigvect, echo = FALSE}
 health.PCA$rotation
 
 ```
 
 
-```{r}
+```{r egaph, fig.cap = "Visualisation of the Eigenvctors", fig.pos = "center", echo = FALSE}
 Rotation.df <- data.frame(t(health.PCA$rotation))
 Rotation.df$PC <- c("PC1", "PC2", "PC3", "PC4", "PC5")
 Rotation.melt <- melt(Rotation.df, id.vars = "PC")
 ggplot(Rotation.melt) +
 geom_line(aes(x=variable, y=value, group=PC, col=PC), size=1.5, alpha=.7)
 ```
+
+### Factor Analysis
+
 - FA
 ```{r}
 factanal(df1, factors = 2)
 ```
 
-
-### Linear Discriminant Analysis and Factor Analysis
-
-After finishing our Preliminary Report we also looked at ways we could implement Factor Analysis (FA) and Linear Discriminant Analysis (LDA) with our data.
   
-#### Linear Discriminant Analysis  
+### Linear Discriminant Analysis  
 For LDA, we wanted to see if there was potential to implement LDA if there was information loss. As such, we attempted to predict which Dominant Landcover a lake was, based on the Lake Health Variables.
 
 Reminder -  the categories that dominant landcover can take on are: Pastoral, Native, Urban area, Exotic forest, and Other
