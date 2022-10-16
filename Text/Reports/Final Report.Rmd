@@ -615,9 +615,23 @@ colnames(tabr) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", 
 knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for the Lake Health Variables by Native Landcover")
 ```
 
+
+
+
+Table \ref{tab:regfreq} is a frequency table for the number of lakes in each region.  
+
+```{r regfreq, fig.cap = "Table of Regional Frequencies", fig.pos = "center", echo = FALSE}
+
+tab <- table(region1)
+tab <- tab[-1]
+knitr::kable(tab, caption = "Frequency table of number of lakes in each Region", colnames = c('Region', 'Frequency'), "simple")
+
+```
+
 We then looked at the summary statistics of region by the Lake Health variables, shown in table \ref{tab:lakehealthbyregion}. From this table we can see quite clearly there is a difference in median Lake Health between regions. Each region had similar median levels of Ammoniacal Nitrogen. We can see a slight difference in the median levels of Chlorophyll-A and Clarity between regions, specifically between regions in the North Island and regions in the South Island. Lakes in the South Island tended to have lower levels of Chlorophyll-A and be clearer than North Island lakes. This is even more apparent when looking at Total Phosphorus and Total Nitrogen. For Total Nitrogen, the 7 regions with the highest median levels of Total Nitrogen were all North Island regions, and the 5 regions with the lowest medians were South Island regions. A similar pattern is to be seen in Total Phosphorus. 
 
 The North Island regions are; Auckland, Bay of Plenty, Gisborne, Hawke's Bay, Manawatu/Whanganui, Northland, Taranaki, Waikato and Wellington. The South Island regions are; Canterbury, Marlborough District Council, Otago, Southland, Tasman District Council and West Coast. 
+
 
 ```{r lakehealthbyregion, fig.cap = "Table of Summary Statistics of Lake Health Variables by Region", fig.pos = "center", echo = FALSE}
 
@@ -634,12 +648,7 @@ LakeTable <- filter(lake, !region == "") %>%
                                   
 knitr::kable(LakeTable, caption = "Table of Median values of Lake Health Variables by Region", "simple")
 ```
-  
-  *Examining the above table there are some interesting points:*  
- - Southland lakes have a low value or the lowest value on every metric (with the exception clarity where it is about average).  
- - We see that the opposite is true for Gisborne where it is high in all variables except clarity where it is low. This finding is in line with the assumption that poorer higher values in the other lake health variables may be a predictor of poorer clarity.
- - There is quite a wide range of levels of clarity between regions suggesting that region may have a relationship with clarity.
-
+ 
 
 ### Multivariate analysis of the Lake Dimension variables  
 
@@ -670,7 +679,7 @@ ggcorrplot(cor(LakeNum), method = "circle",
   
   As to be expected, the three Lake Dimension have positive correlations with one another. The correlation between lake area and lake depth isn't small but it is smaller than one may expect. Lake Perimeter has a rather strong relationship with both area and depth. 
 
-
+We then examined Regions and the lake dimension variables
 ```{r, echo = FALSE}
 
 area<- data.frame(lake$lake_area)
@@ -682,16 +691,66 @@ df.ADP <- cbind(area,perim,depth, region1)
 colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
 
 ```
-  
-Below is a frequency table for the number of lakes in each region.  
-```{r regfreq, fig.cap = "Table of Regional Frequencies", fig.pos = "center", echo = FALSE}
+ 
+We then examined the means and medians of the Lake Dimension variables for the Regions. We produced means and medians for each of the variables into a table and also produced braplot. The table, mean barplot, and median barplot for depth are shown in figure \ref{fig:MeanDepth}. 
+<br />
+ View of the Mean and Median for Lake Depth
 
-tab <- table(region1)
-tab <- tab[-1]
-knitr::kable(tab, caption = "Frequency table of number of lakes in each Region", colnames = c('Region', 'Frequency'), "simple")
+<br />
+
+```{r MeanDepth, fig.cap= "Barplot of regional mean lake Depth", echo = FALSE}
+
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_depth), list(mean = mean))
+
+
+
+LakeTable<- data.frame(LakeTable)
+
+ggplot(data=LakeTable, aes(x=region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Mean Lake Depth in metres", title = 
+         "Mean Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_tufte()
+
 
 ```
 
+  
+**Values of NA have been removed.
+<br />
+<br />
+  
+```{r MedianDepth, fig.cap= "Barplot of regional median lake depths", echo = FALSE}
+
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_depth), c(list(mean = mean), list(median = median)))
+
+LakeTable
+
+#which.max(Lake$lake_perimeter)
+
+LakeDf<- data.frame(LakeTable)
+
+ggplot(data=LakeDf, aes(x=region, y=median)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Median Lake Depth in metres", title = 
+         "Median Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_tufte()
+
+
+```
+  
+**Values of NA have been removed.
+<br />
+<br />
+
+*Depth:*
+*What we can tell from the bargraphs that there is not much difference in distribution between the regions in Lake Depth, however, the mean for each region is approximately 5 meters deeper than the median. This suggests that across most regions there are some much deeper lakes. There are some exceptions to this such as Gibsborne.*
 
 We then checked the relationship between the Lake Health variables and the Lake Dimension variables.  
   
