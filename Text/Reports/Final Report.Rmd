@@ -51,7 +51,7 @@ ORCHID ID: 0000-0002-4582-5909
 
 ## Introduction to our data
   
-Our original dataset was extracted from Stats NZ.  
+Our original dataset was extracted from Stats NZ. @Data  
 
 We made some manipulations to the original dataset such as removing extraneous variables (like Date which was the same for every lake) or variables that we were not interested in. We also reshaped some aspects of the dataset so that the data would be easier to analyse. We checked for missing values; there were some for the categorical variables, which we dealt with as described below, but there were no missing values for the numerical variables so imputation was not necessary.  
   
