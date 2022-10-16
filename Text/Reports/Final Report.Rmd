@@ -615,14 +615,11 @@ colnames(tabr) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", 
 knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for the Lake Health Variables by Native Landcover")
 ```
 
-
-
-
-Table \ref{tab:regfreq} is a frequency table for the number of lakes in each region.  
+Table \ref{tab:regfreq} is a frequency table for the number of lakes in each region. The North Island regions are; Auckland, Bay of Plenty, Gisborne, Hawke's Bay, Manawatu/Whanganui, Northland, Taranaki, Waikato and Wellington. The South Island regions are; Canterbury, Marlborough District Council, Otago, Southland, Tasman District Council and West Coast. We can see the majority if the lakes are in the South Island, specifically in Southland. 
 
 ```{r regfreq, fig.cap = "Table of Regional Frequencies", fig.pos = "center", echo = FALSE}
-
-tab <- table(region1)
+Region <- data.frame(lake$region)
+tab <- table(Region)
 tab <- tab[-1]
 knitr::kable(tab, caption = "Frequency table of number of lakes in each Region", colnames = c('Region', 'Frequency'), "simple")
 
@@ -630,7 +627,6 @@ knitr::kable(tab, caption = "Frequency table of number of lakes in each Region",
 
 We then looked at the summary statistics of region by the Lake Health variables, shown in table \ref{tab:lakehealthbyregion}. From this table we can see quite clearly there is a difference in median Lake Health between regions. Each region had similar median levels of Ammoniacal Nitrogen. We can see a slight difference in the median levels of Chlorophyll-A and Clarity between regions, specifically between regions in the North Island and regions in the South Island. Lakes in the South Island tended to have lower levels of Chlorophyll-A and be clearer than North Island lakes. This is even more apparent when looking at Total Phosphorus and Total Nitrogen. For Total Nitrogen, the 7 regions with the highest median levels of Total Nitrogen were all North Island regions, and the 5 regions with the lowest medians were South Island regions. A similar pattern is to be seen in Total Phosphorus. 
 
-The North Island regions are; Auckland, Bay of Plenty, Gisborne, Hawke's Bay, Manawatu/Whanganui, Northland, Taranaki, Waikato and Wellington. The South Island regions are; Canterbury, Marlborough District Council, Otago, Southland, Tasman District Council and West Coast. 
 
 
 ```{r lakehealthbyregion, fig.cap = "Table of Summary Statistics of Lake Health Variables by Region", fig.pos = "center", echo = FALSE}
