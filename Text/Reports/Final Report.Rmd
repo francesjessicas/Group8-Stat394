@@ -50,8 +50,7 @@ ORCHID ID: 0000-0002-4582-5909
 
 ## Introduction to our data
   
-Our original dataset was extracted from Stats NZ.
-https://www.stats.govt.nz/indicators/modelled-lake-water-quality/ 
+Our original dataset was extracted from Stats NZ.  
 
 We made some manipulations to the original dataset such as removing extraneous variables (like Date which was the same for every lake) or variables that we were not interested in. We also reshaped some aspects of the dataset so that the data would be easier to analyse. We checked for missing values; there were some for the categorical variables, which we dealt with as described below, but there were no missing values for the numerical variables so imputation was not necessary.  
   
@@ -97,6 +96,8 @@ To investigate this we came up with the following questions;
 
 # Methodology
 
+## Outline of Investigation
+
 To answer these questions, we will conduct the following investigations:  
 
 - An Exploratory Data Analysis on the Lake Health, Lake Dimension, Region and Dominant Landcover variables, which will consist of:  
@@ -140,7 +141,7 @@ MySummary2 <- function(x){
 
 ### Univariate Analysis of the Lake Health Variables
 
-Table \ref{tab:laketable} shows the summary statistics for each of these three measures. 
+Table \ref{tab:laketable} shows the summary statistics for each of the Lake Health variables.   
 
 ```{r laketable, echo = FALSE}
 lake <- read.csv("../../Data/modelled_lake_water_quality_altered.csv")
@@ -365,7 +366,7 @@ df.ADP <- cbind(area,perim,depth, region1)
 colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
 
 ```
-We gathered information on the Lake Dimension Variables: Depth, Area and Perimeter. In the univariate analysis we produced summary statistics as well as histograms of their distributions.  
+We gathered information on the Lake Dimension variables: Depth, Area and Perimeter. In the univariate analysis we produced summary statistics as well as histograms of their distributions.  
   
 We first produced summary statistics as seen in table \ref{tab:ADPtab}.
 
@@ -380,7 +381,7 @@ colnames(tab) <- c('Area', 'Perimeter', 'Depth')
 knitr::kable(tab, caption = "Table of Sample Statistics", "simple")
 ```
   
-We produced histograms of each of the Lake Dimension Variables to examine their distributions. 
+We produced histograms of each of the Lake Dimension variables to examine their distributions. 
   
 ```{r HistDepth,  fig.cap = "Log 10 transformed Histogram of Lake Depth in meters squared. Rectangles indicate skewed distribution, red vertical line indicates thge placement of the median value, red horizontal line indicates the placement of the median with one standard deviation.", echo = FALSE, message = FALSE, warning=FALSE}
 
@@ -398,7 +399,7 @@ ggplot(lake, aes(x=lake_depth)) +
   theme_tufte()
 ```
   
-Figure \ref{fig:HistDepth} shows the log 10 transformed histogram of the Lake Dimension Variable Lake Depth. We transformed it by log 10 to make the graph easier to interpret. The distribution of the graph is strongly skewed to the right, this is indicated by the boxplot at the bottom of the graph. Additionally from the boxplot we see that our data contains many outliers. The boxplot also suggests that with the removal of these outliers we may have a distribution that better approximates normal. We decided not to remove the outliers as these are still valid data points.
+Figure \ref{fig:HistDepth} shows the log 10 transformed histogram of the Lake Dimension variable Lake Depth. We transformed it by log 10 to make the graph easier to interpret. The distribution of the graph is strongly skewed to the right, this is indicated by the boxplot at the bottom of the graph. Additionally from the boxplot we see that our data contains many outliers. The boxplot also suggests that with the removal of these outliers we may have a distribution that better approximates normal. We decided not to remove the outliers as these are still valid data points.
 
 This distribution and interpretation of the above graph is very similar for all of the Lake Dimension variables; they all require log 10 transformation, they are all highly skewed, and appear to not approximate a normal distribution. As such we have not reproduced the histograms of the Lake Dimension variables Area and Perimeter here.
 
