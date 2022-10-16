@@ -760,11 +760,30 @@ ggcorrplot(cor(LakeNum), method = "circle",
   As to be expected, the three Lake Dimension have positive correlations with one another. The correlation between lake area and lake depth isn't small but it is smaller than one may expect. Lake Perimeter has a rather strong relationship with both area and depth. 
 
 
+```{r, echo = FALSE}
+
+area<- data.frame(lake$lake_area)
+perim<- data.frame(lake$lake_perimeter)
+depth<- data.frame(lake$lake_depth)
+region1 <- data.frame(lake$region)
+
+df.ADP <- cbind(area,perim,depth, region1)
+colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
+
+```
+  
+Below is a frequency table for the number of lakes in each region.  
+```{r regfreq, fig.cap = "Table of Regional Frequencies", fig.pos = "center", echo = FALSE}
+
+tab <- table(region1)
+tab <- tab[-1]
+knitr::kable(tab, caption = "Frequency table of number of lakes in each Region", colnames = c('Region', 'Frequency'), "simple")
+
+```
 
 
-
-
-
+We then checked the relationship between the Lake Health variables and the Lake Dimension variables.  
+  
 Figure \ref{fig:pairhd} shows the pairs plot of the Lake Health variables by the Lake Dimension variables. We can see very little relationship between the Lake Health and Lake Dimension variables. The majority of the scatter we can see if due to outliers and large amounts of lakes with low values for depth, perimeter and area. We decided not to investigate these relationships any further. 
 
 ```{r pairhd, fig.cap = "Pairs Plot of Lake Health Variables by Lake Dimension Variables", echo = FALSE}
