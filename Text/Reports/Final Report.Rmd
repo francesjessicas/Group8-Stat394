@@ -1,13 +1,11 @@
 ---
-title: "Final Report"
+title: "Final Report - Health of New Zealand Lakes"
 author: "Russell and Frances"
 date: "5th October 2022"
 output: bookdown::pdf_document2
 ---
 
-# Health of New Zealand Lakes 
-
-## Introduction
+# Introduction
 
 
 ```{r setup, include=FALSE}
@@ -50,7 +48,7 @@ ORCHID ID: 0000-0002-5168-3134
 email: russellsyder@gmail.com  
 ORCHID ID: 0000-0002-4582-5909
 
-### Introduction to our data
+## Introduction to our data
   
 Our original dataset was extracted from Stats NZ.
 https://www.stats.govt.nz/indicators/modelled-lake-water-quality/ 
@@ -83,7 +81,7 @@ Upon first examining our data we thought that it would be prudent to group certa
 
 We also grouped together lake Area, Perimeter, and Depth and classified this group as the Lake Dimension variables.  
 
-### Leading Question
+## Leading Question
 
 Our leading question was; What are some statistics that we can produce that may be beneficial for informing restorative actions that improve the health of lakes in New Zealand?  
 
@@ -97,7 +95,7 @@ To investigate this we came up with the following questions;
 
 - Do any types of Dominant Landcover have poorer lake health than others?
 
-## Methodology
+# Methodology
 
 To answer these questions, we will conduct the following investigations:  
 
@@ -121,7 +119,7 @@ To answer these questions, we will conduct the following investigations:
 
 The latter four analyses will be in our Results section.  
 
-### Exploratory Data Analysis
+## Exploratory Data Analysis
 
 ```{r functab, echo = FALSE}
 MySummary2 <- function(x){
@@ -140,7 +138,7 @@ MySummary2 <- function(x){
 }
 ```
 
-#### Univariate Analysis of the Lake Health Variables
+### Univariate Analysis of the Lake Health Variables
 
 Table \ref{tab:laketable} shows the summary statistics for each of these three measures. 
 
@@ -354,7 +352,7 @@ knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for th
 ```
 
 
-#### Univariate Analysis of the Lake Dimension Variables
+### Univariate Analysis of the Lake Dimension Variables
 
 ```{r, echo = FALSE}
 
@@ -404,7 +402,7 @@ Figure \ref{fig:HistDepth} shows the log 10 transformed histogram of the Lake Di
 
 This distribution and interpretation of the above graph is very similar for all of the Lake Dimension variables; they all require log 10 transformation, they are all highly skewed, and appear to not approximate a normal distribution. As such we have not reproduced the histograms of the Lake Dimension variables Area and Perimeter here.
 
-#### Multivariate Analysis of Lake Health Variables
+### Multivariate Analysis of Lake Health Variables
 
 Table \ref{tab:corramat} shows the correlation matrix and figure \ref{fig:correlationplot} shows the visualization of this matrix. The strength of relationship is interpreted the size of the circles with strong relationships having larger circles and weaker relationships having small circles. Strength is also communicated via colour with darker colours indicating stronger relationship. Colour also indicates the direction of the relationship via a colour spectrum with reddish indicating a positive relationship, blue indicating a negative relationship and white indicating no relationship.  
 
@@ -413,7 +411,7 @@ Ammoniacal Nitrogen has a weak, positive relationship with Chlorophyll-A (0.2076
 Clarity is the only variable to have any negative relationship with the other variables. Clarity has a negative correlation with all of the other variables of at least -0.5. It has an especially strong relationship with Total Nitrogen of -0.7823. These negative relationships are to be expected as it makes sense that an increase of other molecules in water would reduce the water's clarity. We can see this represented as dark blue circles in figure \ref{fig:correlationplot}.  
 
 
-```{r corramat, echo = FALSE}
+```{r corramat, fig.cap = "Correlation Matrix of Lake Health", fig.pos = "center", echo = FALSE}
 tab <- cor(df1)
 tab <- as.table(tab)
 rownames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "Total Nitrogen", "Clarity")
@@ -432,7 +430,7 @@ ggcorrplot(cor(df11), method = "circle", hc.order = TRUE, type = "lower")
 ```
 
 
-Figure \ref{fig:pairsplot} shows the pairs plot of the Lake Health variables, coloured by Dominant Landcover. We can see some separation between landcovers in the distribution of each variable. The relationships between Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen are positive, however all show non-constant scatter. It is also difficult to see any separation between the landcovers in these scatterplots as the data is dominated by Native and Pastoral landcovers (both have 1770 observations). The relationship between these four measures and Clarity are all negative, and appear to be non-linear. Another observation from this graph is that the correlations differ greatly between landcovers. For Ammoniacal Nitrogen and Chlorphyll-A, Native and Pastoral landcover groups have a weak positive correlation, while the other three types of landcover have weak negative correlations. The correlations between Ammoniacal Nitrogen and Total Phosphorus is similar for Exotic Forest, Native and Pastoral lakes (weak to moderate positive correlation), while the correlations for Other and Urban Area are very weak. For the rest of the pairs, the correlations for each landcover was similar, with either all positive or all negative correlations, ranging from 0.3 less to 0.3 more than the collective correlation. The two types of landcover that tended to differ most are the Other and Urban Area landcovers. This may be due to the small size of these groups (12 observations for Other and 85 observations for Urban Area).  
+Figure \ref{fig:pairsplot} shows the pairs plot of the Lake Health variables, coloured by Dominant Landcover. We can see some separation between landcovers in the distribution of each variable. The relationships between Ammoniacal Nitrogen, Chlorophyll-A, Total Phosphorus and Total Nitrogen are positive, however all show non-constant scatter. It is also difficult to see any separation between the landcovers in these scatterplots as the data is dominated by Native and Pastoral landcovers (both have 1770 observations). The relationship between these four measures and Clarity are all negative, and appear to be non-linear. Another observation from this graph is that the correlations differ greatly between landcovers. For Ammoniacal Nitrogen and Chlorophyll-A, Native and Pastoral landcover groups have a weak positive correlation, while the other three types of landcover have weak negative correlations. The correlations between Ammoniacal Nitrogen and Total Phosphorus is similar for Exotic Forest, Native and Pastoral lakes (weak to moderate positive correlation), while the correlations for Other and Urban Area are very weak. For the rest of the pairs, the correlations for each landcover was similar, with either all positive or all negative correlations, ranging from 0.3 less to 0.3 more than the collective correlation. The two types of landcover that tended to differ most are the Other and Urban Area landcovers. This may be due to the small size of these groups (12 observations for Other and 85 observations for Urban Area).  
 
 ```{r pairsplot, fig.cap="Pairs Plot of Lake Health", fig.pos="center", echo=FALSE, message = FALSE}
 ggpairs(df11, aes(col=land, alpha=.5))
@@ -551,7 +549,6 @@ colnames(tab) <- c("Ammoniacal Nitrogen", "Chlorophyll-A", "Total Phosphorus", "
 knitr::kable(tab, caption = "Table of Sample Statistics for Pastoral Landcover", "simple")
 ```
 
-
 ```{r urbtabby, echo = FALSE}
 A <- filter(df2, land == "Urban area")
 A = A[,-1]
@@ -619,7 +616,7 @@ knitr::kable(tabr, caption = "Anderson-Darling Test Statistic and P-value for th
 ```
 
 
-We analysed the relationship between the Lake Health variables and Region. EXPLAIN
+We analysed the relationship between the Lake Health variables and Region. Table \ref{tab:sec} shows the mean and median of the Ammoniacal Nitrogen, Chlorophyll-A and Total Phosphorus for each region, and table \ref{tab:tab2} shows Total Nitrogen and Clarity. 
 
 ```{r an, echo = FALSE}
 Region <- lake$region
@@ -725,8 +722,13 @@ SECCHI_median <- SECCHI_median[-1,]
 SECCHI_region <- cbind(SECCHI_mean, SECCHI_median[,-1])
 
 tabs <- SECCHI_region %>% arrange(Median_SECCHI)
-tab1 <- cbind(taba, tabc, tabp, tabn, tabs)
+tab1 <- cbind(taba, tabc, tabp)
+tab2 <- cbind(tabn, tabs)
 knitr::kable(tab1, caption = "Regional Mean and Median Lake Health", format="latex") %>% kable_styling(latex_options="scale_down")
+```
+
+```{r tab2, message = FALSE, warnings = FALSE, echo = FALSE}
+knitr::kable(tab2, caption = "Regional Mean and Median Lake Health", format="latex") %>% kable_styling(latex_options="scale_down")
 ```
 
 
@@ -813,9 +815,9 @@ ggmatrix(plots,
 ```
 
 
-## Results
+# Results
 
-### Tests for Difference in Mean Lake Health
+## Tests for Difference in Mean Lake Health
 
 As demonstrated in our Exploratory data Analysis, the distributions of the Lake Health variables for each landcover type are not normal. We performed Kruskal-Wallis tests for equality in means between landcover types for each Lake Health variable and all of these tests concluded that there was a difference. We then conducted pairwise Wilcox tests to discover which landcovers had different means to others. These were done at the 0.01 significance level.  
 
@@ -872,7 +874,7 @@ pairwise.wilcox.test(SECCHI, land,
 
 
 
-### Principal Component Analysis
+## Principal Component Analysis
 
 We decided to conduct a Principal Component Analysis on the Lake Health variables to determine whether we can reduce the number of variables while still retaining most of the information. Figure \ref{fig:pca} shows the scree graph of the five principal components. We can see from the summary below that the first principal component explains 65.6% of the variance, with the second principal component this becomes 83.4% and with the third they capture 92.4% of the variance.   
 
@@ -902,7 +904,7 @@ ggplot(Rotation.melt) +
 geom_line(aes(x=variable, y=value, group=PC, col=PC), size=1.5, alpha=.7)
 ```
 
-### Factor Analysis
+## Factor Analysis
 
 We decided to perform a Factor analysis on the Lake Health variables to determine whether they could be explained using two factors. The null hypothesis for this test was that two factors are sufficient to capture the full dimensionality of the Lake Health variables. The output of this test showed a chi-square test statistic of 65.57 on one degree of freedom and a p-value of 5.59e-16. We concluded, at the 0.01 significance level, that two factors are not sufficient to capture the full dimensionality of these variables. The output of this test is shown below. 
 
@@ -911,7 +913,7 @@ factanal(df1, factors = 2)
 ```
 
   
-### Linear Discriminant Analysis  
+## Linear Discriminant Analysis  
 
 For LDA, we wanted to see if there was potential to implement LDA if there was information loss. As such, we attempted to predict which Dominant Landcover a lake was, based on the Lake Health Variables.
 
@@ -1012,7 +1014,7 @@ The accuracy was only slightly better at 76.7%.
 
 
 
-## Discussion
+# Discussion
 
 - WHAT DOES IT MEEEAAAAAANNNNNNN
 - problems
@@ -1030,7 +1032,7 @@ factor 2 not suff
 focus resources to north island, specifically wikato
 
 
-## Bibliography
+# Bibliography
 
 - I have some references from research into health variables and where data from 
 - APA referencing
