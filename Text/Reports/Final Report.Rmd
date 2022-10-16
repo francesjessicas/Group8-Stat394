@@ -732,6 +732,14 @@ knitr::kable(tab1, caption = "Regional Mean and Median Lake Health", format="lat
 ```{r tab2, message = FALSE, warnings = FALSE, echo = FALSE}
 knitr::kable(tab2, caption = "Regional Mean and Median Lake Health", format="latex") %>% kable_styling(latex_options="scale_down")
 ```
+Below is a frequency table for the number of lakes in each region.  
+```{r regfreq, fig.cap = "Table of Regional Frequencies", fig.pos = "center", echo = FALSE}
+
+tab <- table(region1)
+tab <- tab[-1]
+knitr::kable(tab, caption = "Frequency table of number of lakes in each Region", colnames = c('Region', 'Frequency'), "simple")
+
+```
 
 We then looked at the summary statistics of region by the Lake Health variables, shown in table \ref{tab:lakehealthbyregion}.
 ```{r lakehealthbyregion, fig.cap = "Table of Summary Statistics of Lake Health Variables by Region", fig.pos = "center", echo = FALSE}
@@ -785,7 +793,7 @@ ggcorrplot(cor(LakeNum), method = "circle",
   
   As to be expected, the three Lake Dimension have positive correlations with one another. The correlation between lake area and lake depth isn't small but it is smaller than one may expect. Lake Perimeter has a rather strong relationship with both area and depth. 
 
-
+We then examined Regions and the lake dimension variables
 ```{r, echo = FALSE}
 
 area<- data.frame(lake$lake_area)
@@ -797,16 +805,66 @@ df.ADP <- cbind(area,perim,depth, region1)
 colnames(df.ADP) <- c("Area", "Perimeter", "Depth", "Region")
 
 ```
-  
-Below is a frequency table for the number of lakes in each region.  
-```{r regfreq, fig.cap = "Table of Regional Frequencies", fig.pos = "center", echo = FALSE}
+ 
+We then examined the means and medians of the Lake Dimension variables for the Regions. We produced means and medians for each of the variables into a table and also produced braplot. The table, mean barplot, and median barplot for depth are shown in figure \ref{fig:MeanDepth}. 
+<br />
+ View of the Mean and Median for Lake Depth
 
-tab <- table(region1)
-tab <- tab[-1]
-knitr::kable(tab, caption = "Frequency table of number of lakes in each Region", colnames = c('Region', 'Frequency'), "simple")
+<br />
+
+```{r MeanDepth, fig.cap= "Barplot of regional mean lake Depth", echo = FALSE}
+
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_depth), list(mean = mean))
+
+
+
+LakeTable<- data.frame(LakeTable)
+
+ggplot(data=LakeTable, aes(x=region, y=mean)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Mean Lake Depth in metres", title = 
+         "Mean Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_tufte()
+
 
 ```
 
+  
+**Values of NA have been removed.
+<br />
+<br />
+  
+```{r MedianDepth, fig.cap= "Barplot of regional median lake depths", echo = FALSE}
+
+LakeTable <-filter(lake, !region == "") %>%
+  group_by(region) %>%
+  summarise_at(vars(lake_depth), c(list(mean = mean), list(median = median)))
+
+LakeTable
+
+#which.max(Lake$lake_perimeter)
+
+LakeDf<- data.frame(LakeTable)
+
+ggplot(data=LakeDf, aes(x=region, y=median)) +
+  geom_bar(color = "lightblue", fill = "lightblue", alpha = 2, stat="identity")+
+  labs(y = "Median Lake Depth in metres", title = 
+         "Median Lake Depth of Region in metres")+
+  coord_flip()+
+  theme_tufte()
+
+
+```
+  
+**Values of NA have been removed.
+<br />
+<br />
+
+*Depth:*
+*What we can tell from the bargraphs that there is not much difference in distribution between the regions in Lake Depth, however, the mean for each region is approximately 5 meters deeper than the median. This suggests that across most regions there are some much deeper lakes. There are some exceptions to this such as Gibsborne.*
 
 We then checked the relationship between the Lake Health variables and the Lake Dimension variables.  
   
