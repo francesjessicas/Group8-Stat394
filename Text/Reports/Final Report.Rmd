@@ -878,7 +878,7 @@ We first scaled the Lake Health Variables. We then randomly created training and
 
 
 
-```{r, echo = FALSE}
+```{r,   echo = FALSE}
 lake3 <- select(lake, dominant_landcover, median_NH4N_mg.L..1, median_CHLA_mg.m.3, median_TP_mg.m.3, median_TN_mg.m.3, median_SECCHI_metre)
 lake4 <- filter(lake3, dominant_landcover == "Pastoral" | dominant_landcover == "Native")
 
@@ -901,10 +901,10 @@ From the Prior Probabilities we see that Pastoral Landcover and Native Landcover
 
 Examining the proportion of traces we see that the LD1 accounts for approximately 91 percent of the separation. LD2 and LD3 account for approximately 4.8 and 3.5 percent of the separation respectively. The remainder is explained by LD4.
 
-We produced a partition plot to examine the separation.  
+We produced a partition plot to examine the separation which can be seen here \ref{fig:partition1}  
   
   
-```{r, echo = FALSE}
+```{r partition1, fig.cap ="Partition of the all of the Dominant Landcover variables", echo = FALSE}
 lake3$dominant_landcover<- as.factor(lake3$dominant_landcover)
 partimat(dominant_landcover ~ ., data=lake3, method="lda")
 
@@ -948,9 +948,9 @@ lake5 <- sample(lake4, size = 100, replace = TRUE )
 
 ```
   
-  In the second LDA both groups had prior probabilities of 0.5 (this is because the train happened to split them with an equal number of observations of 1242 each.  
+  In the second LDA both groups had prior probabilities of 0.5 (this is because the train happened to split them with an equal number of observations of 1242 each. The partition can be seen here \ref{fig:partition2}  
 
-```{r, echo = FALSE}
+```{r partition2, fig.cap ="Partition of the Native and Pastoral Dominant Landcover variables", echo = FALSE}
 lake4$dominant_landcover<- as.factor(lake4$dominant_landcover)
 partimat(dominant_landcover ~ ., data=lake4, method="lda")
 
